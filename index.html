@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&family=Comfortaa:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:auto;}
+html{scroll-behavior:smooth;}
 :root{
   --bg:#fdfcfa;
   --ink:#1e1e1a;
@@ -93,11 +93,10 @@ nav{
 
 .hero-content{
   position:relative;z-index:2;
-  padding:0 var(--g) 30px;
+  padding:80px var(--g) 80px;
   display:flex;
   flex-direction:column;
   gap:20px;
-  padding-top:100px;
   align-items:center;
   text-align:center;
 }
@@ -258,8 +257,10 @@ nav{
 
 /* ── BELIEF ── */
 .belief{
-  padding:30px var(--g) 140px;
-  display:flex;flex-direction:column;align-items:center;gap:1.2em;
+  min-height:100vh;
+  padding:80px var(--g);
+  margin-top:-22vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2em;
   position:relative;z-index:10;
 }
 .belief-label{font-size:10px;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);}
@@ -299,6 +300,12 @@ footer{padding:80px var(--g) 0;margin-top:80px;}
 #hero-hl.revealed .hl-line:nth-child(2) .hl-inner{transition-delay:0.13s;}
 #hero-hl.revealed .hl-line:nth-child(3) .hl-inner{transition-delay:0.26s;}
 
+#circle-hl.revealed .hl-inner{transform:translateY(0);}
+#circle-hl.revealed .hl-line:nth-child(2) .hl-inner{transition-delay:0.16s;}
+#circle-hl.revealed .hl-line:nth-child(3) .hl-inner{transition-delay:0.32s;}
+#circle-hl{line-height:1.15;}
+#circle-hl .hl-line{padding-bottom:0.08em;margin-bottom:-0.08em;}
+
 /* Nav entrance */
 nav{transform:translateY(-100%);opacity:0;transition:transform 0.9s cubic-bezier(0.16,1,0.3,1),opacity 0.7s ease;}
 nav.nav-in{transform:translateY(0);opacity:1;}
@@ -322,26 +329,35 @@ footer.in{opacity:1;transform:translateY(0);}
   .n-logo{padding:0 18px;}
   .n-cta{padding:0 18px;}
 
-  /* hero */
-  .hero-content{padding-top:80px;}
+  /* hero — full viewport, headline centered */
+  .hero{min-height:100vh;justify-content:center;}
+  .hero-content{padding:80px var(--g) 60px;margin-top:0;}
 
   /* belief */
-  .belief{padding:40px var(--g) 60px;}
-  .belief-q{font-size:clamp(20px,3.5vw,32px);}
+  .belief{min-height:100vh;padding:80px var(--g);margin-top:0;justify-content:center;}
+  .belief-q{font-size:clamp(20px,3.5vw,32px);max-width:560px;text-align:left;}
 
-  /* grid: 2-col layout */
+  /* circle: unstick, full-width, centered canvas */
+  .scroll-scene{display:flex;flex-direction:column;}
+  .circle-section{
+    position:relative;top:auto;
+    height:auto;min-height:420px;
+    order:-1;
+    padding:48px 0;
+  }
+  .circle-section .pg-featured{padding:40px var(--g);}
+  .proj-grid-frame{min-height:auto;margin-top:0;}
+
+  /* grid: 2-col, no empty middle column */
   .proj-grid{
     grid-template-columns:1fr 1fr;
-    margin:60px var(--g) 0;
+    margin:0 var(--g);
   }
+  /* hide the empty center pg-col */
+  .pg-col:empty{display:none;}
   /* single vertical divider at 50% */
   .proj-grid::before{left:50%;top:32px;bottom:32px;}
   .proj-grid::after{display:none;}
-  /* featured spans both cols, sits below left col with top border */
-  .pg-featured-col{
-    grid-column:span 2;
-    border-top:1px solid var(--ink);
-  }
   /* horizontal cell dividers inset to match tablet padding */
   .pg-cell:not(:last-child)::after{left:32px;right:32px;}
   .pg-cell{padding:48px 32px;min-height:260px;}
@@ -351,6 +367,7 @@ footer.in{opacity:1;transform:translateY(0);}
   .wordmark{font-size:clamp(56px,12vw,120px);}
   .wordmark-row{flex-direction:column;align-items:flex-start;gap:12px;}
   .foot-copy{padding-bottom:0;}
+  footer{margin-top:64px;}
 }
 
 /* ── MOBILE (≤600px) ── */
@@ -361,31 +378,37 @@ footer.in{opacity:1;transform:translateY(0);}
   .n-link{display:none;}
   .n-logo{border-right:none;}
 
-  /* hero */
-  .hero-content{padding-top:72px;}
+  /* hero — full viewport, headline centered */
+  .hero{min-height:100vh;justify-content:center;}
+  .hero-content{padding:72px var(--g) 48px;margin-top:0;}
+
+  /* belief */
+  .belief{min-height:100vh;padding:60px var(--g);margin-top:0;justify-content:center;}
+  .belief-q{font-size:clamp(18px,5vw,26px);text-align:left;max-width:100%;}
+
+  /* circle */
+  .circle-section{min-height:auto;padding:40px 0;}
+  .circle-section .pg-featured{padding:32px var(--g);}
 
   /* grid: single column stack */
   .proj-grid{
     grid-template-columns:1fr;
-    margin:48px 0 0;
+    margin:0 var(--g);
   }
   /* no vertical dividers */
   .proj-grid::before,.proj-grid::after{display:none;}
   .pg-featured-col{grid-column:span 1;border-top:1px solid var(--ink);}
   .pg-cell{padding:36px var(--g);min-height:auto;}
   .pg-featured{padding:36px var(--g);}
-  /* horizontal dividers span full column width (inset to page gutters) */
+  /* horizontal dividers span full column width */
   .pg-cell:not(:last-child)::after{left:var(--g);right:var(--g);}
   .pg-name-lg{font-size:clamp(36px,10vw,56px);}
-
-  /* belief */
-  .belief{padding:32px var(--g) 48px;}
-  .belief-q{font-size:clamp(18px,5vw,26px);text-align:left;max-width:100%;}
 
   /* footer */
   .wordmark{font-size:clamp(40px,14vw,80px);}
   .foot-top{grid-template-columns:1fr;gap:28px;}
   .foot-right{align-items:flex-start;}
+  footer{margin-top:48px;}
 }
 /* ── INTRO ── */
 #intro{
@@ -458,8 +481,8 @@ footer.in{opacity:1;transform:translateY(0);}
   <a class="n-logo" href="#">
     Ouro Labs
   </a>
-  <a class="n-link" href="#">Projects</a>
-  <a class="n-link" href="#">Practice</a>
+  <a class="n-link" href="#practice">Practice</a>
+  <a class="n-link" href="#proj-grid-wrap">Projects</a>
   <a class="n-cta" href="#">Contact</a>
 </nav>
 
@@ -479,7 +502,7 @@ footer.in{opacity:1;transform:translateY(0);}
 </div>
 
 <!-- BELIEF -->
-<div class="belief">
+<div class="belief" id="practice">
   <p class="belief-q">We're product designers shaping a new practice the only way we know how — by touching the tools, testing the edges, and making things that didn't exist before.</p>
   <p class="belief-q">We work through systems, tools, code, and experimentation to shape not just products, but the process that <em>creates them.</em></p>
 </div>
@@ -487,10 +510,10 @@ footer.in{opacity:1;transform:translateY(0);}
 <!-- SCROLL SCENE: circle pins while grid scrolls over it -->
 <div class="scroll-scene">
 <!-- CIRCLE SECTION -->
-<div class="circle-section">
+<div class="circle-section" id="projects">
   <canvas id="blob-canvas" style="position:absolute;pointer-events:none;z-index:0;"></canvas>
   <div class="pg-featured pg-editorial" id="blob-cell">
-    <p class="pg-editorial-text">Experimenting<br>at the edge of<br><em><span style="white-space:nowrap">what's possible.</span></em></p>
+    <p class="pg-editorial-text" id="circle-hl" style="visibility:hidden"><span class="hl-line"><span class="hl-inner">Experimenting</span></span><span class="hl-line"><span class="hl-inner">at the edge of</span></span><span class="hl-line"><span class="hl-inner"><em>what's possible.</em></span></span></p>
   </div>
 </div>
 
@@ -563,26 +586,27 @@ footer.in{opacity:1;transform:translateY(0);}
   var R  = Math.min(W, H) * 0.24;
   var maxR = Math.sqrt(cx*cx + cy*cy) + 2;
 
-  canvas.width  = W * dpr; canvas.height = H * dpr;
-  canvas.style.width  = W + 'px';
-  canvas.style.height = H + 'px';
-  ctx.scale(dpr, dpr);
-
   [maskRect, bgRect].forEach(function(el){
     el.setAttribute('width', W); el.setAttribute('height', H);
   });
   hole.setAttribute('cx', cx); hole.setAttribute('cy', cy); hole.setAttribute('r', 0);
 
-  var COLS=180, ROWS=120;
-  var DAMP_=0.82, FORCE_=0.014, MRAD=170, MFORCE=75;
+  var DAMP_=0.82, FORCE_=0.014, MFORCE=75;
   var grains=[];
   var mouse={x:-9999,y:-9999,px:-9999,py:-9999,spd:0};
+  var MRAD=170;
 
   function buildGrid(){
     W=window.innerWidth; H=window.innerHeight;
     cx=W/2; cy=H/2;
     R=Math.min(W,H)*0.24;
     maxR=Math.sqrt(cx*cx+cy*cy)+2;
+    // fixed pixel spacing keeps density consistent across all viewport sizes
+    var SPACING_PX = 8;
+    var COLS = Math.round(W / SPACING_PX) + 1;
+    var ROWS = Math.round(H / SPACING_PX) + 1;
+    // scale mouse radius proportionally so it doesn't overwhelm small viewports
+    MRAD = Math.min(170, R * 1.6);
     canvas.width=W*dpr; canvas.height=H*dpr;
     canvas.style.width=W+'px'; canvas.style.height=H+'px';
     ctx.setTransform(1,0,0,1,0,0);
@@ -950,8 +974,8 @@ footer.in{opacity:1;transform:translateY(0);}
     // canvas starts PAD px to the left/above wrap, so offset by PAD
     cx = cr.left - wr.left + cr.width/2  + PAD;
     cy = cr.top  - wr.top  + cr.height/2 + PAD;
-    baseR  = 400;
-    innerR = 240;
+    baseR  = Math.min(345, wrap.offsetWidth * 0.42);
+    innerR = baseR * 0.6;
     // concentric rings
     particles = [];
     var numRings = Math.round((baseR - innerR) / SPACING);
@@ -1113,11 +1137,26 @@ footer.in{opacity:1;transform:translateY(0);}
     }, {threshold:0.1});
     fobs.observe(footer);
   }
+
+  // circle headline reveal
+  var circleHl = document.getElementById('circle-hl');
+  if(circleHl){
+    var cobs = new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting){
+        circleHl.style.visibility = 'visible';
+        requestAnimationFrame(function(){ circleHl.classList.add('revealed'); });
+        cobs.disconnect();
+      }
+    }, {threshold:0.3});
+    cobs.observe(circleHl);
+  }
 })();
+
 
 // ── Parallax ──────────────────────────────────────────────
 (function(){
-  if(window.innerWidth <= 600) return;
+  var BREAK = 900;
+  if(window.innerWidth <= BREAK) return;
 
   var heroContent = document.querySelector('.hero-content');
   var belief      = document.querySelector('.belief');
@@ -1125,18 +1164,35 @@ footer.in{opacity:1;transform:translateY(0);}
 
   var layers = [];
   if(heroContent) layers.push({el:heroContent, speed:0.22, abs:true});
-  if(belief)      layers.push({el:belief,      speed:0.18, abs:false});
+  if(belief)      layers.push({el:belief,      speed:0.32, abs:false});
+
+  // Store each layer's natural (un-transformed) page Y so abs:false calculations
+  // don't create a feedback loop by reading their own transformed position.
+  function measureNaturalPositions(){
+    layers.forEach(function(l){
+      l.el.style.transform = '';
+      var r = l.el.getBoundingClientRect();
+      l.naturalTop = r.top + window.scrollY;
+      l.naturalH   = r.height;
+    });
+  }
+  measureNaturalPositions();
 
   var ticking = false;
   function update(){
+    if(window.innerWidth <= BREAK){
+      layers.forEach(function(l){ l.el.style.transform=''; });
+      return;
+    }
     var scrollY = window.scrollY;
     var vH = window.innerHeight;
     layers.forEach(function(l){
       if(l.abs){
         l.el.style.transform = 'translateY(-' + (scrollY * l.speed).toFixed(2) + 'px)';
       } else {
-        var rect = l.el.getBoundingClientRect();
-        var mid  = rect.top + rect.height / 2 - vH / 2;
+        // Use stable natural position — no feedback loop
+        var elTop = l.naturalTop - scrollY;
+        var mid   = elTop + l.naturalH / 2 - vH / 2;
         l.el.style.transform = 'translateY(' + (mid * l.speed).toFixed(2) + 'px)';
       }
     });
@@ -1151,10 +1207,40 @@ footer.in{opacity:1;transform:translateY(0);}
 
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', function(){
-    if(window.innerWidth <= 600) layers.forEach(function(l){ l.el.style.transform=''; });
-    else update();
+    if(window.innerWidth <= BREAK){ layers.forEach(function(l){ l.el.style.transform=''; }); return; }
+    measureNaturalPositions();
+    update();
   });
   update();
+})();
+
+// ── Nav anchor scroll (always re-scrolls even if hash unchanged) ──────────
+(function(){
+  document.querySelectorAll('.n-link[href^="#"]').forEach(function(link){
+    link.addEventListener('click', function(e){
+      var hash   = this.getAttribute('href');
+      var target = document.querySelector(hash);
+      if(!target) return;
+      e.preventDefault();
+
+      // Temporarily clear any parallax transform to read the true layout position.
+      // scrollIntoView uses the VISUAL position (including transforms) which causes
+      // the parallax to misalign after scroll. Using window.scrollTo with the natural
+      // layout Y avoids this entirely.
+      var savedTransform = target.style.transform;
+      target.style.transform = '';
+      var naturalScrollY = Math.round(target.getBoundingClientRect().top + window.scrollY);
+      target.style.transform = savedTransform;
+
+      // For sections shorter than the viewport, offset scroll so the section is centered.
+      var sectionH = target.offsetHeight;
+      var vH       = window.innerHeight;
+      var centerOffset = sectionH < vH ? Math.round((vH - sectionH) / 2) : 0;
+      var targetScrollY = Math.max(0, naturalScrollY - centerOffset);
+
+      window.scrollTo({top: targetScrollY, behavior:'smooth'});
+    });
+  });
 })();
 
 </script>
