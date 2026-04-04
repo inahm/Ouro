@@ -124,98 +124,55 @@ nav{
   z-index:2;
 }
 
-/* ── PROJECT GRID ── */
+/* ── HORIZONTAL SCROLL GRID ── */
 .scroll-scene{position:relative;}
-.proj-grid-frame{
-  min-height:100vh;
+.hscroll-frame{position:relative;z-index:2;}
+.hscroll-track{
   display:flex;
-  align-items:center;
-  position:relative;z-index:2;
-  width:100%;
-}
-.proj-grid{
-  display:grid;grid-template-columns:1fr 1fr 1fr;
-  column-gap:24px;
-  margin:0 var(--g);
-  position:relative;
-  width:100%;
   align-items:stretch;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  padding-left:var(--g);
+  height:540px;
+  border-top:1px solid var(--ink);
+  border-bottom:1px solid var(--ink);
 }
-/* vertical dividers removed */
-.proj-grid::before,.proj-grid::after{display:none;}
-.pg-col{
-  display:flex;flex-direction:column;
-  background:transparent;
+.hscroll-track::-webkit-scrollbar{display:none;}
+.hcard{
+  flex:0 0 320px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:40px 28px;
+  scroll-snap-align:start;
+  border-right:1px solid var(--ink);
   position:relative;
 }
-.pg-col-center{align-self:stretch;}
-.pg-featured-col{display:none;}
-.pg-cell{
-  flex:1;
-  padding:64px 24px;
-  display:flex;flex-direction:column;
-  justify-content:space-between;
-  position:relative;
-  min-height:300px;
-  background:transparent;
-}
-.pg-cell::after{
-  content:'';
-  position:absolute;
-  bottom:0;left:0;right:0;
-  height:1px;
+.hcard--featured{
+  flex:0 0 420px;
   background:var(--ink);
-}
-.pg-cell--featured{
-  flex:1;
-  display:flex;flex-direction:column;
-  align-items:stretch;
-  gap:0;
-  background:var(--ink);
-  border-radius:12px;
-  margin:32px 0;
   padding:0;
-  overflow:hidden;
+  justify-content:flex-start;
+  border-right:1px solid rgba(255,255,255,0.12);
 }
-.pg-cell--featured::after{display:none;}
-/* desktop: hide line after the last cell in each column — dividers only between cells */
-.pg-col .pg-cell:last-child::after{display:none;}
-.pg-feat-img{
+.hcard--featured .pg-flag{color:rgba(255,255,255,0.45);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;}
+.hcard--featured .pg-name{color:#fff;margin:0;}
+.hcard--featured .pg-desc{color:rgba(255,255,255,0.65);}
+.hcard--featured .pg-btn{color:#fff;border-color:rgba(255,255,255,0.3);}
+.hcard-img{
   flex:1;
-  display:flex;align-items:stretch;
-  min-height:280px;
-  margin:0;padding:0;
+  background:rgba(255,255,255,0.06);
+  position:relative;overflow:hidden;
+  min-height:180px;
 }
-.pg-feat-img-inner{
-  flex:1;
-  width:100%;
-  border-radius:0;
-  background:rgba(255,255,255,0.07);
-  border:none;
-  position:relative;
-  overflow:hidden;
-}
-.pg-cell--featured-copy{
-  flex:1;
-  display:flex;flex-direction:column;
-  justify-content:flex-end;
-  gap:1em;
-  padding:40px 40px;
-}
-.pg-feat-img-inner::after{
+.hcard-img::after{
   content:'App screenshot';
-  position:absolute;
-  bottom:12px;left:0;right:0;
-  text-align:center;
-  font-size:10px;
-  letter-spacing:0.12em;
-  text-transform:uppercase;
-  color:rgba(255,255,255,0.25);
+  position:absolute;bottom:12px;left:0;right:0;
+  text-align:center;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(255,255,255,0.2);
 }
-.pg-cell--featured .pg-flag{color:rgba(255,255,255,0.45);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;}
-.pg-cell--featured .pg-name{color:#fff;}
-.pg-cell--featured .pg-desc{color:rgba(255,255,255,0.65);}
-.pg-cell--featured .pg-btn{color:#fff;border-color:rgba(255,255,255,0.3);}
+.hcard-copy{padding:28px 28px;display:flex;flex-direction:column;gap:10px;}
+.hscroll-end-pad{flex:0 0 var(--g);}
 .pg-featured{
   flex:1;padding:80px 24px;
   display:flex;flex-direction:column;justify-content:center;
@@ -315,11 +272,9 @@ footer{padding:80px var(--g) 0;margin-top:80px;padding-bottom:0;overflow:hidden;
 nav{transform:translateY(-100%);opacity:0;transition:transform 0.9s cubic-bezier(0.16,1,0.3,1),opacity 0.7s ease;}
 nav.nav-in{transform:translateY(0);opacity:1;}
 
-/* Grid cell entrance — center featured block is excluded (no transform) */
-.pg-cell{opacity:0;transform:translateY(56px);transition:opacity 1s cubic-bezier(0.16,1,0.3,1),transform 1s cubic-bezier(0.16,1,0.3,1);}
-.pg-cell.in{opacity:1;transform:translateY(0);}
-.pg-featured{opacity:0;transition:opacity 1s ease;}
-.pg-featured.in{opacity:1;}
+/* Horizontal card entrance */
+.hcard{opacity:0;transform:translateX(28px);transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1);}
+.hcard.in{opacity:1;transform:translateX(0);}
 
 /* Footer entrance */
 footer{opacity:0;transform:translateY(40px);transition:opacity 0.9s ease,transform 0.9s cubic-bezier(0.16,1,0.3,1);}
@@ -352,40 +307,9 @@ footer.in{opacity:1;transform:translateY(0);}
     padding:48px 0;
   }
   .circle-section .pg-featured{padding:40px var(--g);}
-  .proj-grid-frame{min-height:auto;margin-top:0;}
-
-  /* grid: featured Nota full-width on top, then 2-col below */
-  .proj-grid{
-    grid-template-columns:1fr 1fr;
-    grid-template-rows:auto auto;
-    margin:0 var(--g);
-    align-items:start;
-  }
-  /* Nota featured card spans full width */
-  .pg-col-center{
-    grid-column:1 / -1;
-    order:-1;
-  }
-  /* left/right cols sit 2-across below */
-  .proj-grid::before{left:50%;top:32px;bottom:32px;}
-  .proj-grid::after{display:none;}
-  .pg-cell::after{left:32px;right:32px;}
-  .pg-cell{padding:48px 32px;min-height:260px;}
-  /* featured card overrides — must come after .pg-cell to win */
-  .pg-cell--featured{border-bottom:1px solid rgba(255,255,255,0.15);}
-  .pg-cell--featured{
-    margin:0;
-    padding:0;
-    border-radius:8px;
-    min-height:280px;
-    flex-direction:row;
-    align-items:stretch;
-    gap:0;
-  }
-  .pg-feat-img{flex:0 0 42%;min-height:auto;margin:0;padding:0;}
-  .pg-feat-img-inner{border-right:1px solid rgba(255,255,255,0.08);}
-  .pg-cell--featured-copy{padding:32px 32px;display:flex;flex-direction:column;justify-content:flex-end;}
-  .pg-featured{padding:48px 32px;}
+  .hscroll-track{height:460px;}
+  .hcard{flex-basis:280px;}
+  .hcard--featured{flex-basis:360px;}
 
   /* footer */
   footer{margin-top:64px;}
@@ -412,32 +336,11 @@ footer.in{opacity:1;transform:translateY(0);}
   .circle-section{position:relative;top:auto;height:auto;min-height:auto;padding:40px 0;}
   .circle-section .pg-featured{padding:32px var(--g);}
 
-  /* grid: single column stack */
-  .proj-grid{
-    grid-template-columns:1fr;
-    margin:0 var(--g);
-  }
-  /* no vertical dividers */
-  .proj-grid::before,.proj-grid::after{display:none;}
-  .pg-featured-col{grid-column:span 1;border-top:1px solid var(--ink);}
-  .pg-cell{padding:36px 0;min-height:auto;}
-  .pg-featured{padding:36px 0;}
-  /* horizontal dividers span full column width */
-  .pg-cell::after{left:var(--g);right:var(--g);}
-  /* mobile stack order: featured Nota first, then left col (minus dupe), then right col */
-  .pg-col-center{order:-1;}
-  /* column ::before not needed — pg-cell::after handles all dividers */
-  .pg-col::before{display:none;}
-  /* stacked: re-enable line after last cell in each column (it separates columns) */
-  .pg-col .pg-cell:last-child::after{display:block;}
-  /* but not after the very last item in the whole list */
-  .pg-col:last-child .pg-cell:last-child::after{display:none;}
-  /* featured card overrides — must come after .pg-cell to win */
-  .pg-cell--featured{margin:0;padding:0;border-radius:8px;flex-direction:column;align-items:stretch;gap:0;}
-  .pg-feat-img{flex:0 0 auto;min-height:260px;margin:0;padding:0;}
-  .pg-feat-img-inner{border-right:none;border-bottom:none;}
-  .pg-cell--featured-copy{padding:28px 24px;}
-  .pg-name-lg{font-size:clamp(36px,10vw,56px);}
+  /* horizontal scroll: narrower cards on mobile */
+  .hscroll-track{height:420px;}
+  .hcard{flex-basis:260px;padding:32px 20px;}
+  .hcard--featured{flex-basis:300px;}
+  .hcard-copy{padding:20px 20px;}
 
   /* footer */
   footer{margin-top:48px;}
@@ -558,52 +461,45 @@ footer.in{opacity:1;transform:translateY(0);}
   <p class="belief-q">We work through systems, tools, code, and experimentation to shape not just products, but the process that <em>creates them.</em></p>
 </div>
 
-<!-- PROJECT GRID -->
-<div class="proj-grid-frame">
-<div class="proj-grid" id="proj-grid-wrap">
-
-  <!-- Left column -->
-  <div class="pg-col">
-    <div class="pg-cell">
-      <div class="pg-name">Latency Atlas</div>
-      <div class="pg-desc">A map of where AI latency actually matters in real user flows.</div>
-    </div>
-    <div class="pg-cell">
-      <div class="pg-name">Project Name</div>
-      <div class="pg-desc">Short description of what this project is and what it does.</div>
-    </div>
-  </div>
-
-  <!-- Center column — featured -->
-  <div class="pg-col pg-col-center">
-    <div class="pg-cell pg-cell--featured">
-      <div class="pg-feat-img">
-        <div class="pg-feat-img-inner"></div>
-      </div>
-      <div class="pg-cell--featured-copy">
-        <div class="pg-flag">Flagship</div>
-        <div class="pg-name">Nota</div>
-        <div class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</div>
-        <a class="pg-btn" href="#">Request early access →</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Right column -->
-  <div class="pg-col pg-col-last">
-    <div class="pg-cell">
-      <div class="pg-name">Scaffold Runner</div>
-      <div class="pg-desc">Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.</div>
-    </div>
-    <div class="pg-cell">
-      <div class="pg-name">Block Protocol</div>
-      <div class="pg-desc">A component grammar that helps AI tools and designers work in the same layout language.</div>
-    </div>
-  </div>
-
-</div>
-</div><!-- end .proj-grid-frame -->
 </div><!-- end .scroll-scene -->
+
+<!-- PROJECT HORIZONTAL SCROLL -->
+<div class="hscroll-frame" id="proj-grid-wrap">
+<div class="hscroll-track">
+
+  <div class="hcard hcard--featured">
+    <div class="hcard-img"></div>
+    <div class="hcard-copy">
+      <div class="pg-flag">Flagship</div>
+      <div class="pg-name">Nota</div>
+      <div class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</div>
+      <a class="pg-btn" href="#">Request early access →</a>
+    </div>
+  </div>
+
+  <div class="hcard">
+    <div class="pg-name">Latency Atlas</div>
+    <div class="pg-desc">A map of where AI latency actually matters in real user flows.</div>
+  </div>
+
+  <div class="hcard">
+    <div class="pg-name">Scaffold Runner</div>
+    <div class="pg-desc">Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.</div>
+  </div>
+
+  <div class="hcard">
+    <div class="pg-name">Block Protocol</div>
+    <div class="pg-desc">A component grammar that helps AI tools and designers work in the same layout language.</div>
+  </div>
+
+  <div class="hcard">
+    <div class="pg-name">Project Name</div>
+    <div class="pg-desc">Short description of what this project is and what it does.</div>
+  </div>
+
+  <div class="hscroll-end-pad"></div>
+</div>
+</div>
 
 <!-- FOOTER -->
 <footer>
@@ -964,40 +860,6 @@ footer.in{opacity:1;transform:translateY(0);}
 })();
 </script>
 <script>
-(function(){
-  var grid     = document.querySelector('.proj-grid');
-  var cols     = document.querySelectorAll('.pg-col');
-  var leftCol  = cols[0];
-  var rightCol = cols[2];
-  if(!grid || !leftCol || !rightCol) return;
-
-  var centerCol = cols[1];
-  var RANGE = 72;
-  var ticking = false;
-
-  function onScroll(){
-    if(ticking) return;
-    ticking = true;
-    requestAnimationFrame(function(){
-      var rect   = grid.getBoundingClientRect();
-      var vh     = window.innerHeight;
-      var mid    = rect.top + rect.height / 2;
-      var offset = (vh / 2 - mid) / vh; // -0.5 → 0.5
-
-      // only left and right get parallax, center stays fixed
-      centerCol.style.transform = 'none';
-      centerCol.style.zIndex    = '2';
-      leftCol.style.transform   = 'none';
-      leftCol.style.zIndex      = '1';
-      rightCol.style.transform  = 'none';
-      rightCol.style.zIndex     = '1';
-      ticking = false;
-    });
-  }
-
-  window.addEventListener('scroll', onScroll, {passive:true});
-  onScroll();
-})();
 
 // ── Circle burst ──────────────────────────────────────────
 (function(){
@@ -1173,17 +1035,17 @@ footer.in{opacity:1;transform:translateY(0);}
 
 // ── Scroll-triggered entrances ────────────────────────────
 (function(){
-  // stagger grid cells left→right, top→bottom
-  var cells = document.querySelectorAll('.pg-cell, .pg-featured');
-  cells.forEach(function(el, i){ el.style.transitionDelay = (i * 0.08) + 's'; });
+  // stagger horizontal cards left→right
+  var cards = document.querySelectorAll('.hcard');
+  cards.forEach(function(el, i){ el.style.transitionDelay = (i * 0.07) + 's'; });
 
   var obs = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); }
     });
-  }, {threshold:0.12});
+  }, {threshold:0.08});
 
-  cells.forEach(function(el){ obs.observe(el); });
+  cards.forEach(function(el){ obs.observe(el); });
 
   // footer
   var footer = document.querySelector('footer');
