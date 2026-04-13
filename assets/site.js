@@ -566,14 +566,6 @@ function staggerCharsInSync(groups){
     return Math.min(1, Math.max(0, -r.top / scrollRange));
   }
 
-  // Document Y past bottom of circle sticky dwell (+ padding) — matches hero/orange scroll math.
-  function circleDwellEndScrollY(){
-    var r = stickyOuter.getBoundingClientRect();
-    var cdt = r.top + window.scrollY;
-    var dw = Math.max(stickyOuter.offsetHeight || 0, window.innerHeight);
-    return cdt + dw + 48;
-  }
-
   function setup(){
     dpr = Math.min(devicePixelRatio||1, 2);
     W = wrap.offsetWidth  + PAD*2;
@@ -603,15 +595,10 @@ function staggerCharsInSync(groups){
 
   var entryBurst = false, lastPulse = 0;
 
-  // ── Bidirectional animation state ────────────────────────
-  // animProgress: 0 = white+dots, 1 = fully orange
-  // animDir:      1 = playing forward, -1 = reversing, 0 = idle
+  // Scroll-scrubbed 0→1 inside .circle-sticky-wrap (see getScrollProgress).
   var animProgress = 0;
-  var animDir      = 0;
-  var animPrevTs   = null;
   var ringProgress = 0;
-  var REV_DUR      = 760;   // ms — orange fill / reverse (slightly longer = softer)
-  var RING_DUR     = 1280;  // ms — ring expand / collapse
+  var animPrevTs   = null;
   var twistPhase   = 0;     // advances each frame to animate ribbon twist
 
   var circleTextPhase = 0;    // 0 = dots text, 1 = transition text
@@ -705,72 +692,6 @@ function staggerCharsInSync(groups){
     setTimeout(commitPhaseDOM, exits.length > 0 ? 300 : 0);
   }
 
-  // Debounce windows so rapid wheel/touch back-and-forth doesn’t re-arm competing handlers.
-  var GRACE_UNLOCK_MS   = 220;
-  var GRACE_RPOST_MS    = 480;
-  var GRACE_FWD_DONE_MS = 450;
-  var GRACE_REV_DONE_MS = 320;
-
-  // Exposed for hero reverse and for scroll re-arm: full white-ring + PHASE1 baseline.
-  window.__circleReset = function(){
-    scrollPhase          = 'before';
-    animProgress         = 0;
-    animDir              = 0;
-    animPrevTs           = null;
-    ringProgress         = 0;
-    lastAnimPForCycle    = 0;
-    hasScrolledBelowSection = false;
-    lockGraceUntil       = performance.now() + GRACE_FWD_DONE_MS;
-    circleTextPhase      = 1; // force swapCircleText(0) — phase must differ from target
-    swapCircleText(0, {instant: true});
-    if(typeof window.__armCircleHlObserver === 'function') window.__armCircleHlObserver();
-    cycleIdx             = CYCLE_START_IDX;
-    cycleFade            = 0;
-    cycleStart           = performance.now();
-    cycleTransDur        = CYCLE_TRANS;
-    cyclePrevTs          = null;
-    document.documentElement.style.overflow = '';
-  };
-
-  // ── Scroll phase ─────────────────────────────────────────
-  // 'before'  : section not yet pinned
-  // 'locked'  : pinned at 0, wheel blocked, showing white+dots
-  // 'live'    : animation in motion (either direction), wheel blocked
-  // 'done'    : fully forward, scroll unlocked
-  var scrollPhase = 'before';
-
-  // ── Single scroll handler — states ──────────────────────
-  //
-  //  before     natural scroll ↓ → lock when section pins   (wrapTop crosses 0 going ↓)
-  //  locked     paused at center ↓ → ↓ fires fwd anim       ↑ lets page scroll freely
-  //  live       animation playing  → block scroll, animDir follows wheel dir
-  //  done       fwd complete, scroll free; ↑ re-locks when section unpins from below
-  //  revlocked  paused at center ↑ → ↑ fires rev anim       ↓ returns to done
-  //  rpost      rev complete, paused at white+dots; ↑ exits  ↓ re-fires fwd
-
-  var touchStartY = 0;
-  var lockGraceUntil = 0;
-  var lockEnteredAt = 0;
-  var LOCK_MIN_MS = 350;
-  var LOCK_MIN_DELTA = 8;
-  var REVLOCK_INTENT_MIN_WHEEL = 22;
-  var REVLOCK_INTENT_MIN_TOUCH = 20;
-  var REVLOCK_INTENT_MIN_SCROLL = 26;
-  var REVLOCK_INTENT_DECAY_MS = 240;
-  var revlockUpIntentPx = 0;
-  var revlockUpIntentTs = 0;
-  var lockedScrollY = 0;
-  // revlocked only fires when user has actually scrolled into the section from below (post-cards)
-  // prevents immediate re-lock right after animation completes
-  var hasScrolledBelowSection = false;
-
-  // Catches trackpad/scrollbar/touch momentum that skips the wheel handler so we still latch the red section.
-  var scrollSnapLastY = window.scrollY;
-  var scrollSnapLastYRev = window.scrollY;
-  var scrollSnapCircleRaf = null;
-
-  // Re-triggers the fall-in animation for circle text that was set up off-screen.
-  // Called whenever the section locks, so the animation plays each time it enters view.
   function triggerCircleTextReveal(){
     var el = document.getElementById('circle-hl');
     if(!el) return;
@@ -782,392 +703,25 @@ function staggerCharsInSync(groups){
     applyCircleHlFallInAnimation(el);
   }
 
-  // If the blob is still forward/orange, re-baseline before lock so PHASE1 + white ring replay.
-  function ensureCircleWhiteBaselineBeforeLock(){
-    if(animProgress <= 0.001 && circleTextPhase === 0) return false;
-    if(typeof window.__circleReset === 'function') window.__circleReset();
-    return true;
-  }
+  // Circle reveal follows real scroll through .circle-sticky-wrap runway — no document scroll-lock.
+  window.__triggerCircleTextReveal = triggerCircleTextReveal;
 
-  // Scrolling up from cards: pin overlaps the bottom ~25% of the viewport but is not yet stuck (r.top>0).
-  function circlePullUpRevLockEligible(r){
-    var h = window.innerHeight;
-    return r.bottom > h * 0.86 && r.top < h * 0.82 && r.top > h * 0.05;
-  }
+  window.__circleReset = function(){
+    animProgress         = 0;
+    ringProgress         = 0;
+    animPrevTs           = null;
+    lastAnimPForCycle    = 0;
+    circleTextPhase      = 1;
+    swapCircleText(0, {instant: true});
+    if(typeof window.__armCircleHlObserver === 'function') window.__armCircleHlObserver();
+    cycleIdx             = CYCLE_START_IDX;
+    cycleFade            = 0;
+    cycleStart           = performance.now();
+    cycleTransDur        = CYCLE_TRANS;
+    cyclePrevTs          = null;
+    document.documentElement.style.overflow = '';
+  };
 
-  function noteRevlockUpIntent(px, isUp){
-    var now = performance.now();
-    if(!isUp){
-      revlockUpIntentPx = 0;
-      revlockUpIntentTs = now;
-      return;
-    }
-    if(now - revlockUpIntentTs > REVLOCK_INTENT_DECAY_MS){
-      revlockUpIntentPx = 0;
-    }
-    revlockUpIntentPx += Math.max(0, px || 0);
-    revlockUpIntentTs = now;
-  }
-
-  function hasRevlockUpIntent(minPx){
-    return performance.now() - revlockUpIntentTs <= REVLOCK_INTENT_DECAY_MS && revlockUpIntentPx >= minPx;
-  }
-
-  function wheelDeltaPx(ev){
-    if(ev.deltaMode === 0) return Math.abs(ev.deltaY);
-    if(ev.deltaMode === 1) return Math.abs(ev.deltaY) * 16; // line-based wheel
-    return Math.abs(ev.deltaY) * window.innerHeight; // page-based wheel
-  }
-
-  function updateHasScrolledBelowSectionByScroll(){
-    if(scrollPhase !== 'done' || hasScrolledBelowSection) return;
-    var rOuter = stickyOuter.getBoundingClientRect();
-    var exitThreshold = stickyOuter.offsetHeight - window.innerHeight;
-    if(-rOuter.top >= exitThreshold - 50){ hasScrolledBelowSection = true; }
-  }
-
-  function circleForwardLockCommitMax(){
-    return window.innerHeight * 0.5;
-  }
-
-  // After a full run, scrollPhase can stay 'done' with animProgress=1; scrolling above the lock Y
-  // resets canvas + PHASE1 so the next approach isn’t stuck orange.
-  var REARM_ABOVE_LOCK_PX = 72; // margin so tiny scroll jitter (e.g. trackpad over project strip) doesn’t flash-reset the circle
-  window.addEventListener('scroll', function circleRearmWhenAboveLock(){
-    if(window.__heroReverseScrollActive) return;
-    if(lockedScrollY <= 0) return;
-    if(window.scrollY >= lockedScrollY - REARM_ABOVE_LOCK_PX) return;
-    if(scrollPhase === 'done' || scrollPhase === 'rpost'){
-      if(typeof window.__circleReset === 'function') window.__circleReset();
-    }
-  }, {passive:true});
-
-  function trySnapCircleLockFromScroll(){
-    if(scrollPhase !== 'before') return;
-    if(document.documentElement.style.overflow === 'hidden') return;
-    if(window.__heroReverseScrollActive) return;
-    var sy = window.scrollY;
-    var scrollingDown = sy > scrollSnapLastY;
-    scrollSnapLastY = sy;
-    var now = performance.now();
-    if(now < lockGraceUntil) return;
-    var commitMax = circleForwardLockCommitMax();
-    var r = circlePinEl.getBoundingClientRect();
-    if(r.top > commitMax) return;
-    // In the approach band: only latch on ↓ so ↑ still returns to hero. Past pin (r.top≤0): only when still scrolling ↓ — avoids yanking up while the wrap rect was wrong or on ↑.
-    if(r.top > 0 && !scrollingDown) return;
-    if(r.top <= 0 && !scrollingDown) return;
-    ensureCircleWhiteBaselineBeforeLock();
-    r = circlePinEl.getBoundingClientRect();
-    if(r.top > commitMax) return;
-    var snapY = Math.round(window.scrollY + r.top);
-    if(snapY < 0) snapY = 0;
-    window.scrollTo({top: snapY, behavior: 'instant'});
-    lockedScrollY = snapY;
-    lockEnteredAt = performance.now();
-    scrollPhase = 'locked';
-    document.documentElement.style.overflow = 'hidden';
-    triggerCircleTextReveal();
-    scrollSnapLastY = snapY;
-  }
-
-  function trySnapCircleRevLockFromScroll(){
-    if(scrollPhase !== 'done') return;
-    if(document.documentElement.style.overflow === 'hidden') return;
-    if(window.__heroReverseScrollActive) return;
-    var sy = window.scrollY;
-    var upPx = Math.max(0, scrollSnapLastYRev - sy);
-    var scrollingUp = upPx > 0;
-    noteRevlockUpIntent(upPx, scrollingUp);
-    scrollSnapLastYRev = sy;
-    var now = performance.now();
-    if(now < lockGraceUntil) return;
-    updateHasScrolledBelowSectionByScroll();
-    if(!hasScrolledBelowSection) return;
-    var r = circlePinEl.getBoundingClientRect();
-    if(!circlePullUpRevLockEligible(r)) return;
-    if(!hasRevlockUpIntent(REVLOCK_INTENT_MIN_SCROLL)) return;
-    if(!scrollingUp) return;
-    var snapTarget = Math.round(window.scrollY + r.top);
-    if(snapTarget < 0) snapTarget = 0;
-    window.scrollTo({top: snapTarget, behavior: 'instant'});
-    lockedScrollY = snapTarget;
-    lockEnteredAt = performance.now();
-    hasScrolledBelowSection = false;
-    scrollPhase = 'revlocked';
-    document.documentElement.style.overflow = 'hidden';
-  }
-
-  window.addEventListener('scroll', function circleSnapLockOnScroll(){
-    if(scrollSnapCircleRaf !== null) return;
-    scrollSnapCircleRaf = requestAnimationFrame(function(){
-      scrollSnapCircleRaf = null;
-      trySnapCircleLockFromScroll();
-      trySnapCircleRevLockFromScroll();
-      if(scrollPhase !== 'done') scrollSnapLastYRev = window.scrollY;
-    });
-  }, {passive: true});
-
-  window.addEventListener('wheel', function sectionWheel(e){
-    var dir = e.deltaY > 0 ? 1 : (e.deltaY < 0 ? -1 : 0);
-    if(dir === 0) return;
-    var r = circlePinEl.getBoundingClientRect();
-    var rOuter = stickyOuter.getBoundingClientRect();
-    var now = performance.now();
-    var commitMax = circleForwardLockCommitMax();
-
-    // deltaY normalized to pixels (deltaMode 0 = pixel, 1 = line, 2 = page)
-    var absDelta = wheelDeltaPx(e);
-    noteRevlockUpIntent(absDelta, dir < 0);
-
-    if(scrollPhase === 'before'){
-      if(dir > 0 && r.top <= 0 && now >= lockGraceUntil){
-        ensureCircleWhiteBaselineBeforeLock();
-        r = circlePinEl.getBoundingClientRect();
-        // Section already at/past top — standard lock
-        e.preventDefault();
-        lockedScrollY = window.scrollY;
-        lockEnteredAt = now;
-        scrollPhase = 'locked';
-        document.documentElement.style.overflow = 'hidden';
-        triggerCircleTextReveal();
-      } else if(dir > 0 && r.top > 0 && r.top <= commitMax && now >= lockGraceUntil){
-        ensureCircleWhiteBaselineBeforeLock();
-        r = circlePinEl.getBoundingClientRect();
-        // User has pulled the red pane far enough into view — snap flush to fill the viewport
-        e.preventDefault();
-        lockedScrollY = Math.round(window.scrollY + r.top);
-        window.scrollTo({top: lockedScrollY, behavior:'instant'});
-        lockEnteredAt = now;
-        scrollPhase = 'locked';
-        document.documentElement.style.overflow = 'hidden';
-        triggerCircleTextReveal();
-      }
-      return;
-    }
-
-    if(scrollPhase === 'locked'){
-      if(dir > 0){
-        e.preventDefault();
-        window.scrollTo({top: lockedScrollY, behavior:'instant'});
-        if(now - lockEnteredAt >= LOCK_MIN_MS && absDelta >= LOCK_MIN_DELTA){
-          scrollPhase = 'live';
-          animDir = 1;
-        }
-      } else {
-        // ↑ while locked — require meaningful delta to retreat (absDelta≥5 filters tiny trackpad bounces)
-        if(absDelta >= 5){
-          e.preventDefault();
-          scrollPhase = 'before';
-          lockGraceUntil = now + GRACE_UNLOCK_MS;
-          document.documentElement.style.overflow = '';
-        } else {
-          e.preventDefault();
-        }
-      }
-      return;
-    }
-
-    if(scrollPhase === 'live'){
-      e.preventDefault();
-      animDir = dir;
-      return;
-    }
-
-    if(scrollPhase === 'done'){
-      // Track whether user has exited the dwell going down (into cards territory)
-      var exitThreshold = stickyOuter.offsetHeight - window.innerHeight;
-      if(-rOuter.top >= exitThreshold - 50){ hasScrolledBelowSection = true; }
-
-      var pullUp = circlePullUpRevLockEligible(r);
-      // Reverse lock: near pin, or earlier when section has entered the bottom quarter while still unpinned (↑ from cards)
-      if(dir < 0 && now >= lockGraceUntil && hasScrolledBelowSection && ((r.top >= -8 && r.top <= 80) || pullUp)){
-        if(!hasRevlockUpIntent(REVLOCK_INTENT_MIN_WHEEL)) return;
-        e.preventDefault();
-        var snapTarget = r.top > 0 ? Math.round(window.scrollY + r.top) : window.scrollY;
-        if(r.top > 0) window.scrollTo({top: snapTarget, behavior:'instant'});
-        lockedScrollY = snapTarget;
-        lockEnteredAt = now;
-        hasScrolledBelowSection = false;
-        scrollPhase = 'revlocked';
-        document.documentElement.style.overflow = 'hidden';
-      }
-      return;
-    }
-
-    if(scrollPhase === 'rpost'){
-      // Symmetric to 'locked': locked at white+dots view after reverse animation completes
-      if(dir < 0 && absDelta >= LOCK_MIN_DELTA && now >= lockGraceUntil){
-        e.preventDefault();
-        scrollPhase = 'before';
-        lockGraceUntil = now + GRACE_RPOST_MS;
-        document.documentElement.style.overflow = '';
-      } else if(dir > 0 && absDelta >= LOCK_MIN_DELTA && now >= lockGraceUntil){
-        e.preventDefault();
-        scrollPhase = 'live';
-        animDir = 1;
-      } else {
-        e.preventDefault(); // absorb tiny bounces / residual momentum
-      }
-      return;
-    }
-
-    if(scrollPhase === 'revlocked'){
-      if(dir < 0){
-        e.preventDefault();
-        window.scrollTo({top: lockedScrollY, behavior:'instant'});
-        if(now - lockEnteredAt >= LOCK_MIN_MS && absDelta >= LOCK_MIN_DELTA){
-          if(window.__heroAutoHasPlayed){
-            scrollPhase = 'before'; animDir = 0;
-            lockGraceUntil = now + GRACE_UNLOCK_MS;
-            document.documentElement.style.overflow = '';
-          } else {
-            scrollPhase = 'live'; animDir = -1;
-          }
-        } else {
-        }
-      } else {
-        if(absDelta >= 5){
-          e.preventDefault();
-          scrollPhase = 'done';
-          lockGraceUntil = now + GRACE_UNLOCK_MS;
-          document.documentElement.style.overflow = '';
-        } else {
-          e.preventDefault();
-        }
-      }
-      return;
-    }
-  }, {passive:false});
-
-  window.addEventListener('touchstart', function(e){
-    touchStartY = e.touches[0].clientY;
-    lastTouchMoveY = touchStartY;
-  }, {passive:true});
-
-  var lastTouchMoveY = null;
-  window.addEventListener('touchend', function(){ lastTouchMoveY = null; }, {passive:true});
-  window.addEventListener('touchcancel', function(){ lastTouchMoveY = null; }, {passive:true});
-
-  window.addEventListener('touchmove', function sectionTouch(e){
-    var touchY = e.touches[0].clientY;
-    var dy = touchStartY - touchY;
-    var stepDy = lastTouchMoveY == null ? dy : (lastTouchMoveY - touchY);
-    lastTouchMoveY = touchY;
-    var dir = dy > 2 ? 1 : (dy < -2 ? -1 : 0);
-    if(dir === 0) return;
-    var r = circlePinEl.getBoundingClientRect();
-    var rOuter = stickyOuter.getBoundingClientRect();
-    var now = performance.now();
-    var commitMaxT = circleForwardLockCommitMax();
-    if(scrollPhase === 'before' && dir > 0 && now >= lockGraceUntil){
-      if(r.top <= 0){
-        ensureCircleWhiteBaselineBeforeLock();
-        r = circlePinEl.getBoundingClientRect();
-        e.preventDefault();
-        lockedScrollY = window.scrollY;
-        lockEnteredAt = now;
-        scrollPhase = 'locked';
-        document.documentElement.style.overflow = 'hidden';
-        triggerCircleTextReveal();
-        return;
-      }
-      if(r.top > 0 && r.top <= commitMaxT){
-        ensureCircleWhiteBaselineBeforeLock();
-        r = circlePinEl.getBoundingClientRect();
-        e.preventDefault();
-        lockedScrollY = Math.round(window.scrollY + r.top);
-        window.scrollTo({top: lockedScrollY, behavior:'instant'});
-        lockEnteredAt = now;
-        scrollPhase = 'locked';
-        document.documentElement.style.overflow = 'hidden';
-        triggerCircleTextReveal();
-        return;
-      }
-    }
-    var absDy = Math.abs(dy);
-    noteRevlockUpIntent(Math.abs(stepDy), dir < 0);
-    if(scrollPhase === 'locked' && dir > 0){
-      e.preventDefault();
-      window.scrollTo({top: lockedScrollY, behavior:'instant'});
-      if(now - lockEnteredAt >= LOCK_MIN_MS && absDy >= LOCK_MIN_DELTA){
-        scrollPhase = 'live';
-        animDir = 1;
-      }
-      return;
-    }
-    if(scrollPhase === 'locked' && dir < 0){
-      if(absDy < 5){ e.preventDefault(); return; }
-      e.preventDefault();
-      scrollPhase = 'before';
-      lockGraceUntil = now + GRACE_UNLOCK_MS;
-      document.documentElement.style.overflow = '';
-      return;
-    }
-    if(scrollPhase === 'live'){ e.preventDefault(); animDir = dir; return; }
-    if(scrollPhase === 'rpost'){
-      if(dir < 0 && absDy >= LOCK_MIN_DELTA && now >= lockGraceUntil){
-        e.preventDefault();
-        scrollPhase = 'before';
-        lockGraceUntil = now + GRACE_RPOST_MS;
-        document.documentElement.style.overflow = '';
-        return;
-      }
-      if(dir > 0 && absDy >= LOCK_MIN_DELTA && now >= lockGraceUntil){
-        e.preventDefault();
-        scrollPhase = 'live';
-        animDir = 1;
-        return;
-      }
-      e.preventDefault();
-      return;
-    }
-    if(scrollPhase === 'done'){
-      var et = stickyOuter.offsetHeight - window.innerHeight;
-      if(-rOuter.top >= et - 50){ hasScrolledBelowSection = true; }
-      var pullUpT = circlePullUpRevLockEligible(r);
-      if(dir < 0 && now >= lockGraceUntil && hasScrolledBelowSection && ((r.top >= -8 && r.top <= 80) || pullUpT)){
-        if(!hasRevlockUpIntent(REVLOCK_INTENT_MIN_TOUCH)) return;
-        e.preventDefault();
-        var st = r.top > 0 ? Math.round(window.scrollY + r.top) : window.scrollY;
-        if(r.top > 0) window.scrollTo({top: st, behavior:'instant'});
-        lockedScrollY = st;
-        lockEnteredAt = now;
-        hasScrolledBelowSection = false;
-        scrollPhase = 'revlocked';
-        document.documentElement.style.overflow = 'hidden';
-        return;
-      }
-    }
-    if(scrollPhase === 'revlocked' && dir < 0){
-      e.preventDefault();
-      window.scrollTo({top: lockedScrollY, behavior:'instant'});
-      if(now - lockEnteredAt >= LOCK_MIN_MS && absDy >= LOCK_MIN_DELTA){
-        if(window.__heroAutoHasPlayed){
-          scrollPhase = 'before';
-          animDir = 0;
-          lockGraceUntil = now + GRACE_UNLOCK_MS;
-          document.documentElement.style.overflow = '';
-        } else {
-          scrollPhase = 'live';
-          animDir = -1;
-        }
-      } else {
-      }
-      return;
-    }
-    if(scrollPhase === 'revlocked' && dir > 0){
-      if(absDy >= 5){
-        e.preventDefault();
-        scrollPhase = 'done';
-        lockGraceUntil = now + GRACE_UNLOCK_MS;
-        document.documentElement.style.overflow = '';
-      } else {
-        e.preventDefault();
-      }
-      return;
-    }
-  }, {passive:false});
   var circleObs = new IntersectionObserver(function(entries){
     if(entryBurst) return;
     entries.forEach(function(entry){
@@ -1211,27 +765,14 @@ function staggerCharsInSync(groups){
     var mox = mouse.x === -9999 ? 0 : (mouse.x - cx) / (baseR||1);
     var moy = mouse.y === -9999 ? 0 : (mouse.y - cy) / (baseR||1);
 
-    // ── Bidirectional animation tick ──────────────────────────
-    if(animDir !== 0){
-      if(animPrevTs !== null){
-        var dt = now - animPrevTs;
-        animProgress += animDir * (dt / REV_DUR);
-        ringProgress += animDir * (dt / RING_DUR);
-        animProgress = Math.max(0, Math.min(1, animProgress));
-        ringProgress = Math.max(0, Math.min(1, ringProgress));
-        // Forward complete → done: release scroll immediately so user can continue freely
-        if(animDir > 0 && animProgress >= 1){
-          animDir = 0; scrollPhase = 'done'; lockGraceUntil = performance.now() + GRACE_FWD_DONE_MS;
-          document.documentElement.style.overflow = '';
-          scrollSnapLastYRev = window.scrollY;
-        }
-        if(animDir < 0 && animProgress <= 0){
-          animDir = 0; scrollPhase = 'rpost'; lockGraceUntil = performance.now() + GRACE_REV_DONE_MS;
-          lockEnteredAt = performance.now(); hasScrolledBelowSection = false;
-        }
-      }
-    }
+    var scrollTarget = getScrollProgress();
+    var dtMs = animPrevTs != null ? Math.min(56, now - animPrevTs) : 16;
     animPrevTs = now;
+    var k = 1 - Math.exp(-dtMs * 0.0075);
+    animProgress += (scrollTarget - animProgress) * k;
+    ringProgress += (scrollTarget - ringProgress) * Math.min(1, k * 1.12);
+    animProgress = Math.max(0, Math.min(1, animProgress));
+    ringProgress = Math.max(0, Math.min(1, ringProgress));
 
     // Every time the orange/video ring engages (was white-only, now animating in), start on Maat
     // and swap headline before any video draws — avoids red PHASE1 flashing over the clip.
@@ -1245,20 +786,8 @@ function staggerCharsInSync(groups){
     }
     lastAnimPForCycle = animProgress;
 
-    // ── Text phase swap: reverse to PHASE1 on rewind only (animDir≤0). Forward early
-    // animProgress<0.04 must NOT swap — it fought instant PHASE2 and mangled the headline.
     if(animProgress > 0.08 && circleTextPhase === 0) swapCircleText(1, {instant: true});
-    else if(animProgress < 0.04 && animDir <= 0) swapCircleText(0);
-
-    // rAF scroll-lock — correct drift; skip sub-pixel nudges during live/rpost to reduce jank
-    var sy = window.scrollY, drift = Math.abs(sy - lockedScrollY);
-    if(scrollPhase === 'locked' && sy > lockedScrollY){
-      window.scrollTo({top: lockedScrollY, behavior:'instant'});
-    } else if(scrollPhase === 'revlocked' && sy < lockedScrollY){
-      window.scrollTo({top: lockedScrollY, behavior:'instant'});
-    } else if((scrollPhase === 'live' || scrollPhase === 'rpost') && drift > 2){
-      window.scrollTo({top: lockedScrollY, behavior:'instant'});
-    }
+    else if(animProgress < 0.04 && scrollTarget < 0.07 && circleTextPhase === 1) swapCircleText(0);
 
     // Ring expansion — easeOutExpo applied to ringProgress
     // When the fill animation completes (animProgress=1), snap clipR to baseR so the
@@ -1269,12 +798,7 @@ function staggerCharsInSync(groups){
     // Orange fill on canvas still follows animProgress. Full-viewport #orange-reveal must not shrink
     // in sync with reverse once the user has scrolled past circle dwell (belief/cards) — only the ring rewinds.
     var revProg = animProgress;
-    var dwellPastOrange = window.scrollY > circleDwellEndScrollY();
     var revProgOrange = revProg;
-    if(dwellPastOrange){
-      if(revProg >= 0.999) revProgOrange = 1;
-      else if(animDir < 0) revProgOrange = 1;
-    }
     var revEaseOrange = revProgOrange < 1 ? 1 - Math.pow(1 - revProgOrange, 4) : 1;
     if(orangeReveal){
       // Radius must cover the full #orange-reveal box (viewport-sized), not canvas W/H — otherwise corners stay body-colored.
@@ -1534,7 +1058,10 @@ function staggerCharsInSync(groups){
     var cobs = new IntersectionObserver(function(entries){
       if(entries[0].isIntersecting){
         cobs.disconnect();
-        setTimeout(function(){ triggerCircleTextReveal(); }, 120);
+        setTimeout(function(){
+          if(typeof window.__triggerCircleTextReveal === 'function')
+            window.__triggerCircleTextReveal();
+        }, 120);
       }
     }, {threshold:0.22});
     window.__disconnectCircleHlObserver = function(){
@@ -1655,20 +1182,6 @@ function staggerCharsInSync(groups){
   var HERO_RESTORE_BAND_PX = 220;
   var heroRestoreIo = null;
   var heroRestoreIoTicking = false;
-  // Scroll narrative (below → circle → hero): the page advances “beats” from scroll position + visibility,
-  // not from counting wheel pixels. IO on #projects decides when the orange module is “on stage” enough to commit.
-  var heroOrangeHoldActive      = false;
-  var heroOrangeHoldScrollY     = 0;
-  var heroOrangeUpConsumedFirstUp = false;
-  var heroOrangeHoldAtMs        = 0;
-  // Scrolling down toward cards: cannot blow through orange — snap to center, absorb one ↓ tick, then next ↓ continues.
-  var heroOrangeDownHoldActive  = false;
-  var heroOrangeDownHoldY       = 0;
-  var heroOrangeDownConsumedFirstDown = false;
-  var orangeBeatObserver        = null;
-  var orangeIoPrevRatio         = 0;
-  var orangeCenterCommitDone    = false;
-  var ORANGE_ONSTAGE_RATIO      = 0.16; // #projects visible enough → system centers + hold (beat 2)
 
   function clearHeroCharExitState(){
     document.querySelectorAll('#hero-hl .hl-char').forEach(function(c){
@@ -1821,7 +1334,6 @@ function staggerCharsInSync(groups){
   function reconcileHeroHeadlineAtRest(){
     maybeForceHeroRestoreFromTopBand('scroll-reconcile');
     if(revPlaying || autoPlaying || window.__heroReverseScrollActive) return;
-    if(document.documentElement.style.overflow === 'hidden') return;
     // Wider near-top band: users often stop around 90–200px when returning from orange-only,
     // and hero should still recover there.
     if(window.scrollY > HERO_RESTORE_BAND_PX) return;
@@ -1868,7 +1380,6 @@ function staggerCharsInSync(groups){
     });
     measured = true;
     applyE(lastHeroE);
-    armOrangeBeatObserver();
     if(heroRestoreIo == null){
       var heroEl = document.querySelector('.hero');
       if(heroEl){
@@ -1947,12 +1458,6 @@ function staggerCharsInSync(groups){
       }
     }
     revPlaying = true;
-    heroOrangeHoldActive = false;
-    heroOrangeUpConsumedFirstUp = false;
-    heroOrangeDownHoldActive = false;
-    heroOrangeDownConsumedFirstDown = false;
-    orangeCenterCommitDone = false;
-    orangeIoPrevRatio = 0;
     heroCharExitBegun = false;
     clearHeroCharExitState();
     cancelHeroWordCycleResume();
@@ -1987,115 +1492,6 @@ function staggerCharsInSync(groups){
     requestAnimationFrame(scrollStep);
   }
 
-  function dwellEndFromScroll(scrollY){
-    var cw = document.querySelector('.circle-sticky-wrap');
-    if(!cw) return Infinity;
-    var cdt = cw.getBoundingClientRect().top + scrollY;
-    var dw = Math.max(cw.offsetHeight || 0, window.innerHeight);
-    return cdt + dw + 48;
-  }
-
-  function onOrangeBeatIo(entries){
-    var e = entries[0];
-    if(!e || !measured || !autoHasPlayed || revPlaying || autoPlaying) return;
-    if(document.documentElement.style.overflow === 'hidden') return;
-    var y = window.scrollY;
-    var dwellEnd = dwellEndFromScroll(y);
-    if(y > dwellEnd + 220) orangeCenterCommitDone = false;
-    var r = e.isIntersecting ? e.intersectionRatio : 0;
-    if(heroOrangeHoldActive || heroOrangeDownHoldActive || y <= dwellEnd){
-      orangeIoPrevRatio = r;
-      return;
-    }
-    if(!orangeCenterCommitDone && orangeIoPrevRatio < ORANGE_ONSTAGE_RATIO && r >= ORANGE_ONSTAGE_RATIO){
-      var snapY = centerOrangeSnapY(y);
-      if(snapY != null){
-        orangeCenterCommitDone = true;
-        applyOrangeCenterHold(snapY);
-      }
-    }
-    orangeIoPrevRatio = r;
-  }
-
-  function armOrangeBeatObserver(){
-    var el = document.getElementById('projects');
-    if(!el) return;
-    if(orangeBeatObserver) orangeBeatObserver.disconnect();
-    orangeBeatObserver = new IntersectionObserver(onOrangeBeatIo, {
-      root: null,
-      rootMargin: '0px',
-      threshold: [0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.26, 0.34, 0.42, 0.52, 0.65, 0.78, 1]
-    });
-    orangeBeatObserver.observe(el);
-  }
-
-  // Vertically center #projects for current layout (works inside or outside circle dwell — for catch + snap).
-  function centerOrangeViewportSnapY(scrollY){
-    var pinEl = document.getElementById('projects');
-    if(!pinEl) return null;
-    var vh = window.innerHeight;
-    var pr = pinEl.getBoundingClientRect();
-    if(pr.bottom < 72 || pr.top > vh + 50) return null;
-    var delta = (pr.top + pr.height * 0.5) - vh * 0.5;
-    var snapY = Math.round(scrollY + delta);
-    var maxY = Math.max(0, document.documentElement.scrollHeight - vh);
-    if(snapY > maxY) snapY = maxY;
-    if(snapY < 0) snapY = 0;
-    return snapY;
-  }
-
-  function applyOrangeDownHold(snapY){
-    if(reverseScrollCheckRaf != null){
-      cancelAnimationFrame(reverseScrollCheckRaf);
-      reverseScrollCheckRaf = null;
-      reverseScrollRefY = -1;
-    }
-    heroOrangeHoldActive = false;
-    heroOrangeDownHoldActive = true;
-    heroOrangeDownConsumedFirstDown = false;
-    heroOrangeDownHoldY = snapY;
-    window.scrollTo({top: snapY, behavior: 'instant'});
-    lastScrollY = window.scrollY;
-    reconcileHeroHeadlineAtRest();
-  }
-
-  // Document scrollY that vertically centers #projects in the viewport (only when still “below” circle dwell).
-  function centerOrangeSnapY(curScrollY){
-    var pinEl = document.getElementById('projects');
-    var cw = document.querySelector('.circle-sticky-wrap');
-    if(!pinEl || !cw) return null;
-    var vh = window.innerHeight;
-    var pr = pinEl.getBoundingClientRect();
-    var cdt = cw.getBoundingClientRect().top + curScrollY;
-    var dw = Math.max(cw.offsetHeight || 0, vh);
-    var dwellEnd = cdt + dw + 48;
-    if(curScrollY <= dwellEnd) return null;
-    if(pr.bottom < vh * 0.26 || pr.top > vh * 0.88) return null;
-    var delta = (pr.top + pr.height * 0.5) - vh * 0.5;
-    var snapY = Math.round(curScrollY + delta);
-    var maxY = Math.max(0, document.documentElement.scrollHeight - vh);
-    if(snapY > maxY) snapY = maxY;
-    if(snapY < 0) snapY = 0;
-    return snapY;
-  }
-
-  function applyOrangeCenterHold(snapY){
-    if(reverseScrollCheckRaf != null){
-      cancelAnimationFrame(reverseScrollCheckRaf);
-      reverseScrollCheckRaf = null;
-      reverseScrollRefY = -1;
-    }
-    if(Math.abs(window.scrollY - snapY) > 2){ window.scrollTo({top: snapY, behavior: 'instant'}); }
-    heroOrangeDownHoldActive = false;
-    heroOrangeDownConsumedFirstDown = false;
-    heroOrangeUpConsumedFirstUp = false;
-    heroOrangeHoldAtMs = performance.now();
-    heroOrangeHoldScrollY = window.scrollY;
-    heroOrangeHoldActive = true;
-    lastScrollY = window.scrollY;
-    reconcileHeroHeadlineAtRest();
-  }
-
   // ── WHEEL: forward trigger (down) ────────────────────────────
   window.addEventListener('wheel', function(ev){
     if(!measured) return;
@@ -2110,126 +1506,33 @@ function staggerCharsInSync(groups){
     }
   }, {passive:true});
 
-  // ── SCROLL: reverse trigger (first upward movement after forward played) ───
+  // ── SCROLL: reverse trigger (upward intent after forward played; circle is scroll-driven now) ───
   window.addEventListener('scroll', function(){
     var cur = window.scrollY;
-    // Reverse-from-forward only when those gates pass; lastScrollY must still track always.
     var canReverse = measured && !autoPlaying && !revPlaying && autoHasPlayed;
-    if(canReverse && document.documentElement.style.overflow !== 'hidden'){
-      var cwGate = document.querySelector('.circle-sticky-wrap');
-      if(cwGate && lastScrollY >= 0){
-        var vhG = window.innerHeight;
-        var cdtG = cwGate.getBoundingClientRect().top + cur;
-        var dwG = Math.max(cwGate.offsetHeight || 0, vhG);
-        var dwellEndG = cdtG + dwG + 48;
-
-        if(heroOrangeDownHoldActive){
-          if(cur > heroOrangeDownHoldY + Math.round(vhG * 0.75)){
-            heroOrangeDownHoldActive = false;
-            heroOrangeDownConsumedFirstDown = false;
-            lastScrollY = cur;
-            reconcileHeroHeadlineAtRest();
-            return;
-          } else if(cur < lastScrollY){
-            heroOrangeDownHoldActive = false;
-            heroOrangeDownConsumedFirstDown = false;
-          } else if(cur > lastScrollY){
-            if(!heroOrangeDownConsumedFirstDown){
-              heroOrangeDownConsumedFirstDown = true;
-              window.scrollTo({top: heroOrangeDownHoldY, behavior: 'instant'});
-              lastScrollY = window.scrollY;
-              reconcileHeroHeadlineAtRest();
-              return;
-            }
-            heroOrangeDownHoldActive = false;
-            heroOrangeDownConsumedFirstDown = false;
+    if(canReverse && lastScrollY >= 0 && cur < lastScrollY){
+      if(reverseScrollCheckRaf == null){
+        reverseScrollRefY = lastScrollY;
+        reverseScrollCheckRaf = requestAnimationFrame(function(){
+          reverseScrollCheckRaf = null;
+          var y = window.scrollY;
+          var refPeak = reverseScrollRefY;
+          reverseScrollRefY = -1;
+          if(!measured || autoPlaying || revPlaying || !autoHasPlayed || refPeak < 0 || y >= refPeak) return;
+          if(refPeak - y < REVERSE_SCROLL_INTENT_MIN) return;
+          var cwSkip = document.querySelector('.circle-sticky-wrap');
+          if(cwSkip){
+            var cdt2 = cwSkip.getBoundingClientRect().top + y;
+            var dw2 = Math.max(cwSkip.offsetHeight || 0, window.innerHeight);
+            if(refPeak > cdt2 + dw2 + 48) return;
           }
-        } else if(!heroOrangeHoldActive && cur > lastScrollY && cur <= dwellEndG + Math.round(vhG * 0.35) + 120){
-          var dDown = cur - lastScrollY;
-          var blewPast = lastScrollY <= dwellEndG + 100 && cur > dwellEndG + 55 && dDown >= 18;
-          var bigJump = lastScrollY < dwellEndG + 140 && cur > dwellEndG + 70 && (dDown > vhG * 0.2 || dDown > 260);
-          var leftDwellInOne = lastScrollY >= cdtG - 120 && lastScrollY <= dwellEndG + 35 && cur > dwellEndG + 85;
-          if(blewPast || bigJump || leftDwellInOne){
-            var maxUpPx = Math.min(300, Math.round(vhG * 0.34));
-            var snapCatch = centerOrangeViewportSnapY(cur);
-            if(snapCatch == null){ snapCatch = centerOrangeViewportSnapY(lastScrollY); }
-            if(snapCatch == null && cur <= dwellEndG + 260){
-              var fb = Math.round(dwellEndG - vhG * 0.42);
-              if(fb >= Math.max(0, cdtG - 80) && fb < cur){ snapCatch = fb; }
-            }
-            if(snapCatch != null && cur - snapCatch <= maxUpPx){
-              applyOrangeDownHold(snapCatch);
-              return;
-            }
-          }
-        }
-      }
-
-      if(lastScrollY >= 0 && heroOrangeHoldActive){
-        if(cur > lastScrollY + 6){
-          heroOrangeHoldActive = false;
-          heroOrangeUpConsumedFirstUp = false;
-        } else if(cur < lastScrollY){
-          if(reverseScrollCheckRaf != null){
-            cancelAnimationFrame(reverseScrollCheckRaf);
-            reverseScrollCheckRaf = null;
-            reverseScrollRefY = -1;
-          }
-          if(!heroOrangeUpConsumedFirstUp){
-            heroOrangeUpConsumedFirstUp = true;
-            window.scrollTo({top: heroOrangeHoldScrollY, behavior: 'instant'});
-            lastScrollY = window.scrollY;
-            reconcileHeroHeadlineAtRest();
-            return;
-          }
-          if(performance.now() - heroOrangeHoldAtMs < 180){
-            window.scrollTo({top: heroOrangeHoldScrollY, behavior: 'instant'});
-            lastScrollY = window.scrollY;
-            reconcileHeroHeadlineAtRest();
-            return;
-          }
-          heroOrangeHoldActive = false;
-          heroOrangeUpConsumedFirstUp = false;
-          startReverse(true, true);
-          lastScrollY = window.scrollY;
-          reconcileHeroHeadlineAtRest();
-          return;
-        }
-      }
-
-      if(!heroOrangeHoldActive && lastScrollY >= 0 && cur < lastScrollY){
-        if(reverseScrollCheckRaf == null){
-          reverseScrollRefY = lastScrollY;
-          reverseScrollCheckRaf = requestAnimationFrame(function(){
-            reverseScrollCheckRaf = null;
-            var y = window.scrollY;
-            var refPeak = reverseScrollRefY;
-            reverseScrollRefY = -1;
-            if(!measured || autoPlaying || revPlaying || !autoHasPlayed || document.documentElement.style.overflow === 'hidden' || refPeak < 0 || y >= refPeak) return;
-            if(refPeak - y < REVERSE_SCROLL_INTENT_MIN){
-              return;
-            }
-            var cwSkip = document.querySelector('.circle-sticky-wrap');
-            if(cwSkip){
-              var cdt2 = cwSkip.getBoundingClientRect().top + y;
-              var dw2 = Math.max(cwSkip.offsetHeight || 0, window.innerHeight);
-              if(refPeak > cdt2 + dw2 + 48){
-                return;
-              }
-              if(performance.now() - heroOrangeHoldAtMs < 600 && refPeak > cdt2 + dw2 - 120){
-                return;
-              }
-            }
-            startReverse(false);
-          });
-        } else {
-          reverseScrollRefY = Math.max(reverseScrollRefY, lastScrollY);
-        }
+          startReverse(false);
+        });
+      } else {
+        reverseScrollRefY = Math.max(reverseScrollRefY, lastScrollY);
       }
     }
     lastScrollY = cur;
-    // Must run even when autoHasPlayed is false (e.g. after reverse completes) — otherwise
-    // reconcileHeroHeadlineAtRest never runs and a stuck headline at the top cannot self-heal.
     reconcileHeroHeadlineAtRest();
   }, {passive:true});
 
