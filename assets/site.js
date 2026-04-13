@@ -1,653 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ouro Labs</title>
-<script>if('scrollRestoration' in history){history.scrollRestoration='manual';}document.addEventListener('DOMContentLoaded',function(){window.scrollTo(0,0);});window.addEventListener('pageshow',function(e){if(e.persisted){window.scrollTo(0,0);requestAnimationFrame(function(){if(window.__circleReset)window.__circleReset();});}});</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Didact+Gothic&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-html{
-  scroll-behavior:smooth;
-  min-height:100%;
-  min-height:100dvh;
-}
-:root{
-  --bg:#fdfcfa;
-  --ink:#000;
-  --red:#FF1B00;
-  --rule:rgba(0,0,0,0.1);
-  --mid:rgba(0,0,0,0.42);
-  --faint:rgba(0,0,0,0.12);
-  --bg-glass:rgba(253,252,250,0.82);
-  --g:88px;
-  --circle-r:345px;
-  --wm-nudge-y:clamp(20px, 4.2vw, 56px);
-  /* Motion — soft deceleration, longer tail (editorial / product-site feel) */
-  --ease-out-flow:cubic-bezier(0.22,1,0.52,1);
-  --ease-out-settle:cubic-bezier(0.33,1,0.68,1);
-  --ease-in-move:cubic-bezier(0.55,0.02,0.72,0.35);
-}
-body{
-  background:var(--bg);color:var(--ink);
-  font-family:'Inter',sans-serif;
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;
-  min-height:100%;
-  min-height:100dvh;
-  display:flex;
-  flex-direction:column;
-}
+if('scrollRestoration' in history){history.scrollRestoration='manual';}document.addEventListener('DOMContentLoaded',function(){window.scrollTo(0,0);});window.addEventListener('pageshow',function(e){if(e.persisted){window.scrollTo(0,0);requestAnimationFrame(function(){if(window.__circleReset)window.__circleReset();});}});
 
-/* ── NAV ── */
-nav{
-  position:absolute;top:0;left:0;right:0;z-index:99;
-  display:flex;align-items:stretch;
-  height:64px;
-  border-bottom:1px solid var(--ink);
-  background:var(--bg-glass);
-  backdrop-filter:blur(12px);
-  -webkit-backdrop-filter:blur(12px);
-}
-.n-logo{
-  margin-right:auto;
-  color:var(--ink);text-decoration:none;
-  display:flex;align-items:center;
-  padding:0 28px;border-right:1px solid var(--ink);
-  transition:color .65s var(--ease-out-flow);
-}
-.n-logo:hover{color:var(--red);}
-.n-links{display:contents;}
-.n-link{
-  font-family:'Circular Std',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--ink);text-decoration:none;
-  display:flex;align-items:center;justify-content:center;
-  padding:0 28px;border-left:1px solid var(--ink);
-  transition:color .15s;
-}
-.n-link:hover{color:var(--mid);}
-.n-cta{
-  font-family:'Circular Std',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;
-  background:var(--ink);color:var(--bg);
-  padding:0 28px;display:flex;align-items:center;
-  text-decoration:none;transition:opacity .15s;
-}
-.n-cta:hover{opacity:1;}
-
-/* ── HERO ── */
-/* Stack above .scroll-scene so the circle module doesn’t paint over the headline.
-   Hero fill is transparent so the circle (below in z-order) can read through like parallax. */
-.hero-scene{height:300vh;position:relative;z-index:3;}
-.hero{
-  position:sticky;top:0;
-  background:transparent;
-  overflow:hidden;
-  height:100vh;
-  display:flex;flex-direction:column;
-  justify-content:center;
-}
-
-#mesh-canvas{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  pointer-events:none;
-  z-index:0;
-  display:none;
-}
-
-.hero-content{
-  position:relative;z-index:2;
-  padding:80px var(--g) 80px;
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-  align-items:flex-start;
-  text-align:left;
-}
-/* No ::before tint — .hero stays above the circle (z-index); a centered rgba panel stayed
-   visible after the headline translated away and washed out the orange fill (pink band). */
-.hero-l{width:100%;}
-.hero-hl{
-  font-family:'Didact Gothic',sans-serif;
-  font-size:clamp(52px, 12vw, 120.75px);
-  font-weight:500;
-  line-height:0.94;letter-spacing:-0.03em;color:var(--ink);
-  width:max-content;
-  margin:0 auto;
-}
-#hero-hl>.hl-line:nth-child(3){text-align:right;}
-.hero-hl em{font-style:italic;color:var(--red);}
-.hero-hl-indent{display:block;}
-
-/* ── CIRCLE MODULE ── */
-.circle-sticky-wrap{
-  height:calc(100vh + 20px);
-  position:relative;
-  margin-top:-100vh;
-}
-.circle-section{
-  position:sticky;
-  top:0;
-  height:100vh;
-  overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-  padding:0;
-  background:transparent;
-  z-index:2;
-}
-/* Inner shell: translateY entrance lives here so position:sticky on .circle-section is not transformed (spec + visibility). */
-.circle-section-lift{
-  position:relative;
-  width:100%;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  will-change:transform;
-}
-#orange-reveal{
-  position:absolute;inset:0;
-  background:var(--red);
-  clip-path:circle(0px at 50% 50%);
-  z-index:0;
-  will-change:clip-path;
-  opacity:0;
-}
-
-/* ── HORIZONTAL SCROLL GRID ── */
-.scroll-scene{position:relative;z-index:2;}
-.hscroll-frame{position:relative;z-index:2;}
-.hscroll-track{
-  display:flex;
-  align-items:stretch;
-  overflow-x:auto;
-  scroll-snap-type:x mandatory;
-  scroll-padding-left:var(--g);
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-  padding-left:var(--g);
-  height:540px;
-  border-top:1px solid var(--ink);
-  border-bottom:1px solid var(--ink);
-}
-.hscroll-track::-webkit-scrollbar{display:none;}
-.hcard{
-  flex:0 0 clamp(260px,28vw,380px);
-  display:flex;flex-direction:column;justify-content:flex-end;
-  gap:12px;
-  padding:40px 28px 40px 32px;
-  scroll-snap-align:start;
-  border-right:1px solid var(--ink);
-  position:relative;
-}
-.hcard--featured{
-  flex:0 0 clamp(500px,54vw,760px);
-  background:var(--ink);
-  padding:0;
-  flex-direction:row;
-  border-right:1px solid rgba(255,255,255,0.12);
-}
-.hcard--featured .pg-flag{color:rgba(255,255,255,0.38);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;}
-.hcard--featured .pg-name{color:#fff;margin:0;}
-.hcard--featured .pg-desc{color:rgba(255,255,255,0.55);}
-.hcard--featured .pg-btn{color:#fff;border-color:rgba(255,255,255,0.3);}
-.hcard-copy{
-  flex:0 0 42%;
-  padding:36px 32px;
-  display:flex;flex-direction:column;
-  justify-content:space-between;
-  gap:0;
-}
-.hcard-copy-top{display:flex;flex-direction:column;gap:6px;}
-.hcard-copy-bottom{display:flex;flex-direction:column;gap:12px;}
-.hcard-img{
-  flex:1;
-  position:relative;overflow:hidden;
-  border-left:1px solid rgba(255,255,255,0.08);
-}
-.hcard-img::after{
-  content:'App screenshot';
-  position:absolute;bottom:12px;left:0;right:0;
-  text-align:center;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
-  color:rgba(255,255,255,0.18);
-  pointer-events:none;z-index:1;
-}
-.hcard-img-inner{
-  position:absolute;
-  inset:-12% 0;       /* overshoot top/bottom gives parallax travel room for images */
-  /* subtle tonal gradient — makes the pan movement readable without real image content */
-  background:
-    radial-gradient(ellipse 80% 50% at 50% 35%, rgba(255,255,255,0.09) 0%, transparent 70%),
-    rgba(255,255,255,0.04);
-  will-change:transform;
-}
-.hscroll-end-pad{flex:0 0 var(--g);}
-.pg-featured{
-  flex:1;padding:80px 24px;
-  display:flex;flex-direction:column;justify-content:center;
-  overflow:visible;
-}
-.pg-featured-inner{
-  display:flex;flex-direction:column;gap:16px;
-}
-.pg-editorial{
-  justify-content:center;align-items:center;text-align:center;
-  background:transparent;
-  margin:0;
-  position:relative;
-  width:min(880px,90%);
-  aspect-ratio:1;
-  flex:none;
-  cursor:default;
-  overflow:visible;
-}
-.pg-editorial-text{
-  position:relative;z-index:1;padding:32px;
-  pointer-events:none;
-  font-family:'Didact Gothic',sans-serif;
-  font-size:clamp(52px, 12vw, 120.75px);
-  font-weight:500;line-height:0.94;letter-spacing:-0.03em;
-  color:var(--red);white-space:nowrap;
-  transition:color 0.38s var(--ease-out-settle);
-}
-.pg-editorial-text em{font-style:italic;}
-.pg-flag{
-  font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--red);
-}
-.pg-name{
-  font-family:'Didact Gothic',sans-serif;font-weight:500;
-  font-size:clamp(36px,4.2vw,64px);line-height:1.05;letter-spacing:-0.03em;color:var(--ink);
-  margin:0;
-}
-.pg-desc{font-family:'Circular Std',sans-serif;font-size:15px;font-weight:400;line-height:1.5;color:var(--ink);max-width:320px;}
-.pg-btn{
-  display:inline-flex;align-items:center;
-  font-size:11px;font-weight:500;letter-spacing:0.06em;
-  color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink);
-  padding-bottom:2px;width:fit-content;transition:color .12s,border-color .12s;
-}
-.pg-btn:hover{color:var(--red);border-color:var(--red);}
-
-/* ── BELIEF ── */
-.belief{
-  padding:clamp(60px,10vh,120px) var(--g);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2em;
-  position:relative;z-index:10;
-}
-.belief-label{font-size:10px;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);}
-.belief-q{
-  font-family:'Didact Gothic',sans-serif;font-weight:400;font-size:clamp(28px,3.2vw,44px);line-height:1.18;letter-spacing:-0.02em;color:var(--ink);text-align:center;max-width:1100px;
-  opacity:0;
-  transform:translateY(24px);
-  transition:opacity 1.25s var(--ease-out-flow), transform 1.25s var(--ease-out-flow);
-}
-.belief-q em{font-style:italic;color:var(--red);}
-.belief-q.in-view{opacity:1;transform:translateY(0);}
-
-/* ── FOOTER ── */
-footer{
-  margin-top:auto;
-  padding:280px 0 calc(max(0px, env(safe-area-inset-bottom, 0px)) + var(--wm-nudge-y)) 0;
-  overflow:visible;
-  background:var(--bg);
-}
-.wordmark-row{
-  padding:0;
-  display:flex;flex-direction:column;align-items:stretch;gap:0;
-}
-.wordmark{
-  width:100%;min-width:0;cursor:default;position:relative;color:var(--red);
-  line-height:0;
-  transform:translate3d(0, var(--wm-nudge-y), 0);
-}
-.wordmark-svg-physics{width:100%;height:auto;display:block;overflow:visible;}
-.wordmark-svg-physics .wm-l path,.wordmark-svg-physics .wm-l rect{fill:transparent;}
-.wm-l{cursor:default;}
-#wm-vid-canvas{position:absolute;top:0;left:0;pointer-events:none;z-index:1;}
-
-/* ── ANIMS ── */
-.fu{opacity:0;transform:translateY(16px);animation:fu .95s var(--ease-out-flow) forwards;}
-@keyframes fu{to{opacity:1;transform:translateY(0);}}
-.d1{animation-delay:.3s}.d2{animation-delay:.44s}.d3{animation-delay:.58s}.d4{animation-delay:.72s}
-
-/* ── Hero headline ── */
-/* clip exactly at the line boundary — letters cut off at the line edge, not below */
-.hl-line{display:block;overflow:visible;clip-path:inset(-0.06em -5000px 0 -5000px);padding-bottom:0.22em;margin-bottom:-0.22em;}
-.hl-inner{display:block;}
-.hl-spread-l,.hl-spread-r{display:inline-block;will-change:transform;}
-.hl-spread-l+.hl-spread-r{margin-left:0.28em;}
-
-/* word wrapper — inline-block so line-breaks only happen between words, not letters */
-.hl-word{display:inline-block;}
-
-/* per-character fall-in: clip does the hiding, --cd controls individual fall speed */
-/* -1.5em pushes the deepest descenders (g, y, p) fully above the clip top boundary */
-.hl-char{
-  display:inline-block;
-  transform:translateY(-1.5em) rotate(var(--cr,0deg));
-  opacity:0;
-  transition:transform var(--cd,0.78s) var(--ease-out-flow);
-  transform-origin:50% 0;
-}
-.hl-char--space{display:inline;transform:none!important;opacity:1!important;transition:none!important;}
-/* snap opacity on reveal — clip boundary does the visual masking */
-#hero-hl.revealed .hl-char{transform:translateY(0) rotate(0deg);opacity:1;}
-
-/* fall-out: letters drop below clip boundary — no opacity, just cut off */
-.hl-char-exit{
-  transform:translateY(1.15em) rotate(var(--cr,0deg))!important;
-  transition:transform var(--cd,0.38s) var(--ease-in-move)!important;
-}
-
-/* ── Project card names — same char-fall animation ── */
-.pg-name.revealed .hl-char{transform:translateY(0) rotate(0deg);opacity:1;}
-
-/* ── Circle headline — same char-fall animation as hero ── */
-#circle-slot{position:relative;z-index:1;}
-.circle-hl-underlay{
-  position:absolute;inset:0;z-index:1;
-  display:flex;align-items:center;justify-content:center;
-  width:100%;
-  pointer-events:none;
-}
-#blob-cell{width:100%;}
-/* Same full width for both copies so line breaks and glyph positions match the overlay. */
-#circle-hl,
-#circle-hl-inv-host{
-  width:100%;
-  max-width:100%;
-  box-sizing:border-box;
-  line-height:1.15;
-  transition:opacity 0.32s var(--ease-out-settle);
-}
-#circle-hl .hl-line,
-#blob-cell-inv .hl-line,
-.circle-hl-inv-metrics .hl-line{padding-bottom:0.22em;margin-bottom:-0.22em;}
-/* Circle red headline: solid color for the whole fall — only transform eases; clip masks motion. */
-#circle-hl .hl-char{
-  transition:transform var(--cd,0.78s) var(--ease-out-flow);
-  backface-visibility:hidden;
-}
-/* White overlay can match (opaque once revealed; transform-only ease). */
-#blob-cell-inv .hl-char{
-  transition:transform var(--cd,0.78s) var(--ease-out-flow);
-  backface-visibility:hidden;
-}
-#circle-hl.revealed .hl-char,
-#circle-hl-inv-host.revealed .hl-char{transform:translateY(0) rotate(0deg);opacity:1;}
-
-/* Nav entrance */
-nav{transform:translateY(-100%);opacity:0;transition:transform 1.05s var(--ease-out-flow),opacity 0.85s var(--ease-out-settle);}
-nav.nav-in{transform:translateY(0);opacity:1;}
-
-/* Horizontal card entrance */
-.hcard{opacity:0;transform:translateX(28px);transition:opacity 1.05s var(--ease-out-flow),transform 1.05s var(--ease-out-flow);}
-.hcard.in{opacity:1;transform:translateX(0);}
-
-/* Footer entrance */
-footer{opacity:0;transform:translateY(40px);transition:opacity 1.05s var(--ease-out-settle),transform 1.05s var(--ease-out-flow);}
-footer.in{opacity:1;transform:translateY(0);}
-
-/* ── TABLET (≤900px) ── */
-@media(max-width:900px){
-  :root{--g:28px;}
-
-  /* nav */
-  .n-link{padding:0 18px;}
-  .n-logo{padding:0 18px;}
-  .n-cta{padding:0 18px;}
-
-  /* hero — full viewport, headline centered */
-  .hero{min-height:100vh;justify-content:center;}
-  .hero-content{padding:80px var(--g) 60px;margin-top:0;}
-
-  /* belief */
-  .belief{padding:80px var(--g);margin-top:0;}
-  .belief-q{font-size:clamp(28px,3.6vw,44px);max-width:820px;text-align:center;}
-
-  /* circle: unstick, full-viewport, centered canvas */
-  .scroll-scene{display:flex;flex-direction:column;}
-  .circle-sticky-wrap{height:100dvh;}
-  .circle-section{
-    position:relative;top:auto;
-    height:100dvh;
-    order:-1;
-    padding:0;
-  }
-  .circle-section .pg-featured{padding:40px var(--g);}
-  .hscroll-track{height:460px;}
-  .hcard{flex:0 0 clamp(240px,36vw,320px);padding-left:32px;}
-  .hcard--featured{flex:0 0 clamp(420px,68vw,600px);}
-
-  /* footer */
-  footer{margin-top:auto;}
-}
-
-/* ── MOBILE (≤600px) ── */
-@media(max-width:600px){
-  :root{--g:20px;}
-
-  /* nav — hide links, keep logo + cta */
-  .n-link{display:none;}
-  .n-logo{border-right:none;}
-
-  /* hero — full viewport, headline centered */
-  .hero{min-height:100vh;justify-content:center;}
-  .hero-content{padding:72px var(--g) 48px;margin-top:0;}
-  .hero-hl{font-size:clamp(48px, 13vw, 90px);}
-
-  /* belief */
-  .belief{padding:60px var(--g);margin-top:0;}
-  .belief-q{font-size:clamp(24px,5.5vw,36px);text-align:center;max-width:100%;width:100%;}
-
-  /* circle */
-  .circle-sticky-wrap{height:100dvh;}
-  .circle-section{position:relative;top:auto;height:100dvh;padding:0;}
-  .circle-section .pg-featured{padding:32px var(--g);}
-  .pg-editorial-text{font-size:clamp(48px, 13vw, 90px);}
-
-  /* horizontal scroll: narrower cards on mobile */
-  .hscroll-track{height:420px;}
-  .hcard{flex:0 0 72vw;padding:32px 20px 32px 32px;}
-  .hcard--featured{flex:0 0 88vw;flex-direction:column;}
-  .hcard-copy{flex:0 0 auto;padding:24px 20px;}
-  .hcard-img{flex:1;min-height:200px;}
-
-  /* footer */
-  footer{margin-top:auto;}
-}
-/* ── INTRO ── */
-#intro{
-  position:fixed;inset:0;z-index:999;
-  background:var(--bg);
-  overflow:hidden;
-}
-#intro-svg{
-  position:absolute;inset:0;width:100%;height:100%;
-}
-#intro-ring-group{
-  animation:slowSpin 12s linear infinite;
-  transform-origin:center;
-  transform-box:fill-box;
-}
-@keyframes slowSpin{
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
-}
-#intro-ring{
-  fill:none;stroke:rgba(0,0,0,0.18);stroke-width:1;
-  opacity:0;animation:ringIn 1.35s var(--ease-out-flow) .1s forwards;
-}
-@keyframes ringIn{to{opacity:1;}}
-.intro-mark{stroke:none;}
-
-.intro-center{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:16px;z-index:2;
-  transition:opacity 0.48s var(--ease-out-settle);
-}
-.intro-word{
-  color:var(--ink);opacity:0;
-  animation:fadeUp .78s var(--ease-out-flow) .9s forwards;
-  cursor:default;transition:color .68s var(--ease-out-flow);
-}
-.intro-word:hover{color:var(--red);}
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(5px);}
-  to{opacity:1;transform:translateY(0);}
-}
-</style>
-</head>
-<body>
-
-<div id="intro">
-  <svg id="intro-svg" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <mask id="intro-mask">
-        <rect id="intro-mask-rect" fill="white"/>
-        <circle id="intro-hole" fill="black"/>
-      </mask>
-    </defs>
-    <!-- Overlay rect clipped by expanding hole -->
-    <rect id="intro-bg-rect" fill="#fdfcfa" mask="url(#intro-mask)"/>
-    <!-- no ring needed; canvas handles the reveal -->
-  </svg>
-  <canvas id="intro-canvas" style="position:absolute;inset:0;"></canvas>
-  <div class="intro-center" id="intro-center">
-    <div class="intro-word">
-      <svg height="32" viewBox="0 0 1159 336" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;width:auto;">
-        <path d="M994 0C1085.13 0 1159 73.873 1159 165C1159 256.127 1085.13 330 994 330C902.873 330 829 256.127 829 165C829 149.83 831.05 135.139 834.883 121.187C830.981 120.305 826.924 119.839 822.759 119.839C792.461 119.839 767.839 144.462 767.839 174.759H767.932V325.33H658V179.672C650.9 283.479 571.965 329 493.759 329C408.111 329 337.714 263.623 329.752 180.058C325.05 266.972 253.088 336 165 336C73.873 336 0 262.127 0 171C0 79.873 73.873 6 165 6C249.961 6 319.921 70.2145 329 152.757V13.6699H438.932V164.241H438.839C438.839 194.537 463.461 219.161 493.759 219.161C524.057 219.161 548.679 194.537 548.68 164.241H548.587V13.6699H658.519V159.327C665.618 55.5204 744.553 10.0001 822.759 10C829.612 10 836.367 10.4205 843 11.2334V98.3896C868.6 40.4415 926.576 0 994 0ZM165 115C134.072 115 109 140.072 109 171C109 201.928 134.072 227 165 227C195.928 227 221 201.928 221 171C221 140.072 195.928 115 165 115ZM994 109C963.072 109 938 134.072 938 165C938 195.928 963.072 221 994 221C1024.93 221 1050 195.928 1050 165C1050 134.072 1024.93 109 994 109Z" fill="currentColor"/>
-      </svg>
-    </div>
-  </div>
-  <div id="intro-hotspot" style="position:absolute;border-radius:50%;cursor:pointer;transform:translate(-50%,-50%);z-index:10;"></div>
-</div>
-
-<nav>
-  <a class="n-logo" href="#">
-    <svg height="18" viewBox="0 0 1159 336" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;width:auto;">
-      <path d="M994 0C1085.13 0 1159 73.873 1159 165C1159 256.127 1085.13 330 994 330C902.873 330 829 256.127 829 165C829 149.83 831.05 135.139 834.883 121.187C830.981 120.305 826.924 119.839 822.759 119.839C792.461 119.839 767.839 144.462 767.839 174.759H767.932V325.33H658V179.672C650.9 283.479 571.965 329 493.759 329C408.111 329 337.714 263.623 329.752 180.058C325.05 266.972 253.088 336 165 336C73.873 336 0 262.127 0 171C0 79.873 73.873 6 165 6C249.961 6 319.921 70.2145 329 152.757V13.6699H438.932V164.241H438.839C438.839 194.537 463.461 219.161 493.759 219.161C524.057 219.161 548.679 194.537 548.68 164.241H548.587V13.6699H658.519V159.327C665.618 55.5204 744.553 10.0001 822.759 10C829.612 10 836.367 10.4205 843 11.2334V98.3896C868.6 40.4415 926.576 0 994 0ZM165 115C134.072 115 109 140.072 109 171C109 201.928 134.072 227 165 227C195.928 227 221 201.928 221 171C221 140.072 195.928 115 165 115ZM994 109C963.072 109 938 134.072 938 165C938 195.928 963.072 221 994 221C1024.93 221 1050 195.928 1050 165C1050 134.072 1024.93 109 994 109Z" fill="currentColor"/>
-    </svg>
-  </a>
-  <a class="n-link" href="#projects">Practice</a>
-  <a class="n-link" href="#proj-grid-wrap">Projects</a>
-  <a class="n-cta" href="#">Contact</a>
-</nav>
-
-<!-- HERO: sticky scene gives scroll distance for the line spread -->
-<div class="hero-scene">
-<div class="hero">
-  <canvas id="mesh-canvas"></canvas>
-  <div class="hero-content">
-    <div class="hero-l">
-      <h1 class="hero-hl" id="hero-hl" style="visibility:hidden">
-        <span class="hl-line"><span class="hl-inner"><span class="hl-spread-l">We're <span style="color:var(--red)" id="hero-cycle-word">making</span></span></span></span>
-        <span class="hl-line"><span class="hl-inner"><span class="hl-spread-l">our way</span><span class="hl-spread-r">into a new</span></span></span>
-        <span class="hl-line"><span class="hl-inner"><span class="hl-spread-r">design practice.</span></span></span>
-      </h1>
-    </div>
-  </div>
-</div>
-</div><!-- end .hero-scene -->
-
-<!-- SCROLL SCENE: circle pins while content scrolls over it -->
-<div class="scroll-scene">
-<!-- CIRCLE SECTION — sticky wrapper gives one scroll-length of dwell -->
-<div class="circle-sticky-wrap">
-<div class="circle-section" id="projects">
-  <div class="circle-section-lift" id="circle-section-lift">
-  <div id="orange-reveal"></div>
-  <div class="pg-featured pg-editorial" id="circle-slot" style="padding:0 var(--g);">
-    <div class="circle-hl-underlay">
-      <p class="pg-editorial-text" id="circle-hl" style="visibility:hidden;position:relative;"><span class="hl-line"><span class="hl-inner">The only way</span></span><span class="hl-line"><span class="hl-inner">we know how.</span></span></p>
-    </div>
-    <canvas id="blob-canvas" style="position:absolute;pointer-events:none;z-index:2;left:0;top:0;"></canvas>
-    <div id="blob-cell" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none;box-sizing:border-box">
-      <p class="pg-editorial-text" id="circle-hl-inv-host" style="visibility:hidden;position:relative;margin:0;box-sizing:border-box"><span class="circle-hl-inv-metrics" aria-hidden="true" style="visibility:hidden;pointer-events:none"><span class="hl-line"><span class="hl-inner">The only way</span></span><span class="hl-line"><span class="hl-inner">we know how.</span></span></span><span id="blob-cell-inv" aria-hidden="true" style="position:absolute;inset:0;display:block;color:white;clip-path:circle(0px);opacity:0;pointer-events:none;overflow:visible;padding:32px;box-sizing:border-box;"><span class="hl-line"><span class="hl-inner">Experimenting</span></span><span class="hl-line"><span class="hl-inner">at the edge of</span></span><span class="hl-line"><span class="hl-inner"><em>what's possible.</em></span></span></span></p>
-    </div>
-  </div>
-  </div><!-- .circle-section-lift -->
-</div>
-</div><!-- end .circle-sticky-wrap -->
-
-<!-- BELIEF 2 — scrolls over the sticky circle -->
-<div class="belief belief--bottom">
-  <p class="belief-q">We work through systems, tools, code, and experimentation to shape not just products, but <em>process that creates them.</em></p>
-</div>
-
-</div><!-- end .scroll-scene -->
-
-<!-- PROJECT HORIZONTAL SCROLL -->
-<div class="hscroll-frame" id="proj-grid-wrap">
-<div class="hscroll-track">
-
-  <div class="hcard hcard--featured">
-    <div class="hcard-copy">
-      <div class="hcard-copy-top">
-        <div class="pg-flag">Flagship</div>
-      </div>
-      <div class="hcard-copy-bottom">
-        <div class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></div>
-        <div class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</div>
-        <a class="pg-btn" href="#">Request early access →</a>
-      </div>
-    </div>
-    <div class="hcard-img"><div class="hcard-img-inner"></div></div>
-  </div>
-
-  <div class="hcard">
-    <div class="pg-name"><span class="hl-line"><span class="hl-inner">Latency Atlas</span></span></div>
-    <div class="pg-desc">A map of where AI latency actually matters in real user flows.</div>
-  </div>
-
-  <div class="hcard">
-    <div class="pg-name"><span class="hl-line"><span class="hl-inner">Scaffold Runner</span></span></div>
-    <div class="pg-desc">Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.</div>
-  </div>
-
-  <div class="hscroll-end-pad"></div>
-</div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <div class="wordmark-row">
-    <span class="wordmark" id="wm-letters">
-      <svg class="wordmark-svg-physics" viewBox="0 0 2297 413" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
-        <g class="wm-l"><g transform="translate(0,90)">
-          <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(329,98)">
-          <path d="M164.759 315.331C246.738 315.331 329.518 265.312 329.518 150.571L329.518 0L219.587 0L219.587 150.571L219.679 150.571C219.679 180.868 195.057 205.492 164.759 205.492C134.461 205.492 109.839 180.868 109.839 150.571L109.931 150.571L109.931 0L0 0L0 150.571C0 241.555 73.7758 315.331 164.759 315.331Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(658,98)">
-          <path d="M0 164.759C0 50.0182 82.7805 0 164.759 0C171.612 0 178.367 0.420519 185 1.23339L185 113.699C178.734 111.209 171.904 109.839 164.759 109.839C134.461 109.839 109.839 134.462 109.839 164.759L109.932 164.759L109.932 315.33L0 315.33L0 164.759Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(829,90)">
-          <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(1259,0)">
-          <rect width="111" height="426" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(1370,94)">
-          <path d="M165 0C256.127 0 330 73.873 330 165C330 165.334 329.995 165.667 329.993 166H330V323H212.691C197.593 327.551 181.582 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(1696,0)">
-          <path d="M111 112.041C127.92 106.184 146.088 103 165 103C256.127 103 330 176.873 330 268C330 359.127 256.127 433 165 433C74.2066 433 0 359.667 0 269H0V0H111V112.041ZM165 212C134.072 212 109 237.072 109 268C109 298.928 134.072 324 165 324C195.928 324 221 298.928 221 268C221 237.072 195.928 212 165 212Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(1991,93)">
-          <path d="M298.958 65.666C277.492 27.1351 229.441 0 163.896 0C132.18 0 99.5579 6.11249 73.1309 22.8223C44.5649 40.8846 25.0146 70.7029 25.0146 108.689C25.0148 146.896 44.7452 176.559 73.8867 194.157C100.358 210.143 149.779 213.5 164.779 214C179.779 214.5 193.059 215 192.779 226C192.5 237 169.935 242.085 132.279 231C96 220.32 87.5586 208.846 87.5586 208.846L0 257.154C16.1188 286.37 45.5592 304.157 71.9346 314.452C99.7317 325.303 131.996 331 163.896 331C196.479 331 229.579 324.144 256.269 307.058C284.516 288.973 305.279 259.024 305.279 220.198C305.279 180.013 283.016 150.869 253.286 134.623C226.532 120.004 188 116 163.896 115.5C139.793 115 126 112 126 104C126 96 133 93.5 154 94.5C193.036 96.3588 212.063 115.165 211.601 114.334L298.958 65.666Z" fill="currentColor"/>
-        </g></g>
-
-      </svg>
-      <canvas id="wm-vid-canvas"></canvas>
-    </span>
-  </div>
-</footer>
-
-<script>
 // ── Shared char-split utility ────────────────────────────────────────────────
 // Splits all text inside `source` into .hl-char spans, writing into `target`.
 // Call with one arg to split in-place.
@@ -716,8 +68,7 @@ function staggerCharsInSync(groups){
     });
   }
 }
-</script>
-<script>
+
 (function(){
   var intro    = document.getElementById('intro');
   var center   = document.getElementById('intro-center');
@@ -980,8 +331,7 @@ function staggerCharsInSync(groups){
     introWord.style.webkitTextStrokeColor = '';
   });
 })();
-</script>
-<script>
+
 (function(){
   const canvas = document.getElementById('mesh-canvas');
   const ctx = canvas.getContext('2d');
@@ -1145,8 +495,6 @@ function staggerCharsInSync(groups){
   setup();
   raf = requestAnimationFrame(frame);
 })();
-</script>
-<script>
 
 // ── Circle ring (SVG clip + image parallax + particle dots) ────────────────
 (function(){
@@ -1242,7 +590,6 @@ function staggerCharsInSync(groups){
     cx = cr.left - wr.left + cr.width/2  + PAD;
     cy = cr.top  - wr.top  + cr.height/2 + PAD;
     baseR  = Math.min(345, wrap.offsetWidth * 0.42);
-    document.documentElement.style.setProperty('--circle-r', baseR + 'px');
     innerR = baseR * (124.558 / 367);
     particles = [];
     var numRings = Math.round((baseR - innerR) / SPACING);
@@ -1680,12 +1027,6 @@ function staggerCharsInSync(groups){
             scrollPhase = 'live'; animDir = -1;
           }
         } else {
-          // #region agent log
-          if(performance.now() - revlockedSoftBlockLogAt > 220){
-            revlockedSoftBlockLogAt = performance.now();
-            fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'r-hero-bug-2',hypothesisId:'H6',location:'index.html:sectionWheel:revlocked',message:'upward input absorbed in revlocked',data:{absDelta:Math.round(absDelta),lockMinDelta:LOCK_MIN_DELTA,sinceLock:Math.round(now - lockEnteredAt),lockMinMs:LOCK_MIN_MS,scrollY:Math.round(window.scrollY),lockedScrollY:Math.round(lockedScrollY)},timestamp:Date.now()})}).catch(()=>{});
-          }
-          // #endregion
         }
       } else {
         if(absDelta >= 5){
@@ -1814,12 +1155,6 @@ function staggerCharsInSync(groups){
           animDir = -1;
         }
       } else {
-        // #region agent log
-        if(performance.now() - revlockedSoftBlockLogAt > 220){
-          revlockedSoftBlockLogAt = performance.now();
-          fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'r-hero-bug-2',hypothesisId:'H6',location:'index.html:sectionTouch:revlocked',message:'upward touch absorbed in revlocked',data:{absDy:Math.round(absDy),lockMinDelta:LOCK_MIN_DELTA,sinceLock:Math.round(now - lockEnteredAt),lockMinMs:LOCK_MIN_MS,scrollY:Math.round(window.scrollY),lockedScrollY:Math.round(lockedScrollY)},timestamp:Date.now()})}).catch(()=>{});
-        }
-        // #endregion
       }
       return;
     }
@@ -2318,7 +1653,7 @@ function staggerCharsInSync(groups){
   // Coalesce many scroll events in one frame into a single startReverse attempt (avoids repeated layout reads).
   var reverseScrollCheckRaf = null;
   var reverseScrollRefY     = -1;
-  var REVERSE_SCROLL_INTENT_MIN = 16;
+  var REVERSE_SCROLL_INTENT_MIN = 6;
   var reverseBlockLogAt = 0;
   var revlockedSoftBlockLogAt = 0;
   var reverseRafBlockLogAt = 0;
@@ -2354,9 +1689,6 @@ function staggerCharsInSync(groups){
   function replayHeroHeadlineFallIn(){
     var hl = document.getElementById('hero-hl');
     if(!hl || !measured) return;
-    // #region agent log
-    fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'r-hero-bug',hypothesisId:'H2',location:'index.html:replayHeroHeadlineFallIn',message:'fall-in invoked',data:{scrollY:Math.round(window.scrollY),lastHeroE:Number(lastHeroE||0).toFixed(3),revPlaying:!!revPlaying,autoPlaying:!!autoPlaying,reverseActive:!!window.__heroReverseScrollActive,exitCount:document.querySelectorAll('#hero-hl .hl-char-exit').length,revealed:hl.classList.contains('revealed'),stack:String((new Error()).stack||'').slice(0,600)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     hl.style.visibility = 'visible';
     hl.classList.remove('revealed');
     clearHeroCharExitState();
@@ -2391,9 +1723,6 @@ function staggerCharsInSync(groups){
     var firstCharBefore = hl.querySelector('.hl-char:not(.hl-char--space)');
     var charCountBefore = hl.querySelectorAll('.hl-char:not(.hl-char--space)').length;
     var firstOpacityBefore = firstCharBefore ? Number(getComputedStyle(firstCharBefore).opacity || 0).toFixed(3) : null;
-    // #region agent log
-    fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'r-hero-bug',hypothesisId:'H1',location:'index.html:settleHeroHeadlineAtRest',message:'settle invoked',data:{scrollY:Math.round(window.scrollY),lastHeroE:Number(lastHeroE||0).toFixed(3),revPlaying:!!revPlaying,reverseActive:!!window.__heroReverseScrollActive,exitCount:document.querySelectorAll('#hero-hl .hl-char-exit').length,revealedBefore:hl.classList.contains('revealed'),visibilityBefore:getComputedStyle(hl).visibility,firstOpacityBefore:firstOpacityBefore,charCountBefore:charCountBefore},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     hl.style.visibility = 'visible';
     clearHeroCharExitState();
     var chars = Array.from(hl.querySelectorAll('.hl-char:not(.hl-char--space)'));
@@ -2411,12 +1740,6 @@ function staggerCharsInSync(groups){
       sp.style.transform = 'translateX(0px)';
     });
     hl.classList.add('revealed');
-    // #region agent log
-    var firstCharAfter = hl.querySelector('.hl-char:not(.hl-char--space)');
-    var firstSpreadAfter = hl.querySelector('.hl-spread-l, .hl-spread-r');
-    var hlRectAfter = hl.getBoundingClientRect();
-    fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'post-fix-hero-top',hypothesisId:'H12',location:'index.html:settleHeroHeadlineAtRest',message:'settle post-state snapshot',data:{scrollY:Math.round(window.scrollY),revealedAfter:hl.classList.contains('revealed'),visibilityAfter:getComputedStyle(hl).visibility,firstOpacityAfter:firstCharAfter?Number(getComputedStyle(firstCharAfter).opacity||0).toFixed(3):null,charCountAfter:hl.querySelectorAll('.hl-char:not(.hl-char--space)').length,exitCountAfter:hl.querySelectorAll('.hl-char-exit').length,spreadTransformAfter:firstSpreadAfter?getComputedStyle(firstSpreadAfter).transform:null,hlTop:Math.round(hlRectAfter.top),hlBottom:Math.round(hlRectAfter.bottom),vh:window.innerHeight},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
   }
 
   function maybeForceHeroRestoreFromTopBand(reason){
@@ -2429,9 +1752,6 @@ function staggerCharsInSync(groups){
     var spreadHidden = lastHeroE > 0.08;
     var hiddenLike = getComputedStyle(hl).visibility !== 'visible' || !hl.classList.contains('revealed') || !firstChar || charCount === 0 || firstOpacity < 0.2 || spreadHidden;
     if(!hiddenLike) return;
-    // #region agent log
-    fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'post-fix-watchdog',hypothesisId:'H13',location:'index.html:maybeForceHeroRestoreFromTopBand',message:'watchdog forces hero restore',data:{reason:String(reason||''),scrollY:Math.round(window.scrollY),restoreBand:HERO_RESTORE_BAND_PX,revealed:hl.classList.contains('revealed'),visibility:getComputedStyle(hl).visibility,firstCharExists:!!firstChar,charCount:charCount,firstOpacity:Number(firstOpacity).toFixed(3),spreadHidden:!!spreadHidden,lastHeroE:Number(lastHeroE||0).toFixed(3)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     revPlaying = false;
     window.__heroReverseScrollActive = false;
     document.documentElement.style.overflow = '';
@@ -2517,17 +1837,6 @@ function staggerCharsInSync(groups){
     // don't snap the headline home during that short window.
     if(autoHasPlayed && dwellStart > 0 && Date.now() - dwellStart < 1600 && window.scrollY < 80) return;
     var needsReset = lastHeroE > 0.03 || hl.querySelector('.hl-char-exit');
-    // #region agent log
-    if(window.scrollY <= HERO_RESTORE_BAND_PX){
-      var firstChar = hl.querySelector('.hl-char:not(.hl-char--space)');
-      var firstOpacity = firstChar ? Number(getComputedStyle(firstChar).opacity || 0) : 1;
-      var hiddenLike = getComputedStyle(hl).visibility !== 'visible' || !hl.classList.contains('revealed') || firstOpacity < 0.2;
-      if((hiddenLike || !needsReset) && performance.now() - heroTopStateLogAt > 260){
-        heroTopStateLogAt = performance.now();
-        fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'r-hero-bug-4',hypothesisId:'H10',location:'index.html:reconcileHeroHeadlineAtRest',message:'top reconcile snapshot',data:{scrollY:Math.round(window.scrollY),restoreBand:HERO_RESTORE_BAND_PX,needsReset:!!needsReset,lastHeroE:Number(lastHeroE||0).toFixed(3),exitCount:hl.querySelectorAll('.hl-char-exit').length,revealed:hl.classList.contains('revealed'),visibility:getComputedStyle(hl).visibility,firstOpacity:Number(firstOpacity).toFixed(3),hiddenLike:!!hiddenLike},timestamp:Date.now()})}).catch(()=>{});
-      }
-    }
-    // #endregion
     if(!needsReset) return;
     lastHeroE = 0;
     heroCharExitBegun = false;
@@ -2536,9 +1845,6 @@ function staggerCharsInSync(groups){
     window.__heroAutoHasPlayed = false;
     window.__heroWordCyclePaused = false;
     lastScrollY = window.scrollY;
-    // #region agent log
-    fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'post-fix-hero-top',hypothesisId:'H9',location:'index.html:reconcileHeroHeadlineAtRest',message:'reconcile uses settle for guaranteed visibility',data:{scrollY:Math.round(window.scrollY),exitCount:document.querySelectorAll('#hero-hl .hl-char-exit').length,lastHeroE:Number(lastHeroE||0).toFixed(3)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     settleHeroHeadlineAtRest();
   }
 
@@ -2625,26 +1931,26 @@ function staggerCharsInSync(groups){
   // ── REVERSE ──────────────────────────────────────────────────
   function startReverse(forced, skipOrangePinGate){
     if(revPlaying || autoPlaying || !autoHasPlayed || !measured){
-      // #region agent log
-      if(performance.now() - reverseBlockLogAt > 220){
-        reverseBlockLogAt = performance.now();
-        fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'r-hero-bug-2',hypothesisId:'H5',location:'index.html:startReverse:guard0',message:'reverse blocked by state guard',data:{forced:!!forced,revPlaying:!!revPlaying,autoPlaying:!!autoPlaying,autoHasPlayed:!!autoHasPlayed,measured:!!measured,scrollY:Math.round(window.scrollY)},timestamp:Date.now()})}).catch(()=>{});
-      }
-      // #endregion
       return;
     }
     var pinEl = document.getElementById('projects');
     var pt = pinEl ? pinEl.getBoundingClientRect().top : null;
     var vh = window.innerHeight;
-    if(pinEl && pt !== null && !(forced && skipOrangePinGate)){
-      var pb = pinEl.getBoundingClientRect().bottom;
+    // Block reverse until the orange block sits low in the viewport (most of the frame is hero / content above).
+    var pinGateMax = Math.min(vh - 16, vh * 0.88);
+    var pinGateMin = Math.round(vh * 0.24);
+    if(pinEl && !(forced && skipOrangePinGate)){
+      if(pt >= pinGateMin && pt <= pinGateMax){
+        return;
+      }
+    }
+    var cwDocTop = 0;
+    if(!forced){
       var cw = document.querySelector('.circle-sticky-wrap');
-      var cwBot = cw ? cw.getBoundingClientRect().bottom : vh;
-      if(
-        (pt < vh * 0.5 && pb > vh * 0.5) ||
-        cwBot < 0 ||
-        (pt < 0 && cwBot > 0)
-      ) return;
+      cwDocTop = cw ? cw.getBoundingClientRect().top + window.scrollY : 0;
+      if(window.scrollY > cwDocTop + 180){
+        return;
+      }
     }
     revPlaying = true;
     heroOrangeHoldActive = false;
@@ -2680,9 +1986,6 @@ function staggerCharsInSync(groups){
         window.__heroAutoHasPlayed = false;
         window.__heroReverseScrollActive = false;
         if(window.__circleReset) window.__circleReset();
-        // #region agent log
-        fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'35a180'},body:JSON.stringify({sessionId:'35a180',runId:'r-hero-bug',hypothesisId:'H4',location:'index.html:startReverse:complete',message:'reverse complete pre-settle',data:{myGen:Number(myGen||0),reverseGen:Number(reverseScrollGen||0),scrollY:Math.round(window.scrollY),lastHeroE:Number(lastHeroE||0).toFixed(3),exitCount:document.querySelectorAll('#hero-hl .hl-char-exit').length,heroRevealed:!!(document.getElementById('hero-hl')&&document.getElementById('hero-hl').classList.contains('revealed'))},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         settleHeroHeadlineAtRest();
         scheduleHeroWordCycleResumeAfterReverse();
       }
@@ -2909,7 +2212,20 @@ function staggerCharsInSync(groups){
             var refPeak = reverseScrollRefY;
             reverseScrollRefY = -1;
             if(!measured || autoPlaying || revPlaying || !autoHasPlayed || document.documentElement.style.overflow === 'hidden' || refPeak < 0 || y >= refPeak) return;
-            if(refPeak - y < REVERSE_SCROLL_INTENT_MIN) return;
+            if(refPeak - y < REVERSE_SCROLL_INTENT_MIN){
+              return;
+            }
+            var cwSkip = document.querySelector('.circle-sticky-wrap');
+            if(cwSkip){
+              var cdt2 = cwSkip.getBoundingClientRect().top + y;
+              var dw2 = Math.max(cwSkip.offsetHeight || 0, window.innerHeight);
+              if(refPeak > cdt2 + dw2 + 48){
+                return;
+              }
+              if(performance.now() - heroOrangeHoldAtMs < 600 && refPeak > cdt2 + dw2 - 120){
+                return;
+              }
+            }
             startReverse(false);
           });
         } else {
@@ -3286,8 +2602,3 @@ function staggerCharsInSync(groups){
     ctx.globalCompositeOperation = 'source-over';
   })();
 })();
-
-
-</script>
-</body>
-</html>
