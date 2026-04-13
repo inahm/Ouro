@@ -110,9 +110,8 @@ nav{
 .hero-hl-indent{display:block;}
 
 /* ── CIRCLE MODULE ── */
-/* Extra height below the pinned circle = scroll runway that drives reveal 0→1 (no wheel lock). */
 .circle-sticky-wrap{
-  min-height:calc(100vh + 115vh);
+  height:calc(100vh + 20px);
   position:relative;
   margin-top:-100vh;
 }
@@ -398,7 +397,7 @@ footer.in{opacity:1;transform:translateY(0);}
 
   /* circle: unstick, full-viewport, centered canvas */
   .scroll-scene{display:flex;flex-direction:column;}
-  .circle-sticky-wrap{min-height:calc(100dvh + 85vh);}
+  .circle-sticky-wrap{height:100dvh;}
   .circle-section{
     position:relative;top:auto;
     height:100dvh;
@@ -431,7 +430,7 @@ footer.in{opacity:1;transform:translateY(0);}
   .belief-q{font-size:clamp(24px,5.5vw,36px);text-align:center;max-width:100%;width:100%;}
 
   /* circle */
-  .circle-sticky-wrap{min-height:calc(100dvh + 85vh);}
+  .circle-sticky-wrap{height:100dvh;}
   .circle-section{position:relative;top:auto;height:100dvh;padding:0;}
   .circle-section .pg-featured{padding:32px var(--g);}
 
