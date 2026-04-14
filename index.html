@@ -1182,9 +1182,13 @@ function staggerCharsInSync(groups){
   var imgFlower  = new Image(); imgFlower.src  = 'flower.png';
 
   // wyatt → maat → eye → roses. Start at index 2 (eye).
+  var _vidHideStyle = 'position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;';
   var cycleVids = ['wyatt.mp4','cycle-2.mp4','cycle-4.mp4','cycle-3.mp4'].map(function(src){
     var v = document.createElement('video');
     v.src = src; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
+    v.setAttribute('playsinline','');
+    v.style.cssText = _vidHideStyle;
+    document.body.appendChild(v);
     v.play().catch(function(){});
     return v;
   });
@@ -1210,6 +1214,9 @@ function staggerCharsInSync(groups){
 
   var vid = document.createElement('video');
   vid.src = 'bg.mp4'; vid.muted = true; vid.loop = true; vid.playsInline = true; vid.autoplay = true;
+  vid.setAttribute('playsinline','');
+  vid.style.cssText = _vidHideStyle;
+  document.body.appendChild(vid);
   vid.play().catch(function(){});
 
   function scaledRing(r){
@@ -3302,8 +3309,8 @@ function staggerCharsInSync(groups){
   vid.src = 'bg.mp4';
   vid.autoplay = true; vid.muted = true; vid.loop = true;
   vid.playsInline = true; vid.setAttribute('playsinline','');
-  vid.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;';
-  svgEl.parentElement.appendChild(vid);
+  vid.style.cssText = 'position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;';
+  document.body.appendChild(vid);
   vid.play().catch(function(){});
 
   /* Drop empty slack below the letterforms (scaled viewBox height). */
