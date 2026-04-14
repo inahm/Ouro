@@ -1,0 +1,32 @@
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775782989734,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775783001401,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:sectionWheel","message":"lock from before (top<=0)","data":{"rTop":0,"animProgress":0,"circleTextPhase":0},"timestamp":1775783003210,"hypothesisId":"H3"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775783003211,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:commitPhaseDOM","message":"PHASE1 instant defer fall-in","data":{"phase":0},"timestamp":1775783013035,"hypothesisId":"H6"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775783015184,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775784791036,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775784791087,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775784997253,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:sectionWheel","message":"lock from before (top<=0)","data":{"rTop":0,"animProgress":0,"circleTextPhase":0},"timestamp":1775784999362,"hypothesisId":"H3"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775784999362,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:commitPhaseDOM","message":"PHASE1 instant defer fall-in","data":{"phase":0},"timestamp":1775785023932,"hypothesisId":"H6"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775785024646,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775785024707,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786555859,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:sectionWheel","message":"lock from before (top<=0)","data":{"rTop":0,"animProgress":0,"circleTextPhase":0},"timestamp":1775786560585,"hypothesisId":"H3"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786560585,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:commitPhaseDOM","message":"PHASE1 instant defer fall-in","data":{"phase":0},"timestamp":1775786570059,"hypothesisId":"H6"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786570627,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786570701,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:commitPhaseDOM","message":"PHASE1 instant defer fall-in","data":{"phase":0},"timestamp":1775786627718,"hypothesisId":"H6"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786630768,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786631186,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786759665,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:sectionWheel","message":"lock from before (top<=0)","data":{"rTop":0,"animProgress":0,"circleTextPhase":0},"timestamp":1775786770274,"hypothesisId":"H3"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786770275,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:commitPhaseDOM","message":"PHASE1 instant defer fall-in","data":{"phase":0},"timestamp":1775786805673,"hypothesisId":"H6"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786807289,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:sectionWheel","message":"lock from before (top<=0)","data":{"rTop":0,"animProgress":0,"circleTextPhase":0},"timestamp":1775786812266,"hypothesisId":"H3"}
+{"sessionId":"dc97be","location":"index.html:triggerCircleTextReveal","message":"replay start","data":{},"timestamp":1775786812267,"hypothesisId":"H2"}
+{"sessionId":"dc97be","location":"index.html:commitPhaseDOM","message":"PHASE1 instant defer fall-in","data":{"phase":0},"timestamp":1775786835334,"hypothesisId":"H6"}
+{"sessionId":"dc97be","location":"index.html:sectionWheel","message":"lock from before (top<=0)","data":{"rTop":0,"animProgress":0,"circleTextPhase":0},"timestamp":1775786898396,"hypothesisId":"H3"}

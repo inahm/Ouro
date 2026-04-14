@@ -1,0 +1,3 @@
+{"sessionId":"b557af","location":"index.html:contour-field","message":"contour field init","data":{"N_LINES":58,"STEPS":290,"innerR":"88.2","baseR":"260.0","freqs":[1,1.7,2.3,0.6,3.7,0.4]},"timestamp":1775673214306,"hypothesisId":"contour-moire"}
+{"sessionId":"b557af","location":"index.html:phase2-flat","message":"flat ring renderer init","data":{"particleCount":7659,"zMin":"-324.7","zMax":"317.3","FOCAL":680,"innerR":"88.2","baseR":"260.0"},"timestamp":1775673253354,"hypothesisId":"flat-ring"}
+{"sessionId":"b557af","location":"index.html:phase2","message":"ring renderer init","data":{"ringCount":47,"particleCount":13646,"zMin":"-374.7","zMax":"375.9","FOCAL":680,"innerR":"117.1","baseR":"345.0"},"timestamp":1775673271401,"hypothesisId":"A,B,C,D"}

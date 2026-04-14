@@ -1181,7 +1181,7 @@ function staggerCharsInSync(groups){
   var imgAmbient = new Image(); imgAmbient.src = 'circle-ambient.png';
   var imgFlower  = new Image(); imgFlower.src  = 'flower.png';
 
-  // wyatt → maat → eye → roses. Start at index 1 (maat) — avoids red PHASE1 flashing on first paint over the clip.
+  // wyatt → maat → eye → roses. Start at index 2 (eye).
   var cycleVids = ['wyatt.mp4','cycle-2.mp4','cycle-4.mp4','cycle-3.mp4'].map(function(src){
     var v = document.createElement('video');
     v.src = src; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
@@ -1190,7 +1190,7 @@ function staggerCharsInSync(groups){
   });
   var cycleImgs = cycleVids; // alias so rest of code is unchanged
   var ringOverlay       = null;
-  var CYCLE_START_IDX   = 1; // maat — first visible clip is never invert
+  var CYCLE_START_IDX   = 2; // eye
   var cycleIdx          = CYCLE_START_IDX;
   var cycleFade         = 0;
   var cycleStart        = performance.now();
@@ -1199,6 +1199,14 @@ function staggerCharsInSync(groups){
   var cycleTransDur     = CYCLE_TRANS;
   var cyclePrevTs       = null; // tracks frame delta for cycle pause
   var lastAnimPForCycle = 0;    // detect white-ring → orange so we always reopen on Maat
+
+  // ── Pixel assembly transition ─────────────────────────
+  var PIXEL_TRANSITIONS = false; // set to true to re-enable
+  var pixelParticles    = [];   // incoming: scatter → grid
+  var pixelForVidIdx    = -1;
+  var pixelOutParticles = [];   // outgoing: grid → scatter
+  var pixelOutForVidIdx = -1;
+  var PIXEL_STEP        = 8;    // grid sample spacing in CSS px
 
   var vid = document.createElement('video');
   vid.src = 'bg.mp4'; vid.muted = true; vid.loop = true; vid.playsInline = true; vid.autoplay = true;
@@ -1958,6 +1966,11 @@ function staggerCharsInSync(groups){
 
     var ring = scaledRing(clipR);
     var imgSize = clipR * 2.2;
+    // Clamp parallax so videos always cover the circle at every breakpoint.
+    // Max safe shift = half the padding between imgSize and the circle diameter.
+    var MAX_PAR_PX = Math.max(0, (imgSize - clipR * 2) * 0.45);
+    var pox = Math.max(-MAX_PAR_PX, Math.min(MAX_PAR_PX, mox * 20));
+    var poy = Math.max(-MAX_PAR_PX, Math.min(MAX_PAR_PX, moy * 20));
 
     // ── Images inside ring clip — skip entirely when animation hasn't started
     // (clipR≤2 sub-pixel scale causes evenodd hole to bleed a tiny center dot)
@@ -2004,8 +2017,45 @@ function staggerCharsInSync(groups){
       var dw = vw * s, dh = vh * s;
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.drawImage(img, cx - dw/2 - mox*20, cy - dh/2 - moy*20, dw, dh);
+      ctx.drawImage(img, cx - dw/2 - pox, cy - dh/2 - poy, dw, dh);
       ctx.restore();
+    }
+
+    function makePixelGrid(img, zoom){
+      if(!img || img.readyState < 2) return [];
+      var diam = imgSize * zoom;
+      var vw   = img.videoWidth  || diam;
+      var vh   = img.videoHeight || diam;
+      var s    = Math.max(diam / vw, diam / vh);
+      var dw   = vw * s, dh = vh * s;
+      var pts  = [];
+      for(var qy = 0; qy < dh; qy += PIXEL_STEP){
+        for(var qx = 0; qx < dw; qx += PIXEL_STEP){
+          var tx  = cx - dw/2 + qx;
+          var ty  = cy - dh/2 + qy;
+          var ddx = tx - cx, ddy = ty - cy;
+          var ang  = Math.atan2(ddy, ddx) + (Math.random() - 0.5) * Math.PI;
+          var dist = clipR * (0.5 + Math.random());
+          var sx   = cx + Math.cos(ang) * dist;
+          var sy   = cy + Math.sin(ang) * dist;
+          pts.push({ tx: tx, ty: ty, sx: sx, sy: sy, x: sx, y: sy });
+        }
+      }
+      return pts;
+    }
+
+    function buildPixelGrid(img, zoom){
+      var pts = makePixelGrid(img, zoom);
+      // incoming starts at scatter (sx,sy), moves toward grid (tx,ty)
+      pixelParticles = pts;
+    }
+
+    function buildOutgoingGrid(img, zoom){
+      var pts = makePixelGrid(img, zoom);
+      // outgoing starts at grid (tx,ty), moves toward scatter (sx,sy)
+      pixelOutParticles = pts.map(function(p){
+        return { tx: p.tx, ty: p.ty, sx: p.sx, sy: p.sy, x: p.tx, y: p.ty };
+      });
     }
 
     // White PHASE2 duplicate inside ring — all cycle videos (was only index 2 / “eye”).
@@ -2025,8 +2075,73 @@ function staggerCharsInSync(groups){
       }
     }
 
-    drawCImg(imgA, 1 - cycleFade, kbZoom);
-    drawCImg(imgB, cycleFade,     nextKb);
+    var incomingVidIdx = (cycleIdx + 1) % cycleImgs.length;
+
+    if(cycleFade > 0 && !PIXEL_TRANSITIONS){
+      drawCImg(imgA, 1 - cycleFade, kbZoom);
+      drawCImg(imgB, cycleFade,     nextKb);
+    } else if(cycleFade > 0){
+      // Build both grids once at the start of each transition
+      if(pixelOutForVidIdx !== cycleIdx && imgA && imgA.readyState >= 2){
+        pixelOutForVidIdx = cycleIdx;
+        buildOutgoingGrid(imgA, kbZoom);
+      }
+      if(pixelForVidIdx !== incomingVidIdx && imgB && imgB.readyState >= 2){
+        pixelForVidIdx = incomingVidIdx;
+        buildPixelGrid(imgB, nextKb);
+      }
+
+      var easedT = cycleFade * cycleFade * (3 - 2 * cycleFade); // smoothstep
+      var ease = 0.015 + easedT * 0.11;
+
+      // Outgoing: pixels disassemble — grid → scatter
+      if(pixelOutParticles.length > 0 && imgA && imgA.readyState >= 2){
+        ctx.save();
+        ctx.globalAlpha = 1 - cycleFade;
+        ctx.beginPath();
+        for(var poi = 0; poi < pixelOutParticles.length; poi++){
+          var po = pixelOutParticles[poi];
+          po.x += (po.sx - po.x) * ease;
+          po.y += (po.sy - po.y) * ease;
+          ctx.rect(po.x, po.y, PIXEL_STEP, PIXEL_STEP);
+        }
+        ctx.clip();
+        var diamA = imgSize * kbZoom;
+        var vwA = imgA.videoWidth || diamA, vhA = imgA.videoHeight || diamA;
+        var sA  = Math.max(diamA / vwA, diamA / vhA);
+        ctx.drawImage(imgA, cx - vwA*sA/2 - pox, cy - vhA*sA/2 - poy, vwA*sA, vhA*sA);
+        ctx.restore();
+      } else {
+        drawCImg(imgA, 1 - cycleFade, kbZoom);
+      }
+
+      // Incoming: pixels assemble — scatter → grid
+      if(pixelParticles.length > 0 && imgB && imgB.readyState >= 2){
+        ctx.save();
+        ctx.globalAlpha = cycleFade;
+        ctx.beginPath();
+        for(var pii = 0; pii < pixelParticles.length; pii++){
+          var pp = pixelParticles[pii];
+          pp.x += (pp.tx - pp.x) * ease;
+          pp.y += (pp.ty - pp.y) * ease;
+          ctx.rect(pp.x, pp.y, PIXEL_STEP, PIXEL_STEP);
+        }
+        ctx.clip();
+        var diam2 = imgSize * nextKb;
+        var vw2 = imgB.videoWidth || diam2, vh2 = imgB.videoHeight || diam2;
+        var s2  = Math.max(diam2 / vw2, diam2 / vh2);
+        ctx.drawImage(imgB, cx - vw2*s2/2 - pox, cy - vh2*s2/2 - poy, vw2*s2, vh2*s2);
+        ctx.restore();
+      } else {
+        drawCImg(imgB, cycleFade, nextKb);
+      }
+
+    } else {
+      // No transition — draw current video normally
+      drawCImg(imgA, 1, kbZoom);
+      if(pixelParticles.length > 0)    { pixelParticles    = []; pixelForVidIdx    = -1; }
+      if(pixelOutParticles.length > 0) { pixelOutParticles = []; pixelOutForVidIdx = -1; }
+    }
     if(vid.readyState >= 2){
       var vvw = vid.videoWidth  || imgSize;
       var vvh = vid.videoHeight || imgSize;

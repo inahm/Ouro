@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ouro Labs — Coming Soon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --mid:rgba(255,255,255,0.5);
+  --g:88px;
+}
+@media(max-width:900px){:root{--g:28px;}}
+@media(max-width:600px){:root{--g:20px;}}
+html,body{
+  width:100%;
+  min-height:100%;
+  overflow-x:hidden;
+  overflow-y:auto;
+  background:#000;
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+/* ── STAGE — full grid scrolls; wordmark is a fixed overlay ── */
+.stage{
+  position:relative;
+  z-index:0;
+  width:100%;
+}
+
+/* ── VIDEO GRID (scrolls; wordmark overlays, no bar) ── */
+.grid-stack{
+  position:relative;
+  z-index:0;
+  display:flex;
+  flex-direction:column;
+  /* Only when viewport is taller than 2×(50vw) tiles: minimal pad so page can scroll for wordmark drop */
+  padding-bottom:max(0px, calc(100dvh - 100vw + 64px));
+}
+.grid-row--top,
+.grid-row--bottom{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  width:100%;
+}
+.grid-row--top .cell,
+.grid-row--bottom .cell{
+  width:100%;
+  aspect-ratio:1/1;
+  min-height:0;
+  position:relative;
+}
+.cell{
+  position:relative;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+.cell video{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
+}
+/* per-quadrant tweaks */
+.grid-row--top .cell:nth-child(1) video{ filter:saturate(1.35) contrast(1.08); }
+.grid-row--top .cell:nth-child(2) video{ filter:saturate(1.12) contrast(1.04); }
+.grid-row--bottom .cell:nth-child(1) video{ filter:saturate(1.2) contrast(1.05); }
+.grid-row--bottom .cell:nth-child(2) video{ filter:saturate(1.22) contrast(1.06) brightness(0.98); }
+
+/* ── Wordmark: full width; JS keeps bar at viewport bottom + spring lag on scroll ── */
+.cs-wordmark-fixed{
+  position:fixed;
+  left:0;
+  right:0;
+  top:0;
+  z-index:30;
+  background:transparent;
+  pointer-events:none;
+  will-change:top;
+}
+.cs-wordmark-fixed-inner{
+  padding:0;
+  pointer-events:none;
+}
+.cs-wordmark-fixed .wordmark-row{ pointer-events:auto; }
+.wordmark-row{
+  padding:4px 0 0;
+  display:flex;
+  align-items:flex-end;
+  gap:24px;
+}
+.wordmark{
+  flex:1;
+  min-width:0;
+  cursor:default;
+  position:relative;
+  color:#fff;
+}
+.wordmark-svg-physics{
+  width:100%;
+  height:auto;
+  display:block;
+  overflow:visible;
+}
+.wordmark-svg-physics .wm-l path,
+.wordmark-svg-physics .wm-l rect{fill:currentColor;}
+.foot-copy{
+  font-size:13px;
+  font-weight:500;
+  letter-spacing:0.06em;
+  color:var(--mid);
+  font-family:'Inter',sans-serif;
+  white-space:nowrap;
+  flex-shrink:0;
+  padding-bottom:16px;
+  padding-right:var(--g);
+}
+
+/* ── ENTRANCE ANIMATIONS ── */
+@keyframes fadeIn{ from{opacity:0;}to{opacity:1;} }
+.stage{ animation:fadeIn 1s 0s both; }
+</style>
+</head>
+<body>
+
+<!-- Square stage — matches Figma's 1468×1468 canvas, centered in viewport -->
+<div class="stage">
+
+  <!-- 2×2: eye TL, Green Wyatt TR, lily/pool BL, Egyptian (Matz) BR.
+       file:// screenshot (order was 1,2,4,3): TL looked like green graffiti → cycle-1 = Wyatt;
+       TR was Egyptian → cycle-2 = Matz; so 4 likely = eye / swirl cell. -->
+  <div class="grid-stack">
+    <div class="grid-row grid-row--top">
+      <div class="cell">
+        <video autoplay muted loop playsinline><source src="cycle-4.mp4" type="video/mp4"></video>
+      </div>
+      <div class="cell">
+        <video autoplay muted loop playsinline><source src="cycle-1.mp4" type="video/mp4"></video>
+      </div>
+    </div>
+
+    <div class="grid-row grid-row--bottom">
+      <div class="cell">
+        <video autoplay muted loop playsinline><source src="cycle-3.mp4" type="video/mp4"></video>
+      </div>
+      <div class="cell">
+        <video autoplay muted loop playsinline><source src="cycle-2.mp4" type="video/mp4"></video>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .stage -->
+
+<div class="cs-wordmark-fixed">
+  <div class="cs-wordmark-fixed-inner">
+    <div class="wordmark-row">
+      <span class="wordmark" id="wm-letters">
+        <svg class="wordmark-svg-physics" viewBox="0 0 2297 413" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+          <g class="wm-l"><g transform="translate(0,90)">
+            <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(329,98)">
+            <path d="M164.759 315.331C246.738 315.331 329.518 265.312 329.518 150.571L329.518 0L219.587 0L219.587 150.571L219.679 150.571C219.679 180.868 195.057 205.492 164.759 205.492C134.461 205.492 109.839 180.868 109.839 150.571L109.931 150.571L109.931 0L0 0L0 150.571C0 241.555 73.7758 315.331 164.759 315.331Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(658,98)">
+            <path d="M0 164.759C0 50.0182 82.7805 0 164.759 0C171.612 0 178.367 0.420519 185 1.23339L185 113.699C178.734 111.209 171.904 109.839 164.759 109.839C134.461 109.839 109.839 134.462 109.839 164.759L109.932 164.759L109.932 315.33L0 315.33L0 164.759Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(829,90)">
+            <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(1259,0)">
+            <rect width="111" height="426" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(1370,94)">
+            <path d="M165 0C256.127 0 330 73.873 330 165C330 165.334 329.995 165.667 329.993 166H330V323H212.691C197.593 327.551 181.582 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(1696,0)">
+            <path d="M111 112.041C127.92 106.184 146.088 103 165 103C256.127 103 330 176.873 330 268C330 359.127 256.127 433 165 433C74.2066 433 0 359.667 0 269H0V0H111V112.041ZM165 212C134.072 212 109 237.072 109 268C109 298.928 134.072 324 165 324C195.928 324 221 298.928 221 268C221 237.072 195.928 212 165 212Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(1991,93)">
+            <path d="M298.958 65.666C277.492 27.1351 229.441 0 163.896 0C132.18 0 99.5579 6.11249 73.1309 22.8223C44.5649 40.8846 25.0146 70.7029 25.0146 108.689C25.0148 146.896 44.7452 176.559 73.8867 194.157C100.358 210.143 149.779 213.5 164.779 214C179.779 214.5 193.059 215 192.779 226C192.5 237 169.935 242.085 132.279 231C96 220.32 87.5586 208.846 87.5586 208.846L0 257.154C16.1188 286.37 45.5592 304.157 71.9346 314.452C99.7317 325.303 131.996 331 163.896 331C196.479 331 229.579 324.144 256.269 307.058C284.516 288.973 305.279 259.024 305.279 220.198C305.279 180.013 283.016 150.869 253.286 134.623C226.532 120.004 188 116 163.896 115.5C139.793 115 126 112 126 104C126 96 133 93.5 154 94.5C193.036 96.3588 212.063 115.165 211.601 114.334L298.958 65.666Z" fill="currentColor"/>
+          </g></g>
+        </svg>
+      </span>
+      <span class="foot-copy">© 2026</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// Stagger video playback so cells don't cycle in sync
+document.querySelectorAll('.cell video').forEach(function(v,i){
+  v.addEventListener('loadedmetadata',function(){
+    if(v.duration) v.currentTime = (v.duration / 4) * i;
+  });
+});
+
+// Wordmark bar: fixed high until ouro-wm-release, then springs to viewport bottom + scroll lag
+(function(){
+  var bar = document.querySelector('.cs-wordmark-fixed');
+  if(!bar) return;
+
+  var PAD = 12;
+  var START_FRAC = 0.12;
+  var SPRING = 0.016;
+  var DAMP = 0.92;
+  var SCROLL_KICK = 0.07;
+  var MAX_DELTA = 48;
+
+  var pos = null;
+  var vel = 0;
+  var lastScrollY = window.scrollY || 0;
+  var released = false;
+
+  function viewportH(){
+    return window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  }
+
+  function topWhenHeld(){
+    return Math.max(56, Math.round(viewportH() * START_FRAC));
+  }
+
+  function topWhenBottom(){
+    return viewportH() - bar.offsetHeight - PAD;
+  }
+
+  function desiredTop(){
+    return released ? topWhenBottom() : topWhenHeld();
+  }
+
+  function tick(){
+    var tgt = desiredTop();
+    if(pos === null) pos = tgt;
+    vel = (vel + (tgt - pos) * SPRING) * DAMP;
+    pos += vel;
+    bar.style.top = Math.round(pos) + 'px';
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('scroll', function(){
+    var sy = window.scrollY || document.documentElement.scrollTop || 0;
+    var delta = Math.max(-MAX_DELTA, Math.min(MAX_DELTA, sy - lastScrollY));
+    lastScrollY = sy;
+    if(released && delta) vel -= delta * SCROLL_KICK;
+  }, { passive: true });
+
+  document.addEventListener('ouro-wm-release', function(){
+    released = true;
+  });
+
+  function snapPosition(){
+    pos = desiredTop();
+    vel = 0;
+  }
+
+  window.addEventListener('resize', snapPosition);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', snapPosition);
+  }
+  if(window.ResizeObserver){
+    var ro = new ResizeObserver(snapPosition);
+    ro.observe(bar);
+  }
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(snapPosition);
+  window.addEventListener('load', snapPosition);
+  snapPosition();
+  requestAnimationFrame(tick);
+})();
+
+function shuffleInPlace(arr){
+  for(var i = arr.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i];
+    arr[i] = arr[j];
+    arr[j] = t;
+  }
+  return arr;
+}
+
+// Letters: idle until first scroll (settle + delay), then drop in random order as bar falls to bottom
+(function(){
+  var svgEl = document.querySelector('.wordmark-svg-physics');
+  var letters = svgEl ? svgEl.querySelectorAll('.wm-l') : [];
+  if(!letters.length) return;
+
+  var VW = 2297, VH = 413;
+  var n = letters.length;
+  var rests = [
+    [165,  255],
+    [329+165, 98+158],
+    [658+92,  98+158],
+    [994,  255],
+    [1315, 213],
+    [1535, 259],
+    [1861, 217],
+    [2144, 259],
+  ];
+
+  function easeDrop(t){
+    return 1 - Math.pow(1 - t, 4);
+  }
+
+  function buildIntroSchedule(t0){
+    var order = shuffleInPlace(Array.from({ length: n }, function(_, i){ return i; }));
+    var byIdx = {};
+    var slotT = t0;
+    order.forEach(function(idx){
+      byIdx[idx] = {
+        start: slotT,
+        dur: 1500 + Math.random() * 2400,
+        drop: 78 + Math.random() * 72,
+      };
+      slotT += 140 + Math.random() * 220;
+    });
+    return byIdx;
+  }
+
+  var SPRING = 0.03;
+  var DAMP = 0.89;
+  var REPEL = 62000;
+  var MAX_F = 14;
+  var RADIUS_PX = 180;
+
+  var mx = -99999, my = -99999;
+  document.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; });
+
+  var states = Array.from(letters).map(function(el, i){
+    return { el: el, x: 0, y: 0, vx: 0, vy: 0, rest: rests[i], intro: null };
+  });
+
+  function applyIntro(byIdx){
+    states.forEach(function(s, i){
+      s.intro = byIdx[i];
+      s.x = 0;
+      s.y = 0;
+      s.vx = 0;
+      s.vy = 0;
+    });
+  }
+
+  function idleIntro(){
+    var by = {};
+    for(var i = 0; i < n; i++){
+      by[i] = { start: 0, dur: 0, drop: 0 };
+    }
+    return by;
+  }
+
+  applyIntro(idleIntro());
+
+  var SETTLE_MS = 340;
+  var DELAY_MIN = 320;
+  var DELAY_MAX = 900;
+  var lastScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  var settleTimer = null;
+  var delayTimer = null;
+  var hasReleased = false;
+
+  window.addEventListener('scroll', function(){
+    if(hasReleased) return;
+    var sy = window.scrollY || document.documentElement.scrollTop || 0;
+    if(Math.abs(sy - lastScrollY) < 1) return;
+    lastScrollY = sy;
+    if(delayTimer){
+      clearTimeout(delayTimer);
+      delayTimer = null;
+    }
+    if(settleTimer) clearTimeout(settleTimer);
+    settleTimer = setTimeout(function(){
+      settleTimer = null;
+      var wait = DELAY_MIN + Math.random() * (DELAY_MAX - DELAY_MIN);
+      delayTimer = setTimeout(function(){
+        delayTimer = null;
+        hasReleased = true;
+        var now = performance.now();
+        document.dispatchEvent(new CustomEvent('ouro-wm-release'));
+        applyIntro(buildIntroSchedule(now + 140));
+      }, wait);
+    }, SETTLE_MS);
+  }, { passive: true });
+
+  (function tick(){
+    requestAnimationFrame(tick);
+    var now = performance.now();
+    var r = svgEl.getBoundingClientRect();
+    var vb = svgEl.viewBox.baseVal;
+    var sx = r.width / (vb.width || VW);
+    var sy = r.height / (vb.height || VH);
+    var mxS = (mx - r.left) / sx + (vb.x || 0);
+    var myS = (my - r.top) / sy + (vb.y || 0);
+
+    states.forEach(function(s){
+      var inn = s.intro;
+      if(now < inn.start){
+        s.x = 0;
+        s.y = -inn.drop;
+        s.vx = s.vy = 0;
+        s.el.setAttribute('transform', 'translate(0,' + (-inn.drop).toFixed(1) + ')');
+        return;
+      }
+      if(now < inn.start + inn.dur){
+        var u = (now - inn.start) / inn.dur;
+        if(u > 1) u = 1;
+        var e = easeDrop(u);
+        s.y = -inn.drop * (1 - e);
+        s.x = 0;
+        s.vx = s.vy = 0;
+        s.el.setAttribute('transform', 'translate(0,' + s.y.toFixed(1) + ')');
+        return;
+      }
+
+      var cx = s.rest[0] + s.x;
+      var cy = s.rest[1] + s.y;
+      var dx = mxS - cx;
+      var dy = myS - cy;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      var radS = RADIUS_PX / sx;
+      var fx = 0, fy = 0;
+      if(dist < radS && dist > 0.5){
+        var mag = Math.min(REPEL / (dist * dist), MAX_F);
+        fx = -(dx / dist) * mag;
+        fy = -(dy / dist) * mag;
+      }
+      fx -= SPRING * s.x;
+      fy -= SPRING * s.y;
+      s.vx = (s.vx + fx) * DAMP;
+      s.vy = (s.vy + fy) * DAMP;
+      s.x += s.vx;
+      s.y += s.vy;
+      s.el.setAttribute('transform', 'translate(' + s.x.toFixed(1) + ',' + s.y.toFixed(1) + ')');
+    });
+  })();
+})();
+</script>
+</body>
+</html>
