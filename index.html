@@ -1994,6 +1994,8 @@ function staggerCharsInSync(groups){
   window.addEventListener('scroll', function(){ if(clientX===-9999) return; updateMouse(); mouse.spd=Math.max(mouse.spd,0.9); },{passive:true});
   window.addEventListener('resize', function(){ cancelAnimationFrame(raf); setup(); raf=requestAnimationFrame(frame); });
 
+  window.__triggerCircleTextReveal = triggerCircleTextReveal;
+
   setup();
   var circleInView = true;
   new IntersectionObserver(function(entries){
@@ -2001,6 +2003,42 @@ function staggerCharsInSync(groups){
     if(circleInView && !raf) raf = requestAnimationFrame(frame);
   }, {rootMargin:'100px 0px'}).observe(wrap);
   raf = requestAnimationFrame(frame);
+
+  // On mobile the scroll lock is disabled, so trigger text reveal and auto-play
+  // the orange animation when the section scrolls into view instead.
+  // We observe the full section element (circlePinEl) rather than the smaller
+  // canvas wrap to avoid clipping issues with overflow:hidden ancestors.
+  if(IS_MOBILE){
+    function _mobileCircleEnter(){
+      triggerCircleTextReveal();
+      if(animProgress <= 0 && animDir === 0){
+        animPrevTs = null;
+        animDir = 1;
+        if(!raf) raf = requestAnimationFrame(frame);
+      }
+    }
+    function _mobileCircleLeave(){
+      if(animDir === 0 && animProgress >= 1){
+        _mobileCircleFired = false; // re-arm scroll fallback for next entry
+        if(typeof window.__circleReset === 'function') window.__circleReset();
+      }
+    }
+    new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting) _mobileCircleEnter();
+      else _mobileCircleLeave();
+    }, {threshold: 0.15}).observe(circlePinEl);
+
+    // Scroll-based fallback: fire once the section center crosses into view.
+    var _mobileCircleFired = false;
+    window.addEventListener('scroll', function _mobileCircleScroll(){
+      if(_mobileCircleFired) return;
+      var r = circlePinEl.getBoundingClientRect();
+      if(r.top < window.innerHeight * 0.85 && r.bottom > window.innerHeight * 0.15){
+        _mobileCircleFired = true;
+        _mobileCircleEnter();
+      }
+    }, {passive:true});
+  }
 })();
 
 // ── Belief reveal ─────────────────────────────────────────
@@ -2086,7 +2124,12 @@ function staggerCharsInSync(groups){
     var cobs = new IntersectionObserver(function(entries){
       if(entries[0].isIntersecting){
         cobs.disconnect();
-        setTimeout(function(){ triggerCircleTextReveal(); }, 120);
+        setTimeout(function(){
+          var el = document.getElementById('circle-hl');
+          if(el && el.style.visibility === 'visible') return;
+          if(typeof window.__triggerCircleTextReveal === 'function')
+            window.__triggerCircleTextReveal();
+        }, 120);
       }
     }, {threshold:0.22});
     window.__disconnectCircleHlObserver = function(){
