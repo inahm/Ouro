@@ -167,7 +167,8 @@ nav{
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   padding-left:var(--g);
-  height:540px;
+  height:680px;
+  background:var(--bg);
   border-top:1px solid var(--ink);
   border-bottom:1px solid var(--ink);
 }
@@ -185,26 +186,29 @@ nav{
   flex:0 0 clamp(500px,54vw,760px);
   background:var(--ink);
   padding:0;
-  flex-direction:row;
+  flex-direction:column;
+  border-left:1px solid var(--ink);
   border-right:1px solid rgba(255,255,255,0.12);
 }
 .hcard--featured .pg-flag{color:rgba(255,255,255,0.38);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;}
 .hcard--featured .pg-name{color:#fff;margin:0;}
 .hcard--featured .pg-desc{color:rgba(255,255,255,0.55);}
 .hcard--featured .pg-btn{color:#fff;border-color:rgba(255,255,255,0.3);}
+.hcard--featured .hcard-copy{padding:28px 32px;}
 .hcard-copy{
-  flex:0 0 42%;
+  flex:0 0 auto;
   padding:36px 32px;
   display:flex;flex-direction:column;
-  justify-content:space-between;
-  gap:0;
+  justify-content:flex-end;
+  gap:12px;
 }
 .hcard-copy-top{display:flex;flex-direction:column;gap:6px;}
 .hcard-copy-bottom{display:flex;flex-direction:column;gap:12px;}
 .hcard-img{
   flex:1;
+  min-height:260px;
   position:relative;overflow:hidden;
-  border-left:1px solid rgba(255,255,255,0.08);
+  border-bottom:1px solid rgba(255,255,255,0.08);
 }
 .hcard-img::after{
   content:'App screenshot';
@@ -416,9 +420,9 @@ footer.in{opacity:1;transform:translateY(0);}
     padding:0;
   }
   .circle-section .pg-featured{padding:40px var(--g);}
-  .hscroll-track{height:460px;}
+  .hscroll-track{height:580px;}
   .hcard{flex:0 0 clamp(240px,36vw,320px);padding-left:32px;}
-  .hcard--featured{flex:0 0 clamp(420px,68vw,600px);}
+  .hcard--featured{flex:0 0 clamp(420px,68vw,600px);padding:0;}
 
   /* footer */
   footer{margin-top:auto;}
@@ -448,9 +452,9 @@ footer.in{opacity:1;transform:translateY(0);}
   .pg-editorial-text{font-size:clamp(48px, 13vw, 90px);}
 
   /* horizontal scroll: narrower cards on mobile */
-  .hscroll-track{height:420px;}
+  .hscroll-track{height:520px;}
   .hcard{flex:0 0 72vw;padding:32px 20px 32px 32px;}
-  .hcard--featured{flex:0 0 88vw;flex-direction:column;}
+  .hcard--featured{flex:0 0 88vw;flex-direction:column;padding:0;}
   .hcard-copy{flex:0 0 auto;padding:24px 20px;}
   .hcard-img{flex:1;min-height:200px;}
 
@@ -584,17 +588,13 @@ footer.in{opacity:1;transform:translateY(0);}
 <div class="hscroll-track">
 
   <div class="hcard hcard--featured">
+    <div class="hcard-img"><div class="hcard-img-inner"><img src="https://picsum.photos/seed/nota/800/600" alt="Nota app screenshot" style="width:100%;height:100%;object-fit:cover;display:block;opacity:0.72;"></div></div>
     <div class="hcard-copy">
-      <div class="hcard-copy-top">
-        <div class="pg-flag">Flagship</div>
-      </div>
       <div class="hcard-copy-bottom">
         <div class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></div>
         <div class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</div>
-        <a class="pg-btn" href="#">Request early access →</a>
       </div>
     </div>
-    <div class="hcard-img"><div class="hcard-img-inner"></div></div>
   </div>
 
   <div class="hcard">
@@ -738,7 +738,7 @@ function staggerCharsInSync(groups){
   });
   hole.setAttribute('cx', cx); hole.setAttribute('cy', cy); hole.setAttribute('r', 0);
 
-  var DAMP_=0.91, FORCE_=0.004, MFORCE=75; // slow ease back to grid (weaker spring, lighter damping)
+  var DAMP_=0.82, FORCE_=0.012, MFORCE=75;
   var grains=[];
   var mouse={x:-9999,y:-9999,px:-9999,py:-9999,spd:0};
   var MRAD=170;
@@ -746,7 +746,7 @@ function staggerCharsInSync(groups){
   function buildGrid(){
     W=window.innerWidth; H=window.innerHeight;
     cx=W/2; cy=H/2;
-    R=Math.min(W,H)*0.24;
+    R=Math.min(W,H)*0.15;
     maxR=Math.sqrt(cx*cx+cy*cy)+2;
     // fixed pixel spacing keeps density consistent across all viewport sizes
     var SPACING_PX = 8;
@@ -782,6 +782,7 @@ function staggerCharsInSync(groups){
   window.addEventListener('mouseleave',function(){ mouse.x=-9999; mouse.y=-9999; mouse.spd=0; });
 
   var raf, blasted=false;
+  var angle=0, waveT=0;
   function animParticles(){
     // mouse speed — decays each frame so dots return when mouse stops
     var dxm=mouse.x-mouse.px, dym=mouse.y-mouse.py;
@@ -789,39 +790,68 @@ function staggerCharsInSync(groups){
     mouse.spd *= 0.85; // decay
     mouse.px=mouse.x; mouse.py=mouse.y;
 
+    // very slow drift — just enough to keep the field alive
+    angle -= 0.00018;
+    waveT  += 1;
+    var cosT=Math.cos(angle), sinT=Math.sin(angle);
+
     ctx.clearRect(0,0,W,H);
 
     grains.forEach(function(g){
-      // permanent circle repulsion + clockwise tangential rotation
-      var cdx=g.x-cx, cdy=g.y-cy, cd=Math.sqrt(cdx*cdx+cdy*cdy);
-      var cr=Math.max(0,1-cd/R);
-      // radial push outward
-      var cfx=cd>0?(cdx/cd)*cr*cr*180:0;
-      var cfy=cd>0?(cdy/cd)*cr*cr*180:0;
-      // clockwise tangent: (-cdy, cdx)
-      var tstr=Math.max(0,1-(cd/(R*1.6)))*1.2;
-      cfx+=cd>0?(-cdy/cd)*tstr:0;
-      cfy+=cd>0?(cdx/cd)*tstr:0;
+      // Each dot has a fixed target derived from its GRID ORIGIN via a smooth
+      // spiral displacement field — bijective mapping, no pile-up, no seams.
+      // Rotating (odx,ody) by `angle` spins the whole pattern around the center.
+      var odx=g.ox-cx, ody=g.oy-cy, ddr=Math.sqrt(odx*odx+ody*ody);
+      var ddx=odx*cosT-ody*sinT, ddy=odx*sinT+ody*cosT;
+      var sig=R*1.6;
+      var uu=ddr/sig;
+      var gauss=Math.exp(-0.5*uu*uu);   // non-zero at center → clears center zone
+      var bump=uu*gauss;                 // zero at center → spiral starts gently
+      // clearR capped at 300px so the empty circle never exceeds 600px wide
+      var clearR=Math.min(R*1.3, 300);
+      if(ddr<clearR) return;
+      // Convert the original Cartesian spiral formula to polar so targetRadius
+      // is constant per dot (no breathing), while targetAngle retains the exact
+      // same rotation style as before.
+      var radAmt=gauss*R*1.4;
+      var tanAmt=bump*R*1.4;
+      var A=ddr+radAmt;
+      var targetRadius=Math.max(clearR+1, Math.sqrt(A*A+tanAmt*tanAmt));
+      var thetaO=Math.atan2(ody,odx);
+      var spiralOffset=Math.atan2(tanAmt, A);
+      // Ripple wave travelling outward from center, modulating the spiral arms.
+      // ddr*0.013 → spatial ring spacing; waveT*0.022 → outward travel speed.
+      var ripple=Math.sin(ddr*0.013 - waveT*0.009) * 0.28 * gauss;
+      // Very slow base rotation + ripple — no continuous spin.
+      var targetAngle=thetaO-spiralOffset+angle*gauss+ripple;
+      var txTarget=cx+Math.cos(targetAngle)*targetRadius;
+      var tyTarget=cy+Math.sin(targetAngle)*targetRadius;
 
       // mouse repulsion
       var mdx=g.x-mouse.x, mdy=g.y-mouse.y, md=Math.sqrt(mdx*mdx+mdy*mdy);
       var mr=Math.max(0,1-md/MRAD);
       var mfx=md>0?(mdx/md)*mr*mr*MFORCE*mouse.spd:0, mfy=md>0?(mdy/md)*mr*mr*MFORCE*mouse.spd:0;
 
-      var sx=blasted?0:(g.ox-g.x)*FORCE_;
-      var sy=blasted?0:(g.oy-g.y)*FORCE_;
-      g.vx=(g.vx+sx+(blasted?0:cfx)+(blasted?0:mfx))*DAMP_;
-      g.vy=(g.vy+sy+(blasted?0:cfy)+(blasted?0:mfy))*DAMP_;
+      var sx=blasted?0:(txTarget-g.x)*FORCE_;
+      var sy=blasted?0:(tyTarget-g.y)*FORCE_;
+      g.vx=(g.vx+sx+(blasted?0:mfx))*DAMP_;
+      g.vy=(g.vy+sy+(blasted?0:mfy))*DAMP_;
       g.x+=g.vx; g.y+=g.vy;
       var edx=g.x-cx, edy=g.y-cy;
+      var distC=Math.sqrt(edx*edx+edy*edy);
+      if(!blasted && distC<clearR) return;
+      // Wide smoothstep fade — dots dissolve before reaching the event horizon
+      // and materialise gradually on the way back out. No hard pop.
+      var et=blasted?1:Math.min(1,(distC-clearR)/(R*0.9));
+      var edgeAlpha=et*et*(3-2*et);
       var maxD=Math.sqrt(cx*cx+cy*cy);
-      var fade=blasted?0:Math.min(1, Math.sqrt(edx*edx+edy*edy) / (maxD*0.72));
-      var dr=Math.round(fade*253);
-      var dg=Math.round(fade*252);
-      var db=Math.round(fade*250);
+      var fade=blasted?0:Math.min(1,distC/(maxD*0.72));
+      var cr=Math.round(fade*253);
+      var cg=Math.round(fade*252);
+      var cb=Math.round(fade*250);
       ctx.beginPath();
       ctx.arc(g.x,g.y,1.35,0,Math.PI*2);
-      ctx.fillStyle='rgba('+dr+','+dg+','+db+',0.85)';
+      ctx.fillStyle='rgba('+cr+','+cg+','+cb+','+(0.85*edgeAlpha)+')';
       ctx.fill();
     });
 
@@ -960,7 +990,7 @@ function staggerCharsInSync(groups){
 
   var hotspot = document.getElementById('intro-hotspot');
   function positionHotspot(){
-    var d = Math.min(W, H) * 0.24 * 2;
+    var d = Math.min(W, H) * 0.15 * 2;
     hotspot.style.width  = d + 'px';
     hotspot.style.height = d + 'px';
     hotspot.style.left   = cx + 'px';
