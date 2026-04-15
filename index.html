@@ -403,7 +403,8 @@ footer.in{opacity:1;transform:translateY(0);}
   .n-cta{padding:0 18px;}
 
   /* hero — full viewport, headline centered */
-  .hero{min-height:100vh;justify-content:center;}
+  .hero-scene{height:100vh;}
+  .hero{position:relative;top:auto;min-height:100vh;justify-content:center;}
   .hero-content{padding:80px var(--g) 60px;margin-top:0;}
 
   /* belief */
@@ -412,7 +413,7 @@ footer.in{opacity:1;transform:translateY(0);}
 
   /* circle: unstick, full-viewport, centered canvas */
   .scroll-scene{display:flex;flex-direction:column;}
-  .circle-sticky-wrap{height:100dvh;}
+  .circle-sticky-wrap{height:auto;margin-top:0;}
   .circle-section{
     position:relative;top:auto;
     height:100dvh;
@@ -436,8 +437,9 @@ footer.in{opacity:1;transform:translateY(0);}
   .n-link{display:none;}
   .n-logo{border-right:none;}
 
-  /* hero — full viewport, headline centered */
-  .hero{min-height:100vh;justify-content:center;}
+  /* hero — collapse to single viewport; sticky+300vh spread effect disabled on touch */
+  .hero-scene{height:100vh;}
+  .hero{position:relative;top:auto;min-height:100vh;justify-content:center;}
   .hero-content{padding:72px var(--g) 48px;margin-top:0;}
   .hero-hl{font-size:clamp(48px, 13vw, 90px);}
 
@@ -445,8 +447,8 @@ footer.in{opacity:1;transform:translateY(0);}
   .belief{padding:60px var(--g);margin-top:0;}
   .belief-q{font-size:clamp(24px,5.5vw,36px);text-align:center;max-width:100%;width:100%;}
 
-  /* circle */
-  .circle-sticky-wrap{height:100dvh;}
+  /* circle — no sticky, no negative margin; stacks naturally below hero */
+  .circle-sticky-wrap{height:auto;margin-top:0;}
   .circle-section{position:relative;top:auto;height:100dvh;padding:0;}
   .circle-section .pg-featured{padding:32px var(--g);}
   .pg-editorial-text{font-size:clamp(48px, 13vw, 90px);}
@@ -1185,6 +1187,7 @@ function staggerCharsInSync(groups){
   var wrap   = canvas.parentElement;
   var stickyOuter = wrap && wrap.closest ? wrap.closest('.circle-sticky-wrap') : null;
   if(!canvas || !cell || !stickyOuter) return;
+  var isTouchDevice = ('ontouchstart' in window) || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
   // Lock geometry must use the sticky red pane — not .circle-sticky-wrap (negative margin makes wrap.top lie above the viewport while the red is only partly visible, which falsely triggered "overshoot" snaps upward).
   var circlePinEl = document.getElementById('projects') || stickyOuter;
   var ctx = canvas.getContext('2d');
@@ -1598,6 +1601,7 @@ function staggerCharsInSync(groups){
     document.documentElement.style.overflow = 'hidden';
   }
 
+  if(!isTouchDevice){
   window.addEventListener('scroll', function circleSnapLockOnScroll(){
     if(scrollSnapCircleRaf !== null) return;
     scrollSnapCircleRaf = requestAnimationFrame(function(){
@@ -1880,6 +1884,8 @@ function staggerCharsInSync(groups){
       return;
     }
   }, {passive:false});
+  } // end if(!isTouchDevice) — scroll-lock listeners skipped on touch/mobile
+
   var circleObs = new IntersectionObserver(function(entries){
     if(entryBurst) return;
     entries.forEach(function(entry){
@@ -2441,6 +2447,7 @@ function staggerCharsInSync(groups){
 (function(){
   var scene = document.querySelector('.hero-scene');
   if(!scene) return;
+  var isTouchDevice = ('ontouchstart' in window) || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
   window.__heroReverseScrollActive = false;
   // Pauses intro word-cycling while the headline translateX slide-out is running.
   window.__heroWordCyclePaused = false;
@@ -2951,7 +2958,8 @@ function staggerCharsInSync(groups){
     reconcileHeroHeadlineAtRest();
   }
 
-  // ── WHEEL: forward trigger (down) ────────────────────────────
+  // ── WHEEL: forward trigger (down) — desktop only ─────────────
+  if(!isTouchDevice){
   window.addEventListener('wheel', function(ev){
     if(!measured) return;
     if(ev.deltaY > 0 && !autoPlaying && !autoHasPlayed && !revPlaying){
@@ -2964,6 +2972,7 @@ function staggerCharsInSync(groups){
       requestAnimationFrame(autoTick);
     }
   }, {passive:true});
+  } // end if(!isTouchDevice)
 
   // ── SCROLL: reverse trigger (first upward movement after forward played) ───
   window.addEventListener('scroll', function(){
