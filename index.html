@@ -3261,6 +3261,20 @@ function staggerCharsInSync(groups){
   if(!svgEl || !canvas) return;
 
   var ctx = canvas.getContext('2d');
+
+  // iOS Safari canvas 'difference' + globalAlpha < 1 falls back to source-over,
+  // darkening the red base by the (dark) video. Feature-detect at runtime: red
+  // minus red via difference should produce near-black; source-over keeps it red.
+  var diffOK = (function(){
+    try {
+      var c = document.createElement('canvas'); c.width = c.height = 1;
+      var x = c.getContext('2d');
+      x.fillStyle = '#f00'; x.fillRect(0,0,1,1);
+      x.globalCompositeOperation = 'difference';
+      x.fillStyle = '#f00'; x.fillRect(0,0,1,1);
+      return x.getImageData(0,0,1,1).data[0] < 10; // 0 = black → difference worked
+    } catch(e){ return false; }
+  })();
   var dpr = Math.min(window.devicePixelRatio || 1, 2);
   var VW = 2297, VH = 413;
   var TOP_PAD_CSS = 160;
@@ -3375,13 +3389,16 @@ function staggerCharsInSync(groups){
     ctx.fillRect(0, 0, pw, ph_total);
 
     // 3. Video with difference blend at 50% opacity — cover full canvas
-    var vw = vid.videoWidth || pw, vh2 = vid.videoHeight || ph_svg;
-    var s  = Math.max(pw / vw, ph_total / vh2);
-    ctx.globalAlpha = 0.5;
-    ctx.globalCompositeOperation = 'difference';
-    ctx.drawImage(vid, (pw - vw*s)/2, (ph_total - vh2*s)/2, vw*s, vh2*s);
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = 'source-over';
+    //    Only applied when 'difference' is confirmed to work (not iOS Safari quirk).
+    if(diffOK){
+      var vw = vid.videoWidth || pw, vh2 = vid.videoHeight || ph_svg;
+      var s  = Math.max(pw / vw, ph_total / vh2);
+      ctx.globalAlpha = 0.5;
+      ctx.globalCompositeOperation = 'difference';
+      ctx.drawImage(vid, (pw - vw*s)/2, (ph_total - vh2*s)/2, vw*s, vh2*s);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
     ctx.restore();
 
     // 4. Apply mask in a single destination-in pass
