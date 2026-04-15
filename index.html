@@ -18,9 +18,7 @@ html{
   --bg:#fdfcfa;
   --ink:#000;
   --red:#FF1B00;
-  --rule:rgba(0,0,0,0.1);
   --mid:rgba(0,0,0,0.42);
-  --faint:rgba(0,0,0,0.12);
   --bg-glass:rgba(253,252,250,0.82);
   --g:88px;
   --circle-r:345px;
@@ -58,7 +56,6 @@ nav{
   transition:color .65s var(--ease-out-flow);
 }
 .n-logo:hover{color:var(--red);}
-.n-links{display:contents;}
 .n-link{
   font-family:'Circular Std',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;
   color:var(--ink);text-decoration:none;
@@ -88,14 +85,6 @@ nav{
   justify-content:center;
 }
 
-#mesh-canvas{
-  position:absolute;inset:0;
-  width:100%;height:100%;
-  pointer-events:none;
-  z-index:0;
-  display:none;
-}
-
 .hero-content{
   position:relative;z-index:2;
   padding:80px var(--g) 80px;
@@ -118,7 +107,6 @@ nav{
 }
 #hero-hl>.hl-line:nth-child(3){text-align:right;}
 .hero-hl em{font-style:italic;color:var(--red);}
-.hero-hl-indent{display:block;}
 
 /* ── CIRCLE MODULE ── */
 .circle-sticky-wrap{
@@ -461,6 +449,13 @@ footer.in{opacity:1;transform:translateY(0);}
 
   /* footer */
   footer{margin-top:auto;}
+
+  /* ── Mobile perf ── */
+  /* Solid nav background — backdrop-filter is GPU-expensive on mobile */
+  nav{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg);}
+  /* Drop compositor-layer hints that waste VRAM on small devices */
+  .circle-section-lift,#orange-reveal,.hcard-img-inner{will-change:auto;}
+  .hl-spread-l,.hl-spread-r{will-change:auto;}
 }
 /* ── INTRO ── */
 #intro{
@@ -544,7 +539,6 @@ footer.in{opacity:1;transform:translateY(0);}
 <!-- HERO: sticky scene gives scroll distance for the line spread -->
 <div class="hero-scene">
 <div class="hero">
-  <canvas id="mesh-canvas"></canvas>
   <div class="hero-content">
     <div class="hero-l">
       <h1 class="hero-hl" id="hero-hl" style="visibility:hidden">
@@ -732,7 +726,6 @@ function staggerCharsInSync(groups){
   var W = window.innerWidth, H = window.innerHeight;
   var cx = W/2, cy = H/2;
   var R  = Math.min(W, H) * 0.24;
-  var maxR = Math.sqrt(cx*cx + cy*cy) + 2;
 
   [maskRect, bgRect].forEach(function(el){
     el.setAttribute('width', W); el.setAttribute('height', H);
@@ -748,9 +741,8 @@ function staggerCharsInSync(groups){
     W=window.innerWidth; H=window.innerHeight;
     cx=W/2; cy=H/2;
     R=Math.min(W,H)*0.15;
-    maxR=Math.sqrt(cx*cx+cy*cy)+2;
-    // fixed pixel spacing keeps density consistent across all viewport sizes
-    var SPACING_PX = 8;
+    // fixed pixel spacing — halved on mobile to cut particle count ~4×
+    var SPACING_PX = window.innerWidth <= 600 ? 16 : 8;
     var COLS = Math.round(W / SPACING_PX) + 1;
     var ROWS = Math.round(H / SPACING_PX) + 1;
     // scale mouse radius proportionally so it doesn't overwhelm small viewports
@@ -803,7 +795,6 @@ function staggerCharsInSync(groups){
       // spiral displacement field — bijective mapping, no pile-up, no seams.
       // Rotating (odx,ody) by `angle` spins the whole pattern around the center.
       var odx=g.ox-cx, ody=g.oy-cy, ddr=Math.sqrt(odx*odx+ody*ody);
-      var ddx=odx*cosT-ody*sinT, ddy=odx*sinT+ody*cosT;
       var sig=R*1.6;
       var uu=ddr/sig;
       var gauss=Math.exp(-0.5*uu*uu);   // non-zero at center → clears center zone
@@ -1013,171 +1004,6 @@ function staggerCharsInSync(groups){
 })();
 </script>
 <script>
-(function(){
-  const canvas = document.getElementById('mesh-canvas');
-  const ctx = canvas.getContext('2d');
-
-  const MODES = [
-    [1,2],[2,1],[1,3],[3,1],[2,3],[3,2],[1,4],[4,1],[2,4],[4,2],[3,4],[4,3]
-  ];
-
-  const COLS    = 180;
-  const ROWS    = 120;
-  const HOLD    = 4000;
-  const XFADE   = 3500;
-  const DAMP    = 0.78;
-  const FORCE   = 0.011;
-  const NOISE   = 0.006;
-  const MRAD    = 170;
-  const MFORCE  = 75;
-
-  let W, H, dpr, grains = [];
-  let modeIdx = 0, nextIdx = 1;
-  let blend = 0, switching = false, switchStart = 0;
-  let t0 = null, raf;
-  let mouse = {x:-9999, y:-9999, px:-9999, py:-9999, spd:0};
-
-  function chladni(nx, ny, m, n) {
-    return Math.cos(m*Math.PI*nx)*Math.cos(n*Math.PI*ny)
-         - Math.cos(n*Math.PI*nx)*Math.cos(m*Math.PI*ny);
-  }
-
-  function grad(nx, ny, m, n) {
-    const h = 0.003;
-    return {
-      gx: (chladni(nx+h,ny,m,n)-chladni(nx-h,ny,m,n))/(2*h),
-      gy: (chladni(nx,ny+h,m,n)-chladni(nx,ny-h,m,n))/(2*h)
-    };
-  }
-
-  function setup() {
-    dpr = Math.min(devicePixelRatio||1, 2);
-    W = canvas.offsetWidth;
-    H = canvas.offsetHeight;
-    canvas.width  = W * dpr;
-    canvas.height = H * dpr;
-    ctx.scale(dpr, dpr);
-    build();
-  }
-
-  function build() {
-    grains = [];
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        const ox = (c / (COLS-1)) * W;
-        const oy = (r / (ROWS-1)) * H;
-        grains.push({ ox, oy, x: ox, y: oy, vx: 0, vy: 0 });
-      }
-    }
-  }
-
-  function frame(ts) {
-    if (!t0) { t0 = ts; switchStart = ts; }
-
-    const age = ts - switchStart;
-    if (!switching && age > HOLD) {
-      switching = true;
-      nextIdx   = (modeIdx+1) % MODES.length;
-      blend     = 0;
-    }
-    if (switching) {
-      blend = Math.min(1, (ts - switchStart - HOLD) / XFADE);
-      if (blend >= 1) {
-        modeIdx     = nextIdx;
-        switching   = false;
-        blend       = 0;
-        switchStart = ts;
-      }
-    }
-
-    const [ma,na] = MODES[modeIdx];
-    const [mb,nb] = MODES[nextIdx];
-    const ease  = blend*blend*(3-2*blend);
-
-    const S       = H * 0.52;
-    const cell    = S / (ROWS - 1);
-    const maxDisp = cell * 0.35;
-
-    // decay mouse speed each frame so dots return when mouse stops
-    const dxm = mouse.x - mouse.px, dym = mouse.y - mouse.py;
-    mouse.spd = Math.min(1, Math.sqrt(dxm*dxm+dym*dym)/12);
-    mouse.spd *= 0.85;
-    mouse.px = mouse.x; mouse.py = mouse.y;
-
-    ctx.clearRect(0, 0, W, H);
-
-    grains.forEach(g => {
-      const nx = g.ox / S;
-      const ny = g.oy / S;
-
-      const aA = chladni(nx, ny, ma, na);
-      const aB = chladni(nx, ny, mb, nb);
-      const a  = aA*(1-ease) + aB*ease;
-
-      const gA = grad(nx, ny, ma, na);
-      const gB = grad(nx, ny, mb, nb);
-      const gx = (gA.gx*(1-ease)+gB.gx*ease) * S * 0.4;
-      const gy = (gA.gy*(1-ease)+gB.gy*ease) * S * 0.4;
-
-      const mag  = Math.max(0.001, Math.sqrt(gx*gx+gy*gy));
-      const disp = Math.abs(a) * maxDisp;
-      const tdx  = -Math.sign(a) * (gx/mag) * disp;
-      const tdy  = -Math.sign(a) * (gy/mag) * disp;
-
-      const tx = g.ox + tdx;
-      const ty = g.oy + tdy;
-
-      const shake = Math.abs(a) * NOISE * maxDisp;
-      const sx = (Math.random()-0.5)*shake*2;
-      const sy = (Math.random()-0.5)*shake*2;
-
-      const mdx = g.x - mouse.x;
-      const mdy = g.y - mouse.y;
-      const md  = Math.sqrt(mdx*mdx+mdy*mdy);
-      const mr  = Math.max(0, 1-md/MRAD);
-      const mfx = md>0 ? (mdx/md)*mr*mr*MFORCE*mouse.spd : 0;
-      const mfy = md>0 ? (mdy/md)*mr*mr*MFORCE*mouse.spd : 0;
-
-      g.vx = (g.vx + (tx-g.x)*FORCE + sx + mfx) * DAMP;
-      g.vy = (g.vy + (ty-g.y)*FORCE + sy + mfy) * DAMP;
-      g.x  = Math.max(0, Math.min(W, g.x+g.vx));
-      g.y  = Math.max(0, Math.min(H, g.y+g.vy));
-
-      // Falloff 2.8 — grains stay visible further from nodal lines
-      const nodal = Math.max(0, 1 - Math.abs(a)*2.8);
-      if (nodal < 0.008) return;
-
-      ctx.beginPath();
-      ctx.arc(g.x, g.y, 0.49 + nodal*0.98, 0, Math.PI*2);
-      // 0.06 base opacity so even antinode grains have faint presence
-      ctx.fillStyle = `rgba(0,0,0,${0.05 + nodal*0.60})`;
-      ctx.fill();
-    });
-
-    raf = requestAnimationFrame(frame);
-  }
-
-  const hero = canvas.closest('.hero') || canvas.parentElement;
-  window.addEventListener('mousemove', e => {
-    const r = canvas.getBoundingClientRect();
-    mouse.px = mouse.x; mouse.py = mouse.y;
-    mouse.x = (e.clientX-r.left)*(W/r.width);
-    mouse.y = (e.clientY-r.top)*(H/r.height);
-  });
-  window.addEventListener('mouseleave', () => { mouse.x=-9999; mouse.y=-9999; mouse.spd=0; });
-
-  window.addEventListener('resize', () => {
-    cancelAnimationFrame(raf);
-    grains = []; t0 = null;
-    setup();
-    raf = requestAnimationFrame(frame);
-  });
-
-  setup();
-  raf = requestAnimationFrame(frame);
-})();
-</script>
-<script>
 
 // ── Circle ring (SVG clip + image parallax + particle dots) ────────────────
 (function(){
@@ -1200,30 +1026,38 @@ function staggerCharsInSync(groups){
   var RING_STR = 'M366.999 0C569.687 6.59744e-05 733.998 164.313 733.998 367.002C733.998 569.691 569.687 734.003 366.999 734.003C164.311 734.003 6.76819e-05 569.691 0 367.002C0 164.313 164.311 0 366.999 0ZM366.999 242.449C298.208 242.449 242.442 298.215 242.441 367.007C242.441 435.798 298.208 491.565 366.999 491.565C435.79 491.565 491.557 435.798 491.557 367.007C491.556 298.215 435.79 242.449 366.999 242.449Z';
   var ringBase = new Path2D(RING_STR);
 
+  var IS_MOBILE = window.matchMedia('(max-width:600px)').matches || (window.innerWidth <= 768 && 'ontouchstart' in window);
+
   var RED = getComputedStyle(document.documentElement).getPropertyValue('--red').trim() || '#FF1B00';
   var FORCE = 0.002, DAMP = 0.945; // slow ease back onto the ribbon after mouse
   var MRAD = 170, MFORCE = 75;
-  var DOT_R = 1.35, SPACING = 5; // matches drawn ring grain radius below
+  var DOT_R = 1.35, SPACING = IS_MOBILE ? 9 : 5; // wider gap on mobile = fewer ring particles
   var mouse = {x:-9999, y:-9999, px:-9999, py:-9999, spd:0};
   var W, H, cx, cy, baseR, innerR, particles, dpr, raf;
   var orangeReveal = document.getElementById('orange-reveal');
 
-  var imgAncient = new Image(); imgAncient.src = 'circle-ancient.png';
-  var imgAmbient = new Image(); imgAmbient.src = 'circle-ambient.png';
-  var imgFlower  = new Image(); imgFlower.src  = 'flower.png';
-
   // wyatt → maat → eye → roses. Start at index 2 (eye).
   var _vidHideStyle = 'position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;';
-  var cycleVids = ['wyatt.mp4','cycle-2.mp4','cycle-4.mp4','cycle-3.mp4'].map(function(src){
-    var v = document.createElement('video');
-    v.src = src; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
-    v.setAttribute('playsinline','');
-    v.style.cssText = _vidHideStyle;
-    document.body.appendChild(v);
-    v.play().catch(function(){});
-    return v;
-  });
-  var cycleImgs = cycleVids; // alias so rest of code is unchanged
+  // Lazy-load cycle videos — created only when circle section enters view (saves ~4 video decode streams on load)
+  var cycleVids = null;
+  var cycleImgs = [null, null, null, null]; // placeholder so frame() length checks don't break
+  var _cycleVidSrcs = ['wyatt.mp4','cycle-2.mp4','cycle-4.mp4','cycle-3.mp4'];
+  function _loadCycleVids(){
+    if(cycleVids) return;
+    cycleVids = _cycleVidSrcs.map(function(src){
+      var v = document.createElement('video');
+      v.src = src; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
+      v.setAttribute('playsinline','');
+      v.style.cssText = _vidHideStyle;
+      document.body.appendChild(v);
+      v.play().catch(function(){});
+      return v;
+    });
+    cycleImgs = cycleVids;
+  }
+  new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting) _loadCycleVids();
+  }, {rootMargin:'400px 0px'}).observe(circlePinEl);
   var ringOverlay       = null;
   var CYCLE_START_IDX   = 2; // eye
   var cycleIdx          = CYCLE_START_IDX;
@@ -1235,20 +1069,17 @@ function staggerCharsInSync(groups){
   var cyclePrevTs       = null; // tracks frame delta for cycle pause
   var lastAnimPForCycle = 0;    // detect white-ring → orange so we always reopen on Maat
 
-  // ── Pixel assembly transition ─────────────────────────
-  var PIXEL_TRANSITIONS = false; // set to true to re-enable
-  var pixelParticles    = [];   // incoming: scatter → grid
-  var pixelForVidIdx    = -1;
-  var pixelOutParticles = [];   // outgoing: grid → scatter
-  var pixelOutForVidIdx = -1;
-  var PIXEL_STEP        = 8;    // grid sample spacing in CSS px
-
-  var vid = document.createElement('video');
-  vid.src = 'bg.mp4'; vid.muted = true; vid.loop = true; vid.playsInline = true; vid.autoplay = true;
-  vid.setAttribute('playsinline','');
-  vid.style.cssText = _vidHideStyle;
-  document.body.appendChild(vid);
-  vid.play().catch(function(){});
+  // Reuse a shared bg.mp4 element if the wordmark section already created one
+  var vid = window.__bgVid || (function(){
+    var v = document.createElement('video');
+    v.src = 'bg.mp4'; v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
+    v.setAttribute('playsinline','');
+    v.style.cssText = _vidHideStyle;
+    document.body.appendChild(v);
+    v.play().catch(function(){});
+    return v;
+  }());
+  window.__bgVid = vid;
 
   function scaledRing(r){
     var sc = r / 367;
@@ -1256,14 +1087,6 @@ function staggerCharsInSync(groups){
     var ty = cy - 367 * sc;
     var m = new DOMMatrix([sc, 0, 0, sc, tx, ty]);
     var p = new Path2D(); p.addPath(ringBase, m); return p;
-  }
-
-  function getScrollProgress(){
-    var stickyWrap = stickyOuter;
-    var r = stickyWrap.getBoundingClientRect();
-    var scrollRange = stickyWrap.offsetHeight - window.innerHeight;
-    if(scrollRange <= 0) return 1;
-    return Math.min(1, Math.max(0, -r.top / scrollRange));
   }
 
   // Document Y past bottom of circle sticky dwell (+ padding) — matches hero/orange scroll math.
@@ -1545,6 +1368,7 @@ function staggerCharsInSync(groups){
   }, {passive:true});
 
   function trySnapCircleLockFromScroll(){
+    if(IS_MOBILE) return;
     if(scrollPhase !== 'before') return;
     if(document.documentElement.style.overflow === 'hidden') return;
     if(window.__heroReverseScrollActive) return;
@@ -1574,6 +1398,7 @@ function staggerCharsInSync(groups){
   }
 
   function trySnapCircleRevLockFromScroll(){
+    if(IS_MOBILE) return;
     if(scrollPhase !== 'done') return;
     if(document.documentElement.style.overflow === 'hidden') return;
     if(window.__heroReverseScrollActive) return;
@@ -1611,6 +1436,7 @@ function staggerCharsInSync(groups){
   }, {passive: true});
 
   window.addEventListener('wheel', function sectionWheel(e){
+    if(IS_MOBILE) return;
     var dir = e.deltaY > 0 ? 1 : (e.deltaY < 0 ? -1 : 0);
     if(dir === 0) return;
     var r = circlePinEl.getBoundingClientRect();
@@ -1751,6 +1577,7 @@ function staggerCharsInSync(groups){
   window.addEventListener('touchcancel', function(){ lastTouchMoveY = null; }, {passive:true});
 
   window.addEventListener('touchmove', function sectionTouch(e){
+    if(IS_MOBILE) return; // let native scroll handle it on mobile
     var touchY = e.touches[0].clientY;
     var dy = touchStartY - touchY;
     var stepDy = lastTouchMoveY == null ? dy : (lastTouchMoveY - touchY);
@@ -1901,6 +1728,11 @@ function staggerCharsInSync(groups){
   }
 
   function frame(now){
+    // Park loop when circle is off-screen and fully at rest — restart via IO below
+    if(!circleInView && animProgress <= 0 && animDir === 0 && scrollPhase === 'before'){
+      raf = null;
+      return;
+    }
     raf = requestAnimationFrame(frame);
     ctx.clearRect(0,0,W,H);
     maybePulse(now||0);
@@ -2048,42 +1880,6 @@ function staggerCharsInSync(groups){
       ctx.restore();
     }
 
-    function makePixelGrid(img, zoom){
-      if(!img || img.readyState < 2) return [];
-      var diam = imgSize * zoom;
-      var vw   = img.videoWidth  || diam;
-      var vh   = img.videoHeight || diam;
-      var s    = Math.max(diam / vw, diam / vh);
-      var dw   = vw * s, dh = vh * s;
-      var pts  = [];
-      for(var qy = 0; qy < dh; qy += PIXEL_STEP){
-        for(var qx = 0; qx < dw; qx += PIXEL_STEP){
-          var tx  = cx - dw/2 + qx;
-          var ty  = cy - dh/2 + qy;
-          var ddx = tx - cx, ddy = ty - cy;
-          var ang  = Math.atan2(ddy, ddx) + (Math.random() - 0.5) * Math.PI;
-          var dist = clipR * (0.5 + Math.random());
-          var sx   = cx + Math.cos(ang) * dist;
-          var sy   = cy + Math.sin(ang) * dist;
-          pts.push({ tx: tx, ty: ty, sx: sx, sy: sy, x: sx, y: sy });
-        }
-      }
-      return pts;
-    }
-
-    function buildPixelGrid(img, zoom){
-      var pts = makePixelGrid(img, zoom);
-      // incoming starts at scatter (sx,sy), moves toward grid (tx,ty)
-      pixelParticles = pts;
-    }
-
-    function buildOutgoingGrid(img, zoom){
-      var pts = makePixelGrid(img, zoom);
-      // outgoing starts at grid (tx,ty), moves toward scatter (sx,sy)
-      pixelOutParticles = pts.map(function(p){
-        return { tx: p.tx, ty: p.ty, sx: p.sx, sy: p.sy, x: p.tx, y: p.ty };
-      });
-    }
 
     // White PHASE2 duplicate inside ring — all cycle videos (was only index 2 / “eye”).
     cell.style.mixBlendMode = '';
@@ -2102,73 +1898,14 @@ function staggerCharsInSync(groups){
       }
     }
 
-    var incomingVidIdx = (cycleIdx + 1) % cycleImgs.length;
 
-    if(cycleFade > 0 && !PIXEL_TRANSITIONS){
+    if(cycleFade > 0){
       drawCImg(imgA, 1 - cycleFade, kbZoom);
       drawCImg(imgB, cycleFade,     nextKb);
-    } else if(cycleFade > 0){
-      // Build both grids once at the start of each transition
-      if(pixelOutForVidIdx !== cycleIdx && imgA && imgA.readyState >= 2){
-        pixelOutForVidIdx = cycleIdx;
-        buildOutgoingGrid(imgA, kbZoom);
-      }
-      if(pixelForVidIdx !== incomingVidIdx && imgB && imgB.readyState >= 2){
-        pixelForVidIdx = incomingVidIdx;
-        buildPixelGrid(imgB, nextKb);
-      }
-
-      var easedT = cycleFade * cycleFade * (3 - 2 * cycleFade); // smoothstep
-      var ease = 0.015 + easedT * 0.11;
-
-      // Outgoing: pixels disassemble — grid → scatter
-      if(pixelOutParticles.length > 0 && imgA && imgA.readyState >= 2){
-        ctx.save();
-        ctx.globalAlpha = 1 - cycleFade;
-        ctx.beginPath();
-        for(var poi = 0; poi < pixelOutParticles.length; poi++){
-          var po = pixelOutParticles[poi];
-          po.x += (po.sx - po.x) * ease;
-          po.y += (po.sy - po.y) * ease;
-          ctx.rect(po.x, po.y, PIXEL_STEP, PIXEL_STEP);
-        }
-        ctx.clip();
-        var diamA = imgSize * kbZoom;
-        var vwA = imgA.videoWidth || diamA, vhA = imgA.videoHeight || diamA;
-        var sA  = Math.max(diamA / vwA, diamA / vhA);
-        ctx.drawImage(imgA, cx - vwA*sA/2 - pox, cy - vhA*sA/2 - poy, vwA*sA, vhA*sA);
-        ctx.restore();
-      } else {
-        drawCImg(imgA, 1 - cycleFade, kbZoom);
-      }
-
-      // Incoming: pixels assemble — scatter → grid
-      if(pixelParticles.length > 0 && imgB && imgB.readyState >= 2){
-        ctx.save();
-        ctx.globalAlpha = cycleFade;
-        ctx.beginPath();
-        for(var pii = 0; pii < pixelParticles.length; pii++){
-          var pp = pixelParticles[pii];
-          pp.x += (pp.tx - pp.x) * ease;
-          pp.y += (pp.ty - pp.y) * ease;
-          ctx.rect(pp.x, pp.y, PIXEL_STEP, PIXEL_STEP);
-        }
-        ctx.clip();
-        var diam2 = imgSize * nextKb;
-        var vw2 = imgB.videoWidth || diam2, vh2 = imgB.videoHeight || diam2;
-        var s2  = Math.max(diam2 / vw2, diam2 / vh2);
-        ctx.drawImage(imgB, cx - vw2*s2/2 - pox, cy - vh2*s2/2 - poy, vw2*s2, vh2*s2);
-        ctx.restore();
-      } else {
-        drawCImg(imgB, cycleFade, nextKb);
-      }
-
     } else {
-      // No transition — draw current video normally
       drawCImg(imgA, 1, kbZoom);
-      if(pixelParticles.length > 0)    { pixelParticles    = []; pixelForVidIdx    = -1; }
-      if(pixelOutParticles.length > 0) { pixelOutParticles = []; pixelOutForVidIdx = -1; }
     }
+
     if(vid.readyState >= 2){
       var vvw = vid.videoWidth  || imgSize;
       var vvh = vid.videoHeight || imgSize;
@@ -2257,7 +1994,13 @@ function staggerCharsInSync(groups){
   window.addEventListener('scroll', function(){ if(clientX===-9999) return; updateMouse(); mouse.spd=Math.max(mouse.spd,0.9); },{passive:true});
   window.addEventListener('resize', function(){ cancelAnimationFrame(raf); setup(); raf=requestAnimationFrame(frame); });
 
-  setup(); raf = requestAnimationFrame(frame);
+  setup();
+  var circleInView = true;
+  new IntersectionObserver(function(entries){
+    circleInView = entries[0].isIntersecting;
+    if(circleInView && !raf) raf = requestAnimationFrame(frame);
+  }, {rootMargin:'100px 0px'}).observe(wrap);
+  raf = requestAnimationFrame(frame);
 })();
 
 // ── Belief reveal ─────────────────────────────────────────
@@ -3183,6 +2926,8 @@ function staggerCharsInSync(groups){
 
 // ── Wordmark 8-body physics (SVG user-unit space) ────────────
 (function(){
+  // Physics only makes sense with a mouse — skip entirely on touch-only devices
+  if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   var svgEl   = document.querySelector('.wordmark-svg-physics');
   var letters = svgEl ? svgEl.querySelectorAll('.wm-l') : [];
   if(!letters.length) return;
@@ -3220,9 +2965,16 @@ function staggerCharsInSync(groups){
     return { el:el, x:0, y:0, vx:0, vy:0, rest:rests[i] };
   });
 
+  var wmPhysInView = false;
+  var wmPhysRaf = null;
+  new IntersectionObserver(function(entries){
+    wmPhysInView = entries[0].isIntersecting;
+    if(wmPhysInView && !wmPhysRaf) wmPhysRaf = requestAnimationFrame(tick);
+  }, {rootMargin:'0px'}).observe(svgEl);
 
-  (function tick(){
-    requestAnimationFrame(tick);
+  function tick(){
+    if(!wmPhysInView){ wmPhysRaf = null; return; }
+    wmPhysRaf = requestAnimationFrame(tick);
     var r  = svgEl.getBoundingClientRect();
     var vb  = svgEl.viewBox.baseVal;
     var sx  = r.width  / (vb.width  || VW);
@@ -3251,7 +3003,8 @@ function staggerCharsInSync(groups){
       s.y += s.vy;
       s.el.setAttribute('transform', 'translate(' + s.x.toFixed(1) + ',' + s.y.toFixed(1) + ')');
     });
-  })();
+  }
+  wmPhysRaf = requestAnimationFrame(tick);
 })();
 
 // ── Wordmark video clip (physics-aware) ──────────────────────
@@ -3300,14 +3053,18 @@ function staggerCharsInSync(groups){
     return p ? new Path2D(p.getAttribute('d')) : null;
   });
 
-  // Hidden video
-  var vid = document.createElement('video');
-  vid.src = 'bg.mp4';
-  vid.autoplay = true; vid.muted = true; vid.loop = true;
-  vid.playsInline = true; vid.setAttribute('playsinline','');
-  vid.style.cssText = 'position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;';
-  document.body.appendChild(vid);
-  vid.play().catch(function(){});
+  // Reuse shared bg.mp4 from circle section — avoids a second concurrent video decode
+  var vid = window.__bgVid || (function(){
+    var v = document.createElement('video');
+    v.src = 'bg.mp4';
+    v.autoplay = true; v.muted = true; v.loop = true;
+    v.playsInline = true; v.setAttribute('playsinline','');
+    v.style.cssText = 'position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;';
+    document.body.appendChild(v);
+    v.play().catch(function(){});
+    return v;
+  }());
+  if(!window.__bgVid) window.__bgVid = vid;
 
   /* Drop empty slack below the letterforms (scaled viewBox height). */
   var VB_BOTTOM_TRIM = 52;
@@ -3340,8 +3097,16 @@ function staggerCharsInSync(groups){
   var maskCanvas = document.createElement('canvas');
   var mctx = maskCanvas.getContext('2d');
 
-  (function frame(){
-    requestAnimationFrame(frame);
+  var wmVidInView = false;
+  var wmVidRaf = null;
+  new IntersectionObserver(function(entries){
+    wmVidInView = entries[0].isIntersecting;
+    if(wmVidInView && !wmVidRaf) wmVidRaf = requestAnimationFrame(wmVidFrame);
+  }, {rootMargin:'100px'}).observe(svgEl); // observe SVG (always sized) not canvas (zero-size on init)
+
+  function wmVidFrame(){
+    if(!wmVidInView){ wmVidRaf = null; return; }
+    wmVidRaf = requestAnimationFrame(wmVidFrame);
     if(vid.readyState < 2 || !canvas.width) return;
 
     var cw = canvas.width, ch = canvas.height;
@@ -3405,7 +3170,8 @@ function staggerCharsInSync(groups){
     ctx.globalCompositeOperation = 'destination-in';
     ctx.drawImage(maskCanvas, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
-  })();
+  }
+  wmVidRaf = requestAnimationFrame(wmVidFrame);
 })();
 
 
