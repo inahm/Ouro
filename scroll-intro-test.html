@@ -80,11 +80,6 @@ body{
   transition-duration:var(--cd,0.32s)!important;
   transition-timing-function:var(--ease-snap-in)!important;
 }
-/* Per-line clip: letters vanish below each line instead of hanging in open space */
-.hero-hl.headline-scroll-exit .hl-line{
-  clip-path:inset(-0.06em -5000px 0.55em -5000px);
-}
-
 .hint{
   position:fixed;bottom:28px;left:0;right:0;z-index:2;
   text-align:center;
@@ -202,7 +197,6 @@ function staggerExitTiming(chars, reduce){
     clearCycle();
     if(revealTimer){ clearTimeout(revealTimer); revealTimer = null; }
     if(hint) hint.textContent = 'Reload to try again';
-    heroHl.classList.add('headline-scroll-exit');
     var chars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     staggerExitTiming(chars, reduce);
