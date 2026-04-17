@@ -12,9 +12,9 @@
   --bg:#fdfcfa;
   --ink:#000;
   --red:#FF1B00;
-  --ease-out-flow:cubic-bezier(0.22,1,0.52,1);
-  --ease-out-settle:cubic-bezier(0.33,1,0.68,1);
-  --ease-in-move:cubic-bezier(0.55,0.02,0.72,0.35);
+  /* Snappy motion — no mushy ease */
+  --ease-snap-out:cubic-bezier(0.2,0.88,0.12,1);
+  --ease-snap-in:cubic-bezier(0.55,0,0.95,0.38);
   --g:88px;
 }
 html,body{
@@ -47,29 +47,13 @@ body{
   margin:0 auto;
   max-width:100%;
 }
-.hero-hl-mask::after{
-  content:'';
-  position:absolute;
-  left:-8%;
-  right:-8%;
-  bottom:0;
-  height:clamp(40px,11vh,140px);
-  background:linear-gradient(to bottom,rgba(253,252,250,0),var(--bg));
-  pointer-events:none;
-  opacity:0;
-  transition:opacity .18s ease;
-  z-index:2;
-}
-.hero-hl-mask.is-exiting::after{
-  opacity:1;
-}
 .hero-hl{
   font-family:'Didact Gothic',sans-serif;
   font-size:clamp(52px,12vw,120.75px);
   font-weight:500;
   line-height:0.94;letter-spacing:-0.03em;color:var(--ink);
 }
-.hero-hl.revealed .hl-char{transform:translateY(0) rotate(0deg);opacity:1;}
+.hero-hl.revealed .hl-char{transform:translateY(0) rotate(0deg);}
 #hero-cycle-word{color:var(--red);}
 
 .hl-line{
@@ -82,8 +66,8 @@ body{
 .hl-char{
   display:inline-block;
   transform:translateY(-1.5em) rotate(var(--cr,0deg));
-  opacity:0;
-  transition:transform var(--cd,0.78s) var(--ease-out-flow);
+  opacity:1;
+  transition:transform var(--cd,0.5s) var(--ease-snap-out);
   transform-origin:50% 0;
 }
 .hl-char--space{display:inline;transform:none!important;opacity:1!important;transition:none!important;}
@@ -93,8 +77,8 @@ body{
 .hl-char-exit{
   transform:translateY(1.35em) rotate(0deg)!important;
   transition-property:transform!important;
-  transition-duration:var(--cd,0.38s)!important;
-  transition-timing-function:var(--ease-in-move)!important;
+  transition-duration:var(--cd,0.32s)!important;
+  transition-timing-function:var(--ease-snap-in)!important;
 }
 /* Per-line clip: letters vanish below each line instead of hanging in open space */
 .hero-hl.headline-scroll-exit .hl-line{
@@ -166,12 +150,12 @@ function splitToChars(source, target){
 }
 function staggerChars(chars){
   chars.forEach(function(ch, i){
-    ch.style.transitionDelay = (i * 22 + Math.random() * 110).toFixed(0) + 'ms';
-    ch.style.setProperty('--cd', (0.48 + Math.random() * 0.68).toFixed(2) + 's');
-    ch.style.setProperty('--cr', (Math.random() * 7 - 3.5).toFixed(1) + 'deg');
+    ch.style.transitionDelay = (i * 14 + Math.random() * 52).toFixed(0) + 'ms';
+    ch.style.setProperty('--cd', (0.24 + Math.random() * 0.28).toFixed(2) + 's');
+    ch.style.setProperty('--cr', (Math.random() * 5 - 2.5).toFixed(1) + 'deg');
   });
 }
-/** Same delay + duration spread as staggerChars (no --cr; exit stays straight). */
+/** Staggered like entrance, slightly quicker durations for a crisp drop (no --cr). */
 function staggerExitTiming(chars, reduce){
   if(reduce){
     chars.forEach(function(ch){
@@ -181,8 +165,8 @@ function staggerExitTiming(chars, reduce){
     return;
   }
   chars.forEach(function(ch, i){
-    ch.style.transitionDelay = (i * 22 + Math.random() * 110).toFixed(0) + 'ms';
-    ch.style.setProperty('--cd', (0.48 + Math.random() * 0.68).toFixed(2) + 's');
+    ch.style.transitionDelay = (i * 14 + Math.random() * 52).toFixed(0) + 'ms';
+    ch.style.setProperty('--cd', (0.2 + Math.random() * 0.22).toFixed(2) + 's');
   });
 }
 </script>
@@ -191,7 +175,6 @@ function staggerExitTiming(chars, reduce){
 (function(){
   var stage     = document.getElementById('stage');
   var heroHl    = document.getElementById('hero-hl');
-  var heroMask  = document.getElementById('hero-hl-mask');
   var cycleWrap = document.getElementById('hero-cycle-word');
   var hint      = document.getElementById('hint');
   if(!heroHl || !cycleWrap || !stage) return;
@@ -219,7 +202,6 @@ function staggerExitTiming(chars, reduce){
     clearCycle();
     if(revealTimer){ clearTimeout(revealTimer); revealTimer = null; }
     if(hint) hint.textContent = 'Reload to try again';
-    if(heroMask) heroMask.classList.add('is-exiting');
     heroHl.classList.add('headline-scroll-exit');
     var chars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -248,7 +230,7 @@ function staggerExitTiming(chars, reduce){
             s.textContent = ch;
             s.style.transform = 'translateY(-1.5em)';
             s.style.opacity = '1';
-            s.style.transition = 'transform 0.78s var(--ease-out-flow)';
+            s.style.transition = 'transform 0.38s cubic-bezier(0.2,0.88,0.12,1)';
             cycleWrap.appendChild(s);
           });
           var enters = Array.from(cycleWrap.querySelectorAll('.hl-char'));
@@ -257,7 +239,7 @@ function staggerExitTiming(chars, reduce){
             setTimeout(function(){ c.style.transform = 'translateY(0)'; }, d);
           });
           scheduleNext();
-        }, Math.max(900, (exits.length ? exits.length - 1 : 0) * 22 + 110 + 1300));
+        }, Math.max(520, (exits.length ? exits.length - 1 : 0) * 14 + 52 + 520));
       }, 3000);
     }
     scheduleNext();
