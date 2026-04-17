@@ -304,8 +304,8 @@ footer{
 .d1{animation-delay:.3s}.d2{animation-delay:.44s}.d3{animation-delay:.58s}.d4{animation-delay:.72s}
 
 /* ── Hero headline ── */
-/* Slight negative bottom inset = a bit more visible below the line box (descenders). */
-.hl-line{display:block;overflow:visible;clip-path:inset(-0.06em -5000px -0.14em -5000px);padding-bottom:0.44em;margin-bottom:-0.44em;}
+/* Top inset 0 avoids a subpixel “peak” hairline when chars exit; bottom still opens for descenders. */
+.hl-line{display:block;overflow:hidden;contain:paint;clip-path:inset(0 -5000px -0.14em -5000px);padding-bottom:0.44em;margin-bottom:-0.44em;}
 .hl-inner{display:block;}
 .hl-spread-l,.hl-spread-r{display:inline-block;will-change:transform;}
 .hl-spread-l+.hl-spread-r{margin-left:0.28em;}
@@ -319,23 +319,24 @@ footer{
 .hl-char{
   display:inline-block;
   padding-bottom:0.15em;
-  transform:translateY(-1.5em) rotate(var(--cr,0deg));
+  transform:translate3d(0,-1.5em,0) rotate(var(--cr,0deg));
   opacity:0;
   transition:transform var(--cd,0.78s) var(--ease-out-flow);
   transform-origin:50% 0;
+  backface-visibility:hidden;
 }
 .hl-char--space{display:inline;padding-bottom:0!important;transform:none!important;opacity:1!important;transition:none!important;}
 /* snap opacity on reveal — clip boundary does the visual masking */
-#hero-hl.revealed .hl-char{transform:translateY(0) rotate(0deg);opacity:1;}
+#hero-hl.revealed .hl-char{transform:translate3d(0,0,0) rotate(0deg);opacity:1;}
 
 /* fall-out: letters drop below clip boundary — no opacity, just cut off */
 .hl-char-exit{
-  transform:translateY(1.15em) rotate(var(--cr,0deg))!important;
+  transform:translate3d(0,calc(1.15em + 1px),0) rotate(var(--cr,0deg))!important;
   transition:transform var(--cd,0.38s) var(--ease-in-move)!important;
 }
 
 /* ── Project card names — same char-fall animation ── */
-.pg-name.revealed .hl-char{transform:translateY(0) rotate(0deg);opacity:1;}
+.pg-name.revealed .hl-char{transform:translate3d(0,0,0) rotate(0deg);opacity:1;}
 
 /* ── Circle headline — same char-fall animation as hero ── */
 #circle-slot{position:relative;z-index:1;}
@@ -369,7 +370,7 @@ footer{
   backface-visibility:hidden;
 }
 #circle-hl.revealed .hl-char,
-#circle-hl-inv-host.revealed .hl-char{transform:translateY(0) rotate(0deg);opacity:1;}
+#circle-hl-inv-host.revealed .hl-char{transform:translate3d(0,0,0) rotate(0deg);opacity:1;}
 
 /* Nav entrance */
 nav{transform:translateY(-100%);opacity:0;transition:transform 1.05s var(--ease-out-flow),opacity 0.85s var(--ease-out-settle);}
@@ -946,7 +947,7 @@ function staggerCharsInSync(groups){
             var s = document.createElement('span');
             s.className = 'hl-char';
             s.textContent = ch;
-                    s.style.transform = 'translateY(-0.8em)';
+                    s.style.transform = 'translate3d(0,-0.8em,0)';
                     s.style.opacity = '0';
                     s.style.transition = 'transform 0.78s var(--ease-out-flow),opacity 0.55s var(--ease-out-settle)';
                     wrap.appendChild(s);
@@ -956,12 +957,12 @@ function staggerCharsInSync(groups){
           enters.forEach(function(c, i){
                     var rot = (Math.random() * 7 - 3.5).toFixed(1);
                     var dur = (0.48 + Math.random() * 0.68).toFixed(2);
-                    c.style.transform = 'translateY(-1.5em) rotate(' + rot + 'deg)';
+                    c.style.transform = 'translate3d(0,-1.5em,0) rotate(' + rot + 'deg)';
                     c.style.opacity = '1';
                     c.style.transition = 'transform ' + dur + 's var(--ease-out-flow)';
             var d = i * 32 + Math.random() * 90 + 12;
                     setTimeout(function(){
-                      c.style.transform = 'translateY(0) rotate(0deg)';
+                      c.style.transform = 'translate3d(0,0,0) rotate(0deg)';
                     }, d);
                   });
                   scheduleNextCycle();
@@ -2280,7 +2281,7 @@ function staggerCharsInSync(groups){
   }
 
   // Re-run intro-style staggered fall-in from *above* (down into place). Snap off hl-char-exit first
-  // so we never tween from translateY(1.15em) — that reads as rising; we want gravity ( −Y → 0 ).
+  // so we never tween from exit translate — that reads as rising; we want gravity ( −Y → 0 ).
   function replayHeroHeadlineFallIn(){
     var hl = document.getElementById('hero-hl');
     if(!hl || !measured) return;
@@ -2290,7 +2291,7 @@ function staggerCharsInSync(groups){
     var chars = Array.from(hl.querySelectorAll('.hl-char:not(.hl-char--space)'));
     chars.forEach(function(ch){
       ch.style.setProperty('transition', 'none', 'important');
-      ch.style.transform = 'translateY(-1.5em)';
+      ch.style.transform = 'translate3d(0,-1.5em,0)';
       ch.style.opacity = '0';
       ch.style.transitionDelay = '';
       ch.style.removeProperty('--cd');
@@ -2324,7 +2325,7 @@ function staggerCharsInSync(groups){
     chars.forEach(function(ch){
       ch.style.transitionDelay = '';
       // Force visible end-state so top return never stays visually blank.
-      ch.style.transform = 'translateY(0) rotate(0deg)';
+      ch.style.transform = 'translate3d(0,0,0) rotate(0deg)';
       ch.style.opacity = '1';
       ch.style.removeProperty('transition');
       ch.style.removeProperty('--cd');

@@ -54,12 +54,12 @@ body{
   line-height:1.08;
   letter-spacing:-0.03em;color:var(--ink);
 }
-.hero-hl.revealed .hl-char{transform:translateY(0) rotate(0deg);}
+.hero-hl.revealed .hl-char{transform:translate3d(0,0,0) rotate(0deg);}
 #hero-cycle-word{color:var(--red);}
 
 .hl-line{
-  display:block;overflow:visible;
-  clip-path:inset(-0.06em -5000px -0.14em -5000px);
+  display:block;overflow:hidden;contain:paint;
+  clip-path:inset(0 -5000px -0.14em -5000px);
   padding-bottom:0.44em;margin-bottom:-0.44em;
 }
 .hl-inner{display:block;}
@@ -67,17 +67,18 @@ body{
 .hl-char{
   display:inline-block;
   padding-bottom:0.15em;
-  transform:translateY(-1.5em) rotate(var(--cr,0deg));
+  transform:translate3d(0,-1.5em,0) rotate(var(--cr,0deg));
   opacity:1;
   transition:transform var(--cd,0.85s) var(--ease-snap-out);
   transform-origin:50% 0;
+  backface-visibility:hidden;
 }
 .hl-char--space{display:inline;padding-bottom:0!important;transform:none!important;opacity:1!important;transition:none!important;}
 /* Straight fall: do not reuse --cr here; staggerChars leaves random --cr on each
    letter for the *in* motion only — exit was re-applying it and looked crooked. */
 /* Longhands only — a `transition` shorthand with !important was resetting inline delay */
 .hl-char-exit{
-  transform:translateY(1.35em) rotate(0deg)!important;
+  transform:translate3d(0,calc(1.35em + 1px),0) rotate(0deg)!important;
   transition-property:transform!important;
   transition-duration:var(--cd,0.32s)!important;
   transition-timing-function:var(--ease-snap-in)!important;
@@ -224,7 +225,7 @@ function staggerExitTiming(chars, reduce){
             var s = document.createElement('span');
             s.className = 'hl-char';
             s.textContent = ch;
-            s.style.transform = 'translateY(-1.5em)';
+            s.style.transform = 'translate3d(0,-1.5em,0)';
             s.style.opacity = '1';
             s.style.transition = 'transform 0.72s cubic-bezier(0.2,0.88,0.12,1)';
             cycleWrap.appendChild(s);
@@ -232,7 +233,7 @@ function staggerExitTiming(chars, reduce){
           var enters = Array.from(cycleWrap.querySelectorAll('.hl-char'));
           enters.forEach(function(c, i){
             var d = i * 40 + Math.random() * 105 + 28;
-            setTimeout(function(){ c.style.transform = 'translateY(0)'; }, d);
+            setTimeout(function(){ c.style.transform = 'translate3d(0,0,0)'; }, d);
           });
           scheduleNext();
         }, Math.max(520, (exits.length ? exits.length - 1 : 0) * 14 + 52 + 520));
