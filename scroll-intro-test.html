@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hero scroll test — Ouro</title>
+<title>Hero scroll test — fixed viewport</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Didact+Gothic&display=swap" rel="stylesheet">
 <style>
@@ -17,22 +17,24 @@
   --ease-in-move:cubic-bezier(0.55,0.02,0.72,0.35);
   --g:88px;
 }
-html{min-height:100%;overflow-x:hidden;}
+html,body{
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+  touch-action:none;
+}
 body{
-  min-height:100%;
-  overflow-x:hidden;
   background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;
 }
 
-/* ── SECTION 1: HERO (same as index) ── */
-.s-hero-wrap{height:200vh;}
-.s-hero{
-  position:sticky;top:0;
-  height:100vh;
-  background:var(--bg);
+/* Fixed stage — no page scroll; wheel / touch only drive motion */
+.stage{
+  position:fixed;inset:0;z-index:1;
   display:flex;flex-direction:column;
   justify-content:center;
+  background:var(--bg);
   overflow:hidden;
+  touch-action:none;
 }
 .hero-content{
   position:relative;z-index:2;
@@ -71,21 +73,15 @@ body{
   clip-path:inset(-0.06em -5000px -2.5em -5000px);
 }
 
-.after-hero{
-  min-height:40vh;
-  padding:48px var(--g);
-  font-size:13px;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  color:rgba(0,0,0,0.45);
-  border-top:1px solid var(--ink);
+.hint{
+  position:fixed;bottom:28px;left:0;right:0;z-index:2;
+  text-align:center;
+  font-size:11px;letter-spacing:0.14em;text-transform:uppercase;
+  color:rgba(0,0,0,0.38);
+  pointer-events:none;
 }
 
-@media(max-width:900px){
-  :root{--g:28px;}
-  .s-hero-wrap{height:auto;}
-  .s-hero{position:relative;height:100dvh;}
-}
+@media(max-width:900px){ :root{--g:28px;} }
 @media(max-width:600px){
   :root{--g:20px;}
   .hero-hl{font-size:clamp(42px,13vw,80px);}
@@ -94,8 +90,7 @@ body{
 </head>
 <body>
 
-<div class="s-hero-wrap">
-<section class="s-hero">
+<div class="stage" id="stage" role="presentation">
   <div class="hero-content">
     <h1 class="hero-hl" id="hero-hl">
       <span class="hl-line"><span class="hl-inner">We're <span id="hero-cycle-word">making</span></span></span>
@@ -103,10 +98,8 @@ body{
       <span class="hl-line"><span class="hl-inner">design practice.</span></span>
     </h1>
   </div>
-</section>
 </div>
-
-<div class="after-hero">Past hero — sticky released (same behavior as main site)</div>
+<p class="hint" id="hint">Scroll or swipe — page stays still</p>
 
 <script>
 function splitToChars(source, target){
@@ -152,10 +145,11 @@ function staggerChars(chars){
 
 <script>
 (function(){
-  var heroWrap  = document.querySelector('.s-hero');
+  var stage     = document.getElementById('stage');
   var heroHl    = document.getElementById('hero-hl');
   var cycleWrap = document.getElementById('hero-cycle-word');
-  if(!heroHl || !cycleWrap || !heroWrap) return;
+  var hint      = document.getElementById('hint');
+  if(!heroHl || !cycleWrap || !stage) return;
 
   heroHl.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
   var allChars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
@@ -167,27 +161,19 @@ function staggerChars(chars){
   var revealTimer = null;
   var hasRevealedHeadline = false;
   var headlineScrollExited = false;
+  var scrollIntent = 0;
 
-  /** True once the hero block is actually scrolling away (sticky released) or mostly off-screen. */
-  function hasScrolledPastHero(){
-    var r = heroWrap.getBoundingClientRect();
-    var H = window.innerHeight;
-    if(window.scrollY < 32) return false;
-    if(r.top < -10) return true;
-    if(r.bottom < H * 0.42) return true;
-    return false;
+  function exitThreshold(){
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    return reduce ? 80 : Math.min(420, Math.max(180, window.innerHeight * 0.35));
   }
 
-  function tryScrollExit(){
-    if(headlineScrollExited || !heroHl.classList.contains('revealed')) return;
-    if(hasScrolledPastHero()) fallHeadlineOutOnScroll();
-  }
-
-  function fallHeadlineOutOnScroll(){
+  function fallHeadlineOut(){
     if(headlineScrollExited || !heroHl.classList.contains('revealed')) return;
     headlineScrollExited = true;
     clearCycle();
     if(revealTimer){ clearTimeout(revealTimer); revealTimer = null; }
+    if(hint) hint.textContent = 'Reload to try again';
     heroHl.classList.add('headline-scroll-exit');
     var chars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -201,6 +187,12 @@ function staggerChars(chars){
       }
       c.classList.add('hl-char-exit');
     });
+  }
+
+  function bumpIntent(amount){
+    if(headlineScrollExited || !heroHl.classList.contains('revealed')) return;
+    scrollIntent += amount;
+    if(scrollIntent >= exitThreshold()) fallHeadlineOut();
   }
 
   function startHeroCycle(){
@@ -237,39 +229,50 @@ function staggerChars(chars){
 
   function clearCycle(){ if(cycleTimer){ clearTimeout(cycleTimer); cycleTimer = null; } }
 
-  var CENTER_IO = { threshold: 0, rootMargin: '-38% 0px -38% 0px' };
-  function heroCentered(){
-    var r = heroWrap.getBoundingClientRect();
-    var H = window.innerHeight, t = H * 0.38, b = H * 0.62;
-    return r.top < b && r.bottom > t;
+  revealTimer = setTimeout(function(){
+    revealTimer = null;
+    hasRevealedHeadline = true;
+    heroHl.classList.add('revealed');
+    setTimeout(function(){ if(!headlineScrollExited) startHeroCycle(); }, 1200);
+  }, 300);
+
+  function onWheel(e){
+    if(headlineScrollExited) return;
+    e.preventDefault();
+    if(e.deltaY > 0) bumpIntent(e.deltaY);
   }
 
-  new IntersectionObserver(function(entries){
-    var e = entries[0];
-    if(!e.isIntersecting){
-      clearCycle();
-      if(revealTimer){ clearTimeout(revealTimer); revealTimer = null; }
-      return;
-    }
-    if(!hasRevealedHeadline && !revealTimer){
-      revealTimer = setTimeout(function(){
-        revealTimer = null;
-        hasRevealedHeadline = true;
-        heroHl.classList.add('revealed');
-        requestAnimationFrame(function(){
-          tryScrollExit();
-        });
-        setTimeout(function(){ if(heroCentered() && !headlineScrollExited) startHeroCycle(); }, 1200);
-      }, 300);
-    } else if(hasRevealedHeadline && heroHl.classList.contains('revealed') && !cycleTimer && heroCentered() && !headlineScrollExited){
-      startHeroCycle();
-    }
-  }, CENTER_IO).observe(heroWrap);
+  var touchY = null;
+  function onTouchStart(e){
+    if(headlineScrollExited || e.touches.length !== 1) return;
+    touchY = e.touches[0].clientY;
+  }
+  function onTouchMove(e){
+    if(headlineScrollExited || touchY == null || !heroHl.classList.contains('revealed')) return;
+    e.preventDefault();
+    var y = e.touches[0].clientY;
+    var dy = touchY - y;
+    touchY = y;
+    if(dy > 0) bumpIntent(dy * 1.2);
+  }
+  function onTouchEnd(){ touchY = null; }
 
-  window.addEventListener('scroll', tryScrollExit, { passive: true });
-  window.addEventListener('wheel', function(){
-    requestAnimationFrame(tryScrollExit);
-  }, { passive: true });
+  function onKeyDown(e){
+    if(headlineScrollExited || !heroHl.classList.contains('revealed')) return;
+    if(e.key === 'ArrowDown' || e.key === 'PageDown'){
+      e.preventDefault();
+      bumpIntent(100);
+    } else if(e.key === ' ' && !e.repeat){
+      e.preventDefault();
+      bumpIntent(140);
+    }
+  }
+
+  window.addEventListener('wheel', onWheel, { passive: false });
+  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: false });
+  window.addEventListener('touchend', onTouchEnd, { passive: true });
+  window.addEventListener('keydown', onKeyDown);
 })();
 </script>
 </body>
