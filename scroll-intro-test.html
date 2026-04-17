@@ -60,7 +60,7 @@ body{
 .hl-line{
   display:block;position:relative;overflow:hidden;contain:paint;isolation:isolate;
   transform:translateZ(0);
-  clip-path:inset(8px -5000px -0.26em -5000px);
+  clip-path:inset(10px -5000px 10px -5000px);
   padding-bottom:0.48em;margin-bottom:-0.48em;
 }
 .hl-inner{display:block;}
@@ -79,7 +79,7 @@ body{
    letter for the *in* motion only — exit was re-applying it and looked crooked. */
 /* Longhands only — a `transition` shorthand with !important was resetting inline delay */
 .hl-char-exit{
-  transform:translate3d(0,calc(1.35em + 14px),0.02px) rotate(0deg)!important;
+  transform:translate3d(0,calc(1.35em + 16px),0.02px) rotate(0deg)!important;
   transition-property:transform!important;
   transition-duration:var(--cd,0.32s)!important;
   transition-timing-function:var(--ease-snap-in)!important;
@@ -168,6 +168,16 @@ function staggerExitTiming(chars, reduce){
     ch.style.setProperty('--cd', (0.2 + Math.random() * 0.22).toFixed(2) + 's');
   });
 }
+function attachHlCharExitHideAfterTransform(c){
+  var failSafe = setTimeout(function(){ c.style.visibility = 'hidden'; }, 900);
+  function onEnd(e){
+    if(e.propertyName !== 'transform') return;
+    clearTimeout(failSafe);
+    c.removeEventListener('transitionend', onEnd);
+    c.style.visibility = 'hidden';
+  }
+  c.addEventListener('transitionend', onEnd);
+}
 </script>
 
 <script>
@@ -204,7 +214,10 @@ function staggerExitTiming(chars, reduce){
     var chars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     staggerExitTiming(chars, reduce);
-    chars.forEach(function(c){ c.classList.add('hl-char-exit'); });
+    chars.forEach(function(c){
+      attachHlCharExitHideAfterTransform(c);
+      c.classList.add('hl-char-exit');
+    });
   }
 
   function bumpIntent(amount){
@@ -219,7 +232,10 @@ function staggerExitTiming(chars, reduce){
         cycleIdx = (cycleIdx + 1) % CYCLE_WORDS.length;
         var exits = Array.from(cycleWrap.querySelectorAll('.hl-char'));
         staggerExitTiming(exits, window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-        exits.forEach(function(c){ c.classList.add('hl-char-exit'); });
+        exits.forEach(function(c){
+          attachHlCharExitHideAfterTransform(c);
+          c.classList.add('hl-char-exit');
+        });
         cycleTimer = setTimeout(function doSwap(){
           cycleWrap.innerHTML = '';
           CYCLE_WORDS[cycleIdx].split('').forEach(function(ch){

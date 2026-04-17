@@ -304,11 +304,11 @@ footer{
 .d1{animation-delay:.3s}.d2{animation-delay:.44s}.d3{animation-delay:.58s}.d4{animation-delay:.72s}
 
 /* ── Hero headline ── */
-/* Aggressive top inset + exit nudge: kills last-row subpixel “peaks” at clip on retina. */
+/* Tight clip + per-char visibility:hidden after transformend (JS) removes subpixel slivers. */
 .hl-line{
   display:block;position:relative;overflow:hidden;contain:paint;isolation:isolate;
   transform:translateZ(0);
-  clip-path:inset(8px -5000px -0.26em -5000px);
+  clip-path:inset(10px -5000px 10px -5000px);
   padding-bottom:0.48em;margin-bottom:-0.48em;
 }
 .hl-inner{display:block;}
@@ -336,7 +336,7 @@ footer{
 
 /* fall-out: letters drop below clip boundary — no opacity, just cut off */
 .hl-char-exit{
-  transform:translate3d(0,calc(1.15em + 14px),0.02px) rotate(var(--cr,0deg))!important;
+  transform:translate3d(0,calc(1.15em + 16px),0.02px) rotate(var(--cr,0deg))!important;
   transition:transform var(--cd,0.38s) var(--ease-in-move)!important;
 }
 
@@ -719,6 +719,17 @@ function staggerCharsInSync(groups){
     });
   }
 }
+/** After a .hl-char-exit transform finishes, hide the node so anti-aliased hairlines cannot linger (shared by hero + circle). */
+function attachHlCharExitHideAfterTransform(c){
+  var failSafe = setTimeout(function(){ c.style.visibility = 'hidden'; }, 900);
+  function onEnd(e){
+    if(e.propertyName !== 'transform') return;
+    clearTimeout(failSafe);
+    c.removeEventListener('transitionend', onEnd);
+    c.style.visibility = 'hidden';
+  }
+  c.addEventListener('transitionend', onEnd);
+}
 </script>
 <script>
 (function(){
@@ -933,6 +944,7 @@ function staggerCharsInSync(groups){
                   c.style.transitionDelay = '';
                   setTimeout(function(){
           c.style.setProperty('--cd', (0.18 + Math.random() * 0.22).toFixed(2) + 's');
+          attachHlCharExitHideAfterTransform(c);
           c.classList.add('hl-char-exit');
                   }, i * 22 + Math.random() * 40);
                 });
@@ -1167,6 +1179,7 @@ function staggerCharsInSync(groups){
         ch.style.transitionDelay = '';
         ch.style.removeProperty('--cd');
         ch.style.removeProperty('--cr');
+        ch.style.visibility = '';
       });
     }
     resetChars(mainChars);
@@ -1233,6 +1246,7 @@ function staggerCharsInSync(groups){
     exits.forEach(function(c){
       c.style.transitionDelay = '';
       c.style.setProperty('--cd', (0.14 + Math.random() * 0.12).toFixed(2) + 's');
+      attachHlCharExitHideAfterTransform(c);
       c.classList.add('hl-char-exit');
     });
     setTimeout(commitPhaseDOM, exits.length > 0 ? 300 : 0);
@@ -2282,6 +2296,7 @@ function staggerCharsInSync(groups){
       c.classList.remove('hl-char-exit');
       c.style.transitionDelay = '';
       c.style.removeProperty('--cd');
+      c.style.visibility = '';
     });
   }
 
@@ -2332,6 +2347,7 @@ function staggerCharsInSync(groups){
       // Force visible end-state so top return never stays visually blank.
       ch.style.transform = 'translate3d(0,0,0) rotate(0deg)';
       ch.style.opacity = '1';
+      ch.style.visibility = '';
       ch.style.removeProperty('transition');
       ch.style.removeProperty('--cd');
       ch.classList.remove('hl-char-exit');
@@ -2373,6 +2389,7 @@ function staggerCharsInSync(groups){
       c.style.transitionDelay = '';
       setTimeout(function(){
         c.style.setProperty('--cd', (0.18 + Math.random() * 0.22).toFixed(2) + 's');
+        attachHlCharExitHideAfterTransform(c);
         c.classList.add('hl-char-exit');
       }, i * 20 + Math.random() * 55);
     });
