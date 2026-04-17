@@ -63,6 +63,9 @@ body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webki
   transform:translateY(1.15em) rotate(var(--cr,0deg))!important;
   transition:transform var(--cd,0.38s) var(--ease-in-move)!important;
 }
+.hero-hl.headline-scroll-exit .hl-line{
+  clip-path:inset(-0.06em -5000px -2.5em -5000px);
+}
 
 .after-hero{
   min-height:40vh;
@@ -159,6 +162,28 @@ function staggerChars(chars){
   var cycleTimer = null;
   var revealTimer = null;
   var hasRevealedHeadline = false;
+  var headlineScrollExited = false;
+  var lastScrollY = window.scrollY;
+
+  function fallHeadlineOutOnScroll(){
+    if(headlineScrollExited || !heroHl.classList.contains('revealed')) return;
+    headlineScrollExited = true;
+    clearCycle();
+    if(revealTimer){ clearTimeout(revealTimer); revealTimer = null; }
+    heroHl.classList.add('headline-scroll-exit');
+    var chars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    chars.forEach(function(c, i){
+      if(reduce){
+        c.style.transitionDelay = '0ms';
+        c.style.setProperty('--cd', '0.01s');
+      } else {
+        c.style.transitionDelay = (i * 20 + Math.random() * 48).toFixed(0) + 'ms';
+        c.style.setProperty('--cd', (0.2 + Math.random() * 0.22).toFixed(2) + 's');
+      }
+      c.classList.add('hl-char-exit');
+    });
+  }
 
   function startHeroCycle(){
     function scheduleNext(){
@@ -213,12 +238,24 @@ function staggerChars(chars){
         revealTimer = null;
         hasRevealedHeadline = true;
         heroHl.classList.add('revealed');
-        setTimeout(function(){ if(heroCentered()) startHeroCycle(); }, 1200);
+        setTimeout(function(){ if(heroCentered() && !headlineScrollExited) startHeroCycle(); }, 1200);
       }, 300);
-    } else if(hasRevealedHeadline && heroHl.classList.contains('revealed') && !cycleTimer && heroCentered()){
+    } else if(hasRevealedHeadline && heroHl.classList.contains('revealed') && !cycleTimer && heroCentered() && !headlineScrollExited){
       startHeroCycle();
     }
   }, CENTER_IO).observe(heroWrap);
+
+  var scrollExitThreshold = function(){
+    return Math.max(100, window.innerHeight * 0.12);
+  };
+  function onScrollExit(){
+    var y = window.scrollY;
+    if(y > lastScrollY && y >= scrollExitThreshold()){
+      fallHeadlineOutOnScroll();
+    }
+    lastScrollY = y;
+  }
+  window.addEventListener('scroll', onScrollExit, { passive: true });
 })();
 </script>
 </body>
