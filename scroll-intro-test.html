@@ -84,14 +84,6 @@ body{
   transition-duration:var(--cd,0.32s)!important;
   transition-timing-function:var(--ease-snap-in)!important;
 }
-.hint{
-  position:fixed;bottom:28px;left:0;right:0;z-index:2;
-  text-align:center;
-  font-size:11px;letter-spacing:0.14em;text-transform:uppercase;
-  color:rgba(0,0,0,0.38);
-  pointer-events:none;
-}
-
 @media(max-width:900px){ :root{--g:28px;} }
 @media(max-width:600px){
   :root{--g:20px;}
@@ -112,7 +104,6 @@ body{
     </div>
   </div>
 </div>
-<p class="hint" id="hint">Scroll or swipe — page stays still</p>
 
 <script>
 function splitToChars(source, target){
@@ -185,7 +176,6 @@ function attachHlCharExitHideAfterTransform(c){
   var stage     = document.getElementById('stage');
   var heroHl    = document.getElementById('hero-hl');
   var cycleWrap = document.getElementById('hero-cycle-word');
-  var hint      = document.getElementById('hint');
   if(!heroHl || !cycleWrap || !stage) return;
 
   heroHl.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
@@ -210,7 +200,6 @@ function attachHlCharExitHideAfterTransform(c){
     headlineScrollExited = true;
     clearCycle();
     if(revealTimer){ clearTimeout(revealTimer); revealTimer = null; }
-    if(hint) hint.textContent = 'Reload to try again';
     var chars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     staggerExitTiming(chars, reduce);
