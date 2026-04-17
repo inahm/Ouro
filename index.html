@@ -304,8 +304,8 @@ footer{
 .d1{animation-delay:.3s}.d2{animation-delay:.44s}.d3{animation-delay:.58s}.d4{animation-delay:.72s}
 
 /* ── Hero headline ── */
-/* Top inset 0 avoids a subpixel “peak” hairline when chars exit; bottom still opens for descenders. */
-.hl-line{display:block;overflow:hidden;contain:paint;clip-path:inset(0 -5000px -0.14em -5000px);padding-bottom:0.44em;margin-bottom:-0.44em;}
+/* 2px top inset eats residual hairline at mask edge; extra exit translate clears the bottom cut. */
+.hl-line{display:block;position:relative;overflow:hidden;contain:paint;clip-path:inset(2px -5000px -0.18em -5000px);padding-bottom:0.44em;margin-bottom:-0.44em;}
 .hl-inner{display:block;}
 .hl-spread-l,.hl-spread-r{display:inline-block;will-change:transform;}
 .hl-spread-l+.hl-spread-r{margin-left:0.28em;}
@@ -331,7 +331,7 @@ footer{
 
 /* fall-out: letters drop below clip boundary — no opacity, just cut off */
 .hl-char-exit{
-  transform:translate3d(0,calc(1.15em + 1px),0) rotate(var(--cr,0deg))!important;
+  transform:translate3d(0,calc(1.15em + 4px),0) rotate(var(--cr,0deg))!important;
   transition:transform var(--cd,0.38s) var(--ease-in-move)!important;
 }
 

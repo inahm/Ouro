@@ -58,8 +58,8 @@ body{
 #hero-cycle-word{color:var(--red);}
 
 .hl-line{
-  display:block;overflow:hidden;contain:paint;
-  clip-path:inset(0 -5000px -0.14em -5000px);
+  display:block;position:relative;overflow:hidden;contain:paint;
+  clip-path:inset(2px -5000px -0.18em -5000px);
   padding-bottom:0.44em;margin-bottom:-0.44em;
 }
 .hl-inner{display:block;}
@@ -78,7 +78,7 @@ body{
    letter for the *in* motion only — exit was re-applying it and looked crooked. */
 /* Longhands only — a `transition` shorthand with !important was resetting inline delay */
 .hl-char-exit{
-  transform:translate3d(0,calc(1.35em + 1px),0) rotate(0deg)!important;
+  transform:translate3d(0,calc(1.35em + 4px),0) rotate(0deg)!important;
   transition-property:transform!important;
   transition-duration:var(--cd,0.32s)!important;
   transition-timing-function:var(--ease-snap-in)!important;
