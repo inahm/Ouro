@@ -65,8 +65,10 @@ body{
   transform-origin:50% 0;
 }
 .hl-char--space{display:inline;transform:none!important;opacity:1!important;transition:none!important;}
+/* Straight fall: do not reuse --cr here; staggerChars leaves random --cr on each
+   letter for the *in* motion only — exit was re-applying it and looked crooked. */
 .hl-char-exit{
-  transform:translateY(1.15em) rotate(var(--cr,0deg))!important;
+  transform:translateY(1.15em) rotate(0deg)!important;
   transition:transform var(--cd,0.38s) var(--ease-in-move)!important;
 }
 .hero-hl.headline-scroll-exit .hl-line{
