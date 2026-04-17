@@ -58,8 +58,9 @@ body{
 
 .hl-line{
   display:block;overflow:visible;
-  clip-path:inset(-0.06em -5000px 0 -5000px);
-  padding-bottom:0.22em;margin-bottom:-0.22em;
+  /* Negative bottom inset = room for descenders (g, y, p); flush 0 was clipping */
+  clip-path:inset(-0.06em -5000px -0.5em -5000px);
+  padding-bottom:0.42em;margin-bottom:-0.42em;
 }
 .hl-inner{display:block;}
 .hl-word{display:inline-block;}
