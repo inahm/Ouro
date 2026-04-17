@@ -101,7 +101,7 @@ nav{
   font-family:'Didact Gothic',sans-serif;
   font-size:clamp(52px, 12vw, 120.75px);
   font-weight:500;
-  line-height:1.16;letter-spacing:-0.03em;color:var(--ink);
+  line-height:1.14;letter-spacing:-0.03em;color:var(--ink);
   width:max-content;
   margin:0 auto;
 }
@@ -239,7 +239,7 @@ nav{
   pointer-events:none;
   font-family:'Didact Gothic',sans-serif;
   font-size:clamp(52px, 12vw, 120.75px);
-  font-weight:500;line-height:1.16;letter-spacing:-0.03em;
+  font-weight:500;line-height:1.14;letter-spacing:-0.03em;
   color:var(--red);white-space:nowrap;
   transition:color 0.38s var(--ease-out-settle);
 }
@@ -304,8 +304,8 @@ footer{
 .d1{animation-delay:.3s}.d2{animation-delay:.44s}.d3{animation-delay:.58s}.d4{animation-delay:.72s}
 
 /* ── Hero headline ── */
-/* clip exactly at the line boundary — letters cut off at the line edge, not below */
-.hl-line{display:block;overflow:visible;clip-path:inset(-0.08em -5000px -0.55em -5000px);padding-bottom:0.52em;margin-bottom:-0.52em;}
+/* Negative bottom inset + padding: room for descenders (g, p, y); clip still masks fall-out */
+.hl-line{display:block;overflow:visible;clip-path:inset(-0.06em -5000px -0.52em -5000px);padding-bottom:0.5em;margin-bottom:-0.5em;}
 .hl-inner{display:block;}
 .hl-spread-l,.hl-spread-r{display:inline-block;will-change:transform;}
 .hl-spread-l+.hl-spread-r{margin-left:0.28em;}
@@ -350,12 +350,12 @@ footer{
   width:100%;
   max-width:100%;
   box-sizing:border-box;
-  line-height:1.15;
+  line-height:1.22;
   transition:opacity 0.32s var(--ease-out-settle);
 }
 #circle-hl .hl-line,
 #blob-cell-inv .hl-line,
-.circle-hl-inv-metrics .hl-line{padding-bottom:0.52em;margin-bottom:-0.52em;}
+.circle-hl-inv-metrics .hl-line{padding-bottom:0.5em;margin-bottom:-0.5em;}
 /* Circle red headline: solid color for the whole fall — only transform eases; clip masks motion. */
 #circle-hl .hl-char{
   transition:transform var(--cd,0.78s) var(--ease-out-flow);
@@ -545,9 +545,9 @@ footer.in{opacity:1;transform:translateY(0);}
         <span class="hl-line"><span class="hl-inner"><span class="hl-spread-l">We're <span style="color:var(--red)" id="hero-cycle-word">making</span></span></span></span>
         <span class="hl-line"><span class="hl-inner"><span class="hl-spread-l">our way</span><span class="hl-spread-r">into a new</span></span></span>
         <span class="hl-line"><span class="hl-inner"><span class="hl-spread-r">design practice.</span></span></span>
-    </h1>
+      </h1>
+    </div>
   </div>
-</div>
 </div>
 </div><!-- end .hero-scene -->
 
@@ -565,7 +565,7 @@ footer.in{opacity:1;transform:translateY(0);}
     <canvas id="blob-canvas" style="position:absolute;pointer-events:none;z-index:2;left:0;top:0;"></canvas>
     <div id="blob-cell" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none;box-sizing:border-box">
       <p class="pg-editorial-text" id="circle-hl-inv-host" style="visibility:hidden;position:relative;margin:0;box-sizing:border-box"><span class="circle-hl-inv-metrics" aria-hidden="true" style="visibility:hidden;pointer-events:none"><span class="hl-line"><span class="hl-inner">The only way</span></span><span class="hl-line"><span class="hl-inner">we know how.</span></span></span><span id="blob-cell-inv" aria-hidden="true" style="position:absolute;inset:0;display:block;color:white;clip-path:circle(0px);opacity:0;pointer-events:none;overflow:visible;padding:32px;box-sizing:border-box;"><span class="hl-line"><span class="hl-inner">Experimenting</span></span><span class="hl-line"><span class="hl-inner">at the edge of</span></span><span class="hl-line"><span class="hl-inner"><em>what's possible.</em></span></span></span></p>
-  </div>
+    </div>
   </div>
   </div><!-- .circle-section-lift -->
 </div>
@@ -574,7 +574,7 @@ footer.in{opacity:1;transform:translateY(0);}
 <!-- BELIEF 2 — scrolls over the sticky circle -->
 <div class="belief belief--bottom">
   <p class="belief-q">We work through systems, tools, code, and experimentation to shape not just products, but <em>process that creates them.</em></p>
-  </div>
+</div>
 
 </div><!-- end .scroll-scene -->
 
@@ -588,7 +588,7 @@ footer.in{opacity:1;transform:translateY(0);}
       <div class="hcard-copy-bottom">
         <div class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></div>
         <div class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</div>
-  </div>
+      </div>
     </div>
   </div>
 
@@ -886,7 +886,7 @@ function staggerCharsInSync(groups){
 
           hl.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
           var allChars = Array.from(hl.querySelectorAll('.hl-char:not(.hl-char--space)'));
-  staggerChars(allChars);
+          staggerChars(allChars);
 
           hl.style.visibility = 'visible';
           requestAnimationFrame(function(){
@@ -898,9 +898,9 @@ function staggerCharsInSync(groups){
           });
 
           // ── word cycling ────────────────────────────────────────────
-  var CYCLE_WORDS = ['making','building','breaking'];
-  var cycleIdx = 0;
-  function startHeroCycle(){
+          var CYCLE_WORDS = ['making','building','breaking'];
+          var cycleIdx = 0;
+          function startHeroCycle(){
             var DWELL = 3000;
             function scheduleNextCycle(){
               setTimeout(function afterDwell(){
@@ -916,7 +916,7 @@ function staggerCharsInSync(groups){
                   setTimeout(afterDwell, 250);
                   return;
                 }
-        cycleIdx = (cycleIdx + 1) % CYCLE_WORDS.length;
+                cycleIdx = (cycleIdx + 1) % CYCLE_WORDS.length;
                 var wrap = document.getElementById('hero-cycle-word');
                 if(!wrap) return;
                 // exit: chars fall at random speeds, cut off by clip — no fade
@@ -924,8 +924,8 @@ function staggerCharsInSync(groups){
                 exits.forEach(function(c, i){
                   c.style.transitionDelay = '';
                   setTimeout(function(){
-          c.style.setProperty('--cd', (0.18 + Math.random() * 0.22).toFixed(2) + 's');
-          c.classList.add('hl-char-exit');
+                    c.style.setProperty('--cd', (0.18 + Math.random() * 0.22).toFixed(2) + 's');
+                    c.classList.add('hl-char-exit');
                   }, i * 22 + Math.random() * 40);
                 });
                 var exitMs = exits.length * 28 + 360;
@@ -940,10 +940,10 @@ function staggerCharsInSync(groups){
                   }
                   // swap word
                   wrap.innerHTML = '';
-          CYCLE_WORDS[cycleIdx].split('').forEach(function(ch){
-            var s = document.createElement('span');
-            s.className = 'hl-char';
-            s.textContent = ch;
+                  CYCLE_WORDS[cycleIdx].split('').forEach(function(ch){
+                    var s = document.createElement('span');
+                    s.className = 'hl-char';
+                    s.textContent = ch;
                     s.style.transform = 'translateY(-0.8em)';
                     s.style.opacity = '0';
                     s.style.transition = 'transform 0.78s var(--ease-out-flow),opacity 0.55s var(--ease-out-settle)';
@@ -951,13 +951,13 @@ function staggerCharsInSync(groups){
                   });
                   // enter: fall from above at varied speeds, clipped at line boundary
                   var enters = Array.from(wrap.querySelectorAll('.hl-char'));
-          enters.forEach(function(c, i){
+                  enters.forEach(function(c, i){
                     var rot = (Math.random() * 7 - 3.5).toFixed(1);
                     var dur = (0.48 + Math.random() * 0.68).toFixed(2);
                     c.style.transform = 'translateY(-1.5em) rotate(' + rot + 'deg)';
                     c.style.opacity = '1';
                     c.style.transition = 'transform ' + dur + 's var(--ease-out-flow)';
-            var d = i * 32 + Math.random() * 90 + 12;
+                    var d = i * 32 + Math.random() * 90 + 12;
                     setTimeout(function(){
                       c.style.transform = 'translateY(0) rotate(0deg)';
                     }, d);
@@ -1975,7 +1975,7 @@ function staggerCharsInSync(groups){
       ctx.globalAlpha = depth;
       ctx.fillStyle = 'rgb(' + dr2 + ',' + dg2 + ',' + db2 + ')';
       ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.35, 0, Math.PI*2);
+      ctx.arc(p.x, p.y, 1.35, 0, Math.PI*2);
       ctx.fill();
     });
     ctx.globalAlpha = 1;
@@ -2014,7 +2014,7 @@ function staggerCharsInSync(groups){
       if(animProgress <= 0 && animDir === 0){
         animPrevTs = null;
         animDir = 1;
-    if(!raf) raf = requestAnimationFrame(frame);
+        if(!raf) raf = requestAnimationFrame(frame);
       }
     }
     function _mobileCircleLeave(){
@@ -2076,7 +2076,7 @@ function staggerCharsInSync(groups){
     var pn = cardOrPn.classList.contains('pg-name') ? cardOrPn : cardOrPn.querySelector('.pg-name');
     if(!pn || pn.classList.contains('revealed')) return;
     var chars = Array.from(pn.querySelectorAll('.hl-char:not(.hl-char--space)'));
-      staggerChars(chars);
+    staggerChars(chars);
     // rAF ensures browser commits initial inline styles before class change triggers transition
     requestAnimationFrame(function(){
       pn.classList.add('revealed');
@@ -2129,8 +2129,8 @@ function staggerCharsInSync(groups){
           if(el && el.style.visibility === 'visible') return;
           if(typeof window.__triggerCircleTextReveal === 'function')
             window.__triggerCircleTextReveal();
-    }, 120);
-  }
+        }, 120);
+      }
     }, {threshold:0.22});
     window.__disconnectCircleHlObserver = function(){
       try{ cobs.disconnect(); }catch(err){}
@@ -2395,7 +2395,7 @@ function staggerCharsInSync(groups){
     var dwellMs = 1000;
     var visibleSince = null;
     var deadline = performance.now() + 14000;
-  function frame(now){
+    function frame(now){
       if(now > deadline){
         window.__heroWordCyclePaused = false;
         wordCycleResumeRaf = null;
@@ -2861,7 +2861,7 @@ function staggerCharsInSync(groups){
     if(rect.bottom < 1){
       riseStartTs = null;
       lift.style.transform = '';
-    done = true;
+      done = true;
       liftHeldBelow = false;
       return;
     }
