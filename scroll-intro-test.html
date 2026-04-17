@@ -168,13 +168,19 @@ function staggerChars(chars){
   var hasRevealedHeadline = false;
   var headlineScrollExited = false;
 
-  function scrollExitThreshold(){
-    return Math.max(64, window.innerHeight * 0.08);
+  /** True once the hero block is actually scrolling away (sticky released) or mostly off-screen. */
+  function hasScrolledPastHero(){
+    var r = heroWrap.getBoundingClientRect();
+    var H = window.innerHeight;
+    if(window.scrollY < 32) return false;
+    if(r.top < -10) return true;
+    if(r.bottom < H * 0.42) return true;
+    return false;
   }
 
   function tryScrollExit(){
     if(headlineScrollExited || !heroHl.classList.contains('revealed')) return;
-    if(window.scrollY >= scrollExitThreshold()) fallHeadlineOutOnScroll();
+    if(hasScrolledPastHero()) fallHeadlineOutOnScroll();
   }
 
   function fallHeadlineOutOnScroll(){
