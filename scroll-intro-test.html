@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scroll intro test</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 280vh;
+      background: #0c0c0c;
+      color: #f4f4f2;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    .intro {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    .intro-inner {
+      text-align: center;
+      line-height: 1.2;
+      font-size: clamp(1.75rem, 5vw, 3.25rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      animation: enter 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+    }
+    .intro-inner span {
+      display: block;
+      margin-top: 0.75rem;
+      font-size: 0.42em;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.55;
+    }
+    @keyframes enter {
+      from {
+        opacity: 0;
+        transform: translateY(2.25rem);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .hint {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="intro" id="intro" aria-hidden="true">
+    <div class="intro-inner">
+      Intro words
+      <span>Scroll</span>
+    </div>
+  </div>
+  <p class="hint">Scroll to send them away</p>
+  <script>
+    (function () {
+      var intro = document.getElementById("intro");
+      var max = 480;
+      function tick() {
+        var y = window.scrollY || 0;
+        var t = Math.min(1, y / max);
+        intro.style.transform = "translateY(" + -y * 0.9 + "px)";
+        intro.style.opacity = String(1 - t);
+      }
+      window.addEventListener("scroll", tick, { passive: true });
+      tick();
+    })();
+  </script>
+</body>
+</html>
