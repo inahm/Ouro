@@ -89,9 +89,12 @@ body{
 .hl-char--space{display:inline;transform:none!important;opacity:1!important;transition:none!important;}
 /* Straight fall: do not reuse --cr here; staggerChars leaves random --cr on each
    letter for the *in* motion only — exit was re-applying it and looked crooked. */
+/* Longhands only — a `transition` shorthand with !important was resetting inline delay */
 .hl-char-exit{
   transform:translateY(1.35em) rotate(0deg)!important;
-  transition:transform var(--cd,0.38s) var(--ease-in-move)!important;
+  transition-property:transform!important;
+  transition-duration:var(--cd,0.38s)!important;
+  transition-timing-function:var(--ease-in-move)!important;
 }
 /* Per-line clip: letters vanish below each line instead of hanging in open space */
 .hero-hl.headline-scroll-exit .hl-line{
@@ -168,6 +171,20 @@ function staggerChars(chars){
     ch.style.setProperty('--cr', (Math.random() * 7 - 3.5).toFixed(1) + 'deg');
   });
 }
+/** Same delay + duration spread as staggerChars (no --cr; exit stays straight). */
+function staggerExitTiming(chars, reduce){
+  if(reduce){
+    chars.forEach(function(ch){
+      ch.style.transitionDelay = '0ms';
+      ch.style.setProperty('--cd', '0.01s');
+    });
+    return;
+  }
+  chars.forEach(function(ch, i){
+    ch.style.transitionDelay = (i * 22 + Math.random() * 110).toFixed(0) + 'ms';
+    ch.style.setProperty('--cd', (0.48 + Math.random() * 0.68).toFixed(2) + 's');
+  });
+}
 </script>
 
 <script>
@@ -206,16 +223,8 @@ function staggerChars(chars){
     heroHl.classList.add('headline-scroll-exit');
     var chars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    chars.forEach(function(c, i){
-      if(reduce){
-        c.style.transitionDelay = '0ms';
-        c.style.setProperty('--cd', '0.01s');
-      } else {
-        c.style.transitionDelay = (i * 20 + Math.random() * 48).toFixed(0) + 'ms';
-        c.style.setProperty('--cd', (0.2 + Math.random() * 0.22).toFixed(2) + 's');
-      }
-      c.classList.add('hl-char-exit');
-    });
+    staggerExitTiming(chars, reduce);
+    chars.forEach(function(c){ c.classList.add('hl-char-exit'); });
   }
 
   function bumpIntent(amount){
@@ -229,10 +238,8 @@ function staggerChars(chars){
       cycleTimer = setTimeout(function afterDwell(){
         cycleIdx = (cycleIdx + 1) % CYCLE_WORDS.length;
         var exits = Array.from(cycleWrap.querySelectorAll('.hl-char'));
-        exits.forEach(function(c){
-          c.style.setProperty('--cd', (0.18 + Math.random() * 0.22).toFixed(2) + 's');
-          c.classList.add('hl-char-exit');
-        });
+        staggerExitTiming(exits, window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        exits.forEach(function(c){ c.classList.add('hl-char-exit'); });
         cycleTimer = setTimeout(function doSwap(){
           cycleWrap.innerHTML = '';
           CYCLE_WORDS[cycleIdx].split('').forEach(function(ch){
@@ -250,7 +257,7 @@ function staggerChars(chars){
             setTimeout(function(){ c.style.transform = 'translateY(0)'; }, d);
           });
           scheduleNext();
-        }, exits.length * 28 + 360);
+        }, Math.max(900, (exits.length ? exits.length - 1 : 0) * 22 + 110 + 1300));
       }, 3000);
     }
     scheduleNext();
