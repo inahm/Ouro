@@ -17,8 +17,12 @@
   --ease-in-move:cubic-bezier(0.55,0.02,0.72,0.35);
   --g:88px;
 }
-html,body{height:100%;overflow-x:hidden;}
-body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+html{min-height:100%;overflow-x:hidden;}
+body{
+  min-height:100%;
+  overflow-x:hidden;
+  background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;
+}
 
 /* ── SECTION 1: HERO (same as index) ── */
 .s-hero-wrap{height:200vh;}
@@ -163,7 +167,15 @@ function staggerChars(chars){
   var revealTimer = null;
   var hasRevealedHeadline = false;
   var headlineScrollExited = false;
-  var lastScrollY = window.scrollY;
+
+  function scrollExitThreshold(){
+    return Math.max(64, window.innerHeight * 0.08);
+  }
+
+  function tryScrollExit(){
+    if(headlineScrollExited || !heroHl.classList.contains('revealed')) return;
+    if(window.scrollY >= scrollExitThreshold()) fallHeadlineOutOnScroll();
+  }
 
   function fallHeadlineOutOnScroll(){
     if(headlineScrollExited || !heroHl.classList.contains('revealed')) return;
@@ -238,6 +250,9 @@ function staggerChars(chars){
         revealTimer = null;
         hasRevealedHeadline = true;
         heroHl.classList.add('revealed');
+        requestAnimationFrame(function(){
+          tryScrollExit();
+        });
         setTimeout(function(){ if(heroCentered() && !headlineScrollExited) startHeroCycle(); }, 1200);
       }, 300);
     } else if(hasRevealedHeadline && heroHl.classList.contains('revealed') && !cycleTimer && heroCentered() && !headlineScrollExited){
@@ -245,17 +260,10 @@ function staggerChars(chars){
     }
   }, CENTER_IO).observe(heroWrap);
 
-  var scrollExitThreshold = function(){
-    return Math.max(100, window.innerHeight * 0.12);
-  };
-  function onScrollExit(){
-    var y = window.scrollY;
-    if(y > lastScrollY && y >= scrollExitThreshold()){
-      fallHeadlineOutOnScroll();
-    }
-    lastScrollY = y;
-  }
-  window.addEventListener('scroll', onScrollExit, { passive: true });
+  window.addEventListener('scroll', tryScrollExit, { passive: true });
+  window.addEventListener('wheel', function(){
+    requestAnimationFrame(tryScrollExit);
+  }, { passive: true });
 })();
 </script>
 </body>
