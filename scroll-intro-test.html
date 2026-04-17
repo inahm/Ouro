@@ -41,6 +41,28 @@ body{
   padding:80px var(--g) 60px;
   text-align:center;
 }
+.hero-hl-mask{
+  position:relative;
+  overflow:hidden;
+  margin:0 auto;
+  max-width:100%;
+}
+.hero-hl-mask::after{
+  content:'';
+  position:absolute;
+  left:-8%;
+  right:-8%;
+  bottom:0;
+  height:clamp(40px,11vh,140px);
+  background:linear-gradient(to bottom,rgba(253,252,250,0),var(--bg));
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .18s ease;
+  z-index:2;
+}
+.hero-hl-mask.is-exiting::after{
+  opacity:1;
+}
 .hero-hl{
   font-family:'Didact Gothic',sans-serif;
   font-size:clamp(52px,12vw,120.75px);
@@ -68,11 +90,12 @@ body{
 /* Straight fall: do not reuse --cr here; staggerChars leaves random --cr on each
    letter for the *in* motion only — exit was re-applying it and looked crooked. */
 .hl-char-exit{
-  transform:translateY(1.15em) rotate(0deg)!important;
+  transform:translateY(1.35em) rotate(0deg)!important;
   transition:transform var(--cd,0.38s) var(--ease-in-move)!important;
 }
+/* Per-line clip: letters vanish below each line instead of hanging in open space */
 .hero-hl.headline-scroll-exit .hl-line{
-  clip-path:inset(-0.06em -5000px -2.5em -5000px);
+  clip-path:inset(-0.06em -5000px 0.55em -5000px);
 }
 
 .hint{
@@ -94,11 +117,13 @@ body{
 
 <div class="stage" id="stage" role="presentation">
   <div class="hero-content">
+    <div class="hero-hl-mask" id="hero-hl-mask">
     <h1 class="hero-hl" id="hero-hl">
       <span class="hl-line"><span class="hl-inner">We're <span id="hero-cycle-word">making</span></span></span>
       <span class="hl-line"><span class="hl-inner">our way into a new</span></span>
       <span class="hl-line"><span class="hl-inner">design practice.</span></span>
     </h1>
+    </div>
   </div>
 </div>
 <p class="hint" id="hint">Scroll or swipe — page stays still</p>
@@ -149,6 +174,7 @@ function staggerChars(chars){
 (function(){
   var stage     = document.getElementById('stage');
   var heroHl    = document.getElementById('hero-hl');
+  var heroMask  = document.getElementById('hero-hl-mask');
   var cycleWrap = document.getElementById('hero-cycle-word');
   var hint      = document.getElementById('hint');
   if(!heroHl || !cycleWrap || !stage) return;
@@ -176,6 +202,7 @@ function staggerChars(chars){
     clearCycle();
     if(revealTimer){ clearTimeout(revealTimer); revealTimer = null; }
     if(hint) hint.textContent = 'Reload to try again';
+    if(heroMask) heroMask.classList.add('is-exiting');
     heroHl.classList.add('headline-scroll-exit');
     var chars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
