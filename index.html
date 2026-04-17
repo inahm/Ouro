@@ -101,7 +101,7 @@ nav{
   font-family:'Didact Gothic',sans-serif;
   font-size:clamp(52px, 12vw, 120.75px);
   font-weight:500;
-  line-height:1.08;letter-spacing:-0.03em;color:var(--ink);
+  line-height:1.14;letter-spacing:-0.03em;color:var(--ink);
   width:max-content;
   margin:0 auto;
 }
@@ -239,7 +239,7 @@ nav{
   pointer-events:none;
   font-family:'Didact Gothic',sans-serif;
   font-size:clamp(52px, 12vw, 120.75px);
-  font-weight:500;line-height:1.08;letter-spacing:-0.03em;
+  font-weight:500;line-height:1.14;letter-spacing:-0.03em;
   color:var(--red);white-space:nowrap;
   transition:color 0.38s var(--ease-out-settle);
 }
@@ -304,8 +304,8 @@ footer{
 .d1{animation-delay:.3s}.d2{animation-delay:.44s}.d3{animation-delay:.58s}.d4{animation-delay:.72s}
 
 /* ── Hero headline ── */
-/* clip exactly at the line boundary — letters cut off at the line edge, not below */
-.hl-line{display:block;overflow:visible;clip-path:inset(-0.06em -5000px 0 -5000px);padding-bottom:0.34em;margin-bottom:-0.34em;}
+/* Negative bottom inset + padding: room for descenders (g, p, y); clip still masks fall-out */
+.hl-line{display:block;overflow:visible;clip-path:inset(-0.06em -5000px -0.52em -5000px);padding-bottom:0.5em;margin-bottom:-0.5em;}
 .hl-inner{display:block;}
 .hl-spread-l,.hl-spread-r{display:inline-block;will-change:transform;}
 .hl-spread-l+.hl-spread-r{margin-left:0.28em;}
@@ -350,12 +350,12 @@ footer{
   width:100%;
   max-width:100%;
   box-sizing:border-box;
-  line-height:1.15;
+  line-height:1.22;
   transition:opacity 0.32s var(--ease-out-settle);
 }
 #circle-hl .hl-line,
 #blob-cell-inv .hl-line,
-.circle-hl-inv-metrics .hl-line{padding-bottom:0.34em;margin-bottom:-0.34em;}
+.circle-hl-inv-metrics .hl-line{padding-bottom:0.5em;margin-bottom:-0.5em;}
 /* Circle red headline: solid color for the whole fall — only transform eases; clip masks motion. */
 #circle-hl .hl-char{
   transition:transform var(--cd,0.78s) var(--ease-out-flow);
