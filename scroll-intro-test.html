@@ -51,16 +51,16 @@ body{
   font-family:'Didact Gothic',sans-serif;
   font-size:clamp(52px,12vw,120.75px);
   font-weight:500;
-  line-height:0.94;letter-spacing:-0.03em;color:var(--ink);
+  line-height:1.08;
+  letter-spacing:-0.03em;color:var(--ink);
 }
 .hero-hl.revealed .hl-char{transform:translateY(0) rotate(0deg);}
 #hero-cycle-word{color:var(--red);}
 
 .hl-line{
   display:block;overflow:visible;
-  /* Negative bottom inset = room for descenders (g, y, p); flush 0 was clipping */
-  clip-path:inset(-0.06em -5000px -0.5em -5000px);
-  padding-bottom:0.42em;margin-bottom:-0.42em;
+  clip-path:inset(-0.06em -5000px 0 -5000px);
+  padding-bottom:0.34em;margin-bottom:-0.34em;
 }
 .hl-inner{display:block;}
 .hl-word{display:inline-block;}
