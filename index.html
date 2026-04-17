@@ -315,14 +315,16 @@ footer{
 
 /* per-character fall-in: clip does the hiding, --cd controls individual fall speed */
 /* -1.5em pushes the deepest descenders (g, y, p) fully above the clip top boundary */
+/* padding-bottom: inline-block spans otherwise hug descenders — clip can bite the tail */
 .hl-char{
   display:inline-block;
+  padding-bottom:0.15em;
   transform:translateY(-1.5em) rotate(var(--cr,0deg));
   opacity:0;
   transition:transform var(--cd,0.78s) var(--ease-out-flow);
   transform-origin:50% 0;
 }
-.hl-char--space{display:inline;transform:none!important;opacity:1!important;transition:none!important;}
+.hl-char--space{display:inline;padding-bottom:0!important;transform:none!important;opacity:1!important;transition:none!important;}
 /* snap opacity on reveal — clip boundary does the visual masking */
 #hero-hl.revealed .hl-char{transform:translateY(0) rotate(0deg);opacity:1;}
 

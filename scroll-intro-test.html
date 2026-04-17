@@ -66,12 +66,13 @@ body{
 .hl-word{display:inline-block;}
 .hl-char{
   display:inline-block;
+  padding-bottom:0.15em;
   transform:translateY(-1.5em) rotate(var(--cr,0deg));
   opacity:1;
   transition:transform var(--cd,0.85s) var(--ease-snap-out);
   transform-origin:50% 0;
 }
-.hl-char--space{display:inline;transform:none!important;opacity:1!important;transition:none!important;}
+.hl-char--space{display:inline;padding-bottom:0!important;transform:none!important;opacity:1!important;transition:none!important;}
 /* Straight fall: do not reuse --cr here; staggerChars leaves random --cr on each
    letter for the *in* motion only — exit was re-applying it and looked crooked. */
 /* Longhands only — a `transition` shorthand with !important was resetting inline delay */
