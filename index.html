@@ -8,6 +8,7 @@
 <title>Hero scroll test — fixed viewport</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="bg.mp4" as="video" type="video/mp4">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -44,6 +45,56 @@ html,body{
   touch-action:none;
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
+}
+/* Custom cursor (desktop / fine pointer) — lagging ring + dot, difference blend like chkstepan.com */
+@media (hover:hover) and (pointer:fine){
+  html.custom-cursor--active,
+  html.custom-cursor--active *{
+    cursor:none!important;
+  }
+  html.custom-cursor--active input,
+  html.custom-cursor--active textarea,
+  html.custom-cursor--active select{
+    cursor:text!important;
+  }
+}
+.custom-cursor{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  pointer-events:none;
+  overflow:hidden;
+  mix-blend-mode:difference;
+  opacity:0;
+  transition:opacity 0.25s ease;
+}
+.custom-cursor.custom-cursor--visible{opacity:1;}
+.custom-cursor__ring,
+.custom-cursor__dot{
+  position:absolute;
+  left:0;
+  top:0;
+  will-change:transform;
+  border-radius:50%;
+}
+.custom-cursor__ring{
+  width:42px;
+  height:42px;
+  margin-left:0;
+  margin-top:0;
+  border:1px solid #fff;
+  transition:width 0.35s var(--ease-out-flow),height 0.35s var(--ease-out-flow),border-width 0.2s ease;
+}
+.custom-cursor.custom-cursor--hover .custom-cursor__ring{
+  width:56px;
+  height:56px;
+}
+.custom-cursor__dot{
+  width:7px;
+  height:7px;
+  margin-left:0;
+  margin-top:0;
+  background:#fff;
 }
 /* After third act: native vertical scroll + continuation (see unlockThirdActPageScroll) */
 html.scroll-intro-scrollable,
@@ -95,18 +146,17 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   /* Horizontal gutter matches .hscroll-track scroll-padding / padding-left (first card column). */
   padding-left:var(--g);
   padding-right:var(--g);
-  padding-top:clamp(40px,7vh,88px);
-  padding-bottom:clamp(40px,7vh,88px);
-  min-height:clamp(320px,48vh,640px);
+  padding-top:clamp(128px,24vh,280px);
+  padding-bottom:clamp(128px,24vh,280px);
   display:flex;
   flex-direction:column;
-  justify-content:center;
+  justify-content:flex-start;
   align-items:stretch;
   box-sizing:border-box;
 }
 .scroll-intro-below__inner{
   width:100%;
-  max-width:min(1040px, var(--content-max));
+  max-width:min(1384px,100%);
   margin:0 auto;
   font-size:15px;
   line-height:1.65;
@@ -117,20 +167,25 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   margin:0;
   font-family:'Space Grotesk',sans-serif;
   font-weight:400;
-  font-size:clamp(26px,4.2vw,44px);
-  line-height:1.22;
-  letter-spacing:0.015em;
+  font-size:clamp(32px,5.4vw,56px);
+  line-height:1.18;
+  letter-spacing:0.012em;
+  text-transform:uppercase;
   color:var(--ink);
   opacity:1;
   text-align:center;
 }
 .scroll-intro-below__statement em{
-  font-style:italic;
+  font-style:normal;
   color:var(--red);
 }
 
 /* ── Project cards (horizontal) + footer wordmark — same pattern as index ── */
 .scroll-intro-continuation .hscroll-frame{position:relative;z-index:0;}
+/* Breathing room when jumping to #proj-grid-wrap (nav link, scrollIntoView, :target). */
+#proj-grid-wrap{
+  scroll-margin-top:max(64px, calc(env(safe-area-inset-top, 0px) + 48px));
+}
 .scroll-intro-continuation .hscroll-track{
   display:flex;
   align-items:stretch;
@@ -363,7 +418,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   flex-direction:column;
   justify-content:flex-end;
   min-height:clamp(320px, 52vh, 780px);
-  padding:clamp(84px, 13vh, 180px) 0 max(clamp(40px, 6vh, 88px), env(safe-area-inset-bottom, 0px)) 0;
+  padding:clamp(84px, 13vh, 180px) 0 0 0;
   overflow:visible;
   background:var(--bg);
   opacity:0;
@@ -382,6 +437,9 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   gap:0;
   box-sizing:border-box;
   flex:0 0 auto;
+  position:relative;
+  overflow:visible;
+  isolation:isolate;
 }
 /* Hairline + link row under wordmark (CapCut-style strip) */
 .scroll-intro-continuation .wordmark-footer-hairline{
@@ -389,9 +447,12 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   height:0;
   margin:0;
   border:0;
-  border-top:1px solid rgba(0,0,0,0.12);
+  border-top:1px solid var(--ink);
   padding:0;
   flex-shrink:0;
+  position:relative;
+  z-index:3;
+  background:var(--bg);
 }
 .scroll-intro-continuation .wordmark-footer-nav{
   display:flex;
@@ -399,13 +460,16 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   justify-content:flex-end;
   align-items:center;
   gap:clamp(20px, 4vw, 44px);
-  padding:clamp(14px, 2.2vw, 22px) var(--g) 0;
+  padding:clamp(14px, 2.2vw, 22px) var(--g) max(clamp(40px, 6vh, 88px), env(safe-area-inset-bottom, 0px));
   box-sizing:border-box;
   font-family:'Inter',sans-serif;
   font-size:clamp(11px, 1.05vw, 13px);
   font-weight:400;
   letter-spacing:0.04em;
   text-transform:none;
+  position:relative;
+  z-index:3;
+  background:var(--bg);
 }
 .scroll-intro-continuation .wordmark-footer-nav a{
   color:var(--ink);
@@ -429,8 +493,10 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   flex-shrink:0;
   cursor:default;
   position:relative;
+  z-index:1;
   color:var(--red);
   line-height:0;
+  transform:translateY(5px);
   /* slice scales past the box — hidden clipped “LABS”; page scroll uses overflow-x on html */
   overflow:visible;
 }
@@ -444,6 +510,11 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 .scroll-intro-continuation:not(.scroll-intro-continuation--wordmark-static) .wordmark-svg-physics .wm-l rect{
   fill:transparent;
 }
+/* Prevent white/blank flash during SVG -> canvas handoff. */
+.scroll-intro-continuation .wordmark.wordmark--handoff .wordmark-svg-physics .wm-l path,
+.scroll-intro-continuation .wordmark.wordmark--handoff .wordmark-svg-physics .wm-l rect{
+  fill:currentColor !important;
+}
 .scroll-intro-continuation--wordmark-static .wordmark-svg-physics .wm-l path,
 .scroll-intro-continuation--wordmark-static .wordmark-svg-physics .wm-l rect{
   fill:currentColor;
@@ -455,6 +526,19 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   left:0;
   pointer-events:none;
   z-index:1;
+  opacity:0;
+  transition:opacity 1.15s var(--ease-out-flow);
+}
+.scroll-intro-continuation .wordmark.wordmark--canvas-reveal #wm-vid-canvas-scroll-intro{
+  opacity:1;
+}
+/* Footer wordmark intro: JS drives per-letter staggered rise; keep only paint override here. */
+.scroll-intro-continuation .wordmark.wordmark--letter-intro .wordmark-svg-physics > .wm-l{
+  will-change:transform,opacity;
+}
+.scroll-intro-continuation .wordmark.wordmark--letter-intro .wordmark-svg-physics .wm-l path,
+.scroll-intro-continuation .wordmark.wordmark--letter-intro .wordmark-svg-physics .wm-l rect{
+  fill:currentColor !important;
 }
 @media (max-width:900px){
   .scroll-intro-continuation .hscroll-track{height:580px;}
@@ -474,16 +558,17 @@ body{
   -webkit-tap-highlight-color:transparent;
 }
 
-/* Ouro symbol — upper left, black (sits under third act z=50 during red beat) */
+/* Ouro symbol + Projects — same difference inversion as .custom-cursor (sits under third act z=50 during red beat) */
 .scroll-intro-logo{
   position:fixed;
   top:max(26px, calc(env(safe-area-inset-top, 0px) + clamp(18px, 2.4vw, 28px)));
   left:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-left, 0px) + 8px));
   z-index:6;
-  color:#000;
+  color:#fff;
   text-decoration:none;
   display:block;
   line-height:0;
+  mix-blend-mode:difference;
 }
 .scroll-intro-logo svg{
   display:block;
@@ -491,7 +576,7 @@ body{
   width:auto;
 }
 .scroll-intro-logo:focus-visible{
-  outline:2px solid var(--red);
+  outline:2px solid #fff;
   outline-offset:3px;
 }
 .scroll-intro-projects-link{
@@ -499,7 +584,7 @@ body{
   top:max(26px, calc(env(safe-area-inset-top, 0px) + clamp(18px, 2.4vw, 28px)));
   right:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-right, 0px) + 8px));
   z-index:6;
-  color:var(--ink);
+  color:#fff;
   text-decoration:none;
   font-family:'Inter',sans-serif;
   font-size:clamp(12px, 1.2vw, 14px);
@@ -507,10 +592,30 @@ body{
   letter-spacing:0.08em;
   text-transform:uppercase;
   line-height:1;
+  mix-blend-mode:difference;
 }
 .scroll-intro-projects-link:focus-visible{
-  outline:2px solid var(--red);
+  outline:2px solid #fff;
   outline-offset:3px;
+}
+.scroll-intro-logo,
+.scroll-intro-projects-link{
+  transition:opacity 0.42s var(--ease-out-flow);
+}
+@media (prefers-reduced-motion: reduce){
+  .scroll-intro-logo,
+  .scroll-intro-projects-link{
+    transition-duration:0.05s;
+  }
+}
+/*
+ * Fixed nav is z-index 6. Continuation is normally below it, so the logo/links never get covered.
+ * When the horizontal card strip reaches the top (see scroll-intro-cards-over-nav on <html>),
+ * lift the whole continuation so in-flow paint (opaque .hscroll-track bg + border) slides over the nav.
+ */
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuation{
+  position:relative;
+  z-index:7;
 }
 
 /* Fixed stage — no page scroll; wheel / touch only drive motion */
@@ -643,6 +748,13 @@ body{
   transition-duration:var(--cd,0.32s)!important;
   transition-timing-function:var(--ease-snap-in)!important;
 }
+/* Second headline (red): keep solid brand color — no opacity/color drift while exiting */
+.hero-hl.hero-hl--second-block .hl-char.hl-char-exit{
+  opacity:1!important;
+  color:var(--red)!important;
+  -webkit-text-fill-color:var(--red);
+  transition:transform var(--cd,0.32s) var(--ease-snap-in)!important;
+}
 @media(max-width:1100px){
   .hero-hl{
     font-size:var(--hero-hl-size-md);
@@ -736,7 +848,7 @@ body{
 .third-act-red.third-act-red--expanded{
   -webkit-clip-path:circle(160vmax at 50% 50%);
   clip-path:circle(160vmax at 50% 50%);
-  transition:-webkit-clip-path 0.92s var(--ease-snap-out), clip-path 0.92s var(--ease-snap-out);
+  transition:-webkit-clip-path 0.98s var(--ease-snap-out), clip-path 0.98s var(--ease-snap-out);
 }
 .third-act-inner{
   position:absolute;
@@ -772,7 +884,7 @@ body{
   height:100%;
   opacity:0;
   transform:scale(0.38);
-  transition:transform 0.78s var(--ease-snap-out), opacity 0.55s ease;
+  transition:transform 0.58s var(--ease-snap-out), opacity 0.38s ease;
 }
 .third-act-video-shell.third-act-video-shell--in{
   opacity:1;
@@ -883,6 +995,10 @@ body{
 </style>
 </head>
 <body>
+<div class="custom-cursor" id="custom-cursor-root" aria-hidden="true">
+  <div class="custom-cursor__ring"></div>
+  <div class="custom-cursor__dot"></div>
+</div>
 <!-- O torus clip: same geometry as circle.svg#ouro-circle-ring-path (734×734) -->
 <svg class="third-act-svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
   <defs>
@@ -893,8 +1009,8 @@ body{
 </svg>
 
 <a class="scroll-intro-logo" href="index.html" aria-label="Ouro Labs home">
-  <svg height="20" viewBox="0 0 1159 336" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-    <path d="M994 0C1085.13 0 1159 73.873 1159 165C1159 256.127 1085.13 330 994 330C902.873 330 829 256.127 829 165C829 149.83 831.05 135.139 834.883 121.187C830.981 120.305 826.924 119.839 822.759 119.839C792.461 119.839 767.839 144.462 767.839 174.759H767.932V325.33H658V179.672C650.9 283.479 571.965 329 493.759 329C408.111 329 337.714 263.623 329.752 180.058C325.05 266.972 253.088 336 165 336C73.873 336 0 262.127 0 171C0 79.873 73.873 6 165 6C249.961 6 319.921 70.2145 329 152.757V13.6699H438.932V164.241H438.839C438.839 194.537 463.461 219.161 493.759 219.161C524.057 219.161 548.679 194.537 548.68 164.241H548.587V13.6699H658.519V159.327C665.618 55.5204 744.553 10.0001 822.759 10C829.612 10 836.367 10.4205 843 11.2334V98.3896C868.6 40.4415 926.576 0 994 0ZM165 115C134.072 115 109 140.072 109 171C109 201.928 134.072 227 165 227C195.928 227 221 201.928 221 171C221 140.072 195.928 115 165 115ZM994 109C963.072 109 938 134.072 938 165C938 195.928 963.072 221 994 221C1024.93 221 1050 195.928 1050 165C1050 134.072 1024.93 109 994 109Z" fill="currentColor"/>
+  <svg viewBox="0 0 1236 331" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <path d="M165 0C247.368 0 315.637 60.3548 328 139.252V8H437.932V165.571H437.839C437.839 195.868 462.461 220.491 492.759 220.491C523.057 220.491 547.68 195.868 547.68 165.571H547.587V8H657.519V165.571C657.519 280.312 574.737 330.33 492.759 330.33C407.841 330.33 337.916 266.063 328.97 183.521C319.765 265.929 249.866 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM786 330H675V8H786V330ZM1071 0C1162.13 0 1236 73.873 1236 165C1236 256.127 1162.13 330 1071 330C979.873 330 906 256.127 906 165C906 73.873 979.873 0 1071 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109ZM1071 109C1040.07 109 1015 134.072 1015 165C1015 195.928 1040.07 221 1071 221C1101.93 221 1127 195.928 1127 165C1127 134.072 1101.93 109 1071 109ZM859 8C889.928 8 915 33.0721 915 64C915 94.9279 889.928 120 859 120C828.072 120 803 94.9279 803 64C803 33.0721 828.072 8 859 8Z" fill="currentColor"/>
   </svg>
 </a>
 <a class="scroll-intro-projects-link" id="projects-nav-link" href="#proj-grid-wrap">Projects</a>
@@ -939,7 +1055,7 @@ body{
 <section class="scroll-intro-below" id="scroll-intro-below" aria-labelledby="scroll-intro-below-statement">
   <div class="scroll-intro-below__inner">
     <p id="scroll-intro-below-statement" class="scroll-intro-below__statement">
-      We work through systems, tools, code, and design experimentation to shape not just products, but <em>the process that creates them.</em>
+      We work through systems, tools, code, design and experimentation to shape not just products, but the process that <em>creates them.</em>
     </p>
   </div>
 </section>
@@ -971,7 +1087,7 @@ body{
 </div>
 </div>
 
-<section class="kim-team-section" aria-label="Team section">
+<section class="kim-team-section" aria-label="Team section" hidden>
   <div class="kim-team-wall">
     <div class="kim-team-lines" aria-hidden="true">
       <div class="kim-team-line">SYSTEMS. TOOLS. CODE. AND. DESIGN.</div>
@@ -985,29 +1101,29 @@ body{
 <footer aria-label="Ouro Labs">
   <div class="wordmark-row">
     <span class="wordmark" id="wm-letters-scroll-intro">
-      <svg class="wordmark-svg-physics" viewBox="0 0 2297 413" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-        <g class="wm-l"><g transform="translate(0,90)">
+      <svg class="wordmark-svg-physics" viewBox="0 0 2416 433" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+        <g class="wm-l"><g transform="translate(0,103)">
           <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
         </g></g>
-        <g class="wm-l"><g transform="translate(329,98)">
-          <path d="M164.759 315.331C246.738 315.331 329.518 265.312 329.518 150.571L329.518 0L219.587 0L219.587 150.571L219.679 150.571C219.679 180.868 195.057 205.492 164.759 205.492C134.461 205.492 109.839 180.868 109.839 150.571L109.931 150.571L109.931 0L0 0L0 150.571C0 241.555 73.7758 315.331 164.759 315.331Z" fill="currentColor"/>
+        <g class="wm-l"><g transform="translate(329,110.669)">
+          <path d="M164.759 322.331C246.738 322.331 329.518 272.312 329.518 157.571L329.519 1.71015e-06L219.587 -1.91969e-05L219.587 157.571L219.679 157.571C219.679 187.868 195.057 212.492 164.759 212.492C134.461 212.492 109.839 187.868 109.839 157.571L109.931 157.571L109.931 -9.61051e-06L-2.8179e-05 0L-1.44037e-05 157.571C-6.44968e-06 248.555 73.7758 322.331 164.759 322.331Z" fill="currentColor"/>
         </g></g>
-        <g class="wm-l"><g transform="translate(658,98)">
-          <path d="M0 164.759C0 50.0182 82.7805 0 164.759 0C171.612 0 178.367 0.420519 185 1.23339L185 113.699C178.734 111.209 171.904 109.839 164.759 109.839C134.461 109.839 109.839 134.462 109.839 164.759L109.932 164.759L109.932 315.33L0 315.33L0 164.759Z" fill="currentColor"/>
+        <g class="wm-l"><g transform="translate(674.518,110.669) scale(1.00102795)">
+          <path d="M111 322H0V0H111V322ZM184 0C214.928 0 240 25.0721 240 56C240 86.9279 214.928 112 184 112C153.072 112 128 86.9279 128 56C128 25.0721 153.072 0 184 0Z" fill="currentColor"/>
         </g></g>
-        <g class="wm-l"><g transform="translate(829,90)">
+        <g class="wm-l"><g transform="translate(906.7647,103)">
           <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
         </g></g>
-        <g class="wm-l"><g transform="translate(1259,0)">
+        <g class="wm-l"><g transform="translate(1336.7647,7)">
           <rect width="111" height="426" fill="currentColor"/>
         </g></g>
-        <g class="wm-l"><g transform="translate(1370,94)">
+        <g class="wm-l"><g transform="translate(1447.7647,103)">
           <path d="M165 0C256.127 0 330 73.873 330 165C330 165.334 329.995 165.667 329.993 166H330V323H212.691C197.593 327.551 181.582 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
         </g></g>
-        <g class="wm-l"><g transform="translate(1696,0)">
+        <g class="wm-l"><g transform="translate(1773.7647,0)">
           <path d="M111 112.041C127.92 106.184 146.088 103 165 103C256.127 103 330 176.873 330 268C330 359.127 256.127 433 165 433C74.2066 433 0 359.667 0 269H0V0H111V112.041ZM165 212C134.072 212 109 237.072 109 268C109 298.928 134.072 324 165 324C195.928 324 221 298.928 221 268C221 237.072 195.928 212 165 212Z" fill="currentColor"/>
         </g></g>
-        <g class="wm-l"><g transform="translate(1991,93)">
+        <g class="wm-l"><g transform="translate(2068.7647,102)">
           <path d="M298.958 65.666C277.492 27.1351 229.441 0 163.896 0C132.18 0 99.5579 6.11249 73.1309 22.8223C44.5649 40.8846 25.0146 70.7029 25.0146 108.689C25.0148 146.896 44.7452 176.559 73.8867 194.157C100.358 210.143 149.779 213.5 164.779 214C179.779 214.5 193.059 215 192.779 226C192.5 237 169.935 242.085 132.279 231C96 220.32 87.5586 208.846 87.5586 208.846L0 257.154C16.1188 286.37 45.5592 304.157 71.9346 314.452C99.7317 325.303 131.996 331 163.896 331C196.479 331 229.579 324.144 256.269 307.058C284.516 288.973 305.279 259.024 305.279 220.198C305.279 180.013 283.016 150.869 253.286 134.623C226.532 120.004 188 116 163.896 115.5C139.793 115 126 112 126 104C126 96 133 93.5 154 94.5C193.036 96.3588 212.063 115.165 211.601 114.334L298.958 65.666Z" fill="currentColor"/>
         </g></g>
       </svg>
@@ -1618,11 +1734,31 @@ function attachHlCharExitHideAfterTransform(c){
   var _taVidHide =
     'position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;';
 
+  /** Start bg.mp4 decode/buffer early so footer wordmark clip has frames ready. */
+  function ensureBgVidWarm(){
+    if(window.__bgVid) return;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var v = document.createElement('video');
+    v.src = 'bg.mp4';
+    v.preload = 'auto';
+    v.muted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.autoplay = true;
+    v.setAttribute('playsinline', '');
+    v.style.cssText = _taVidHide;
+    document.body.appendChild(v);
+    window.__bgVid = v;
+    v.play().catch(function(){});
+  }
+  ensureBgVidWarm();
+
   function ensureThirdRingVideos(){
     if(thirdCycleVids) return;
     thirdCycleVids = TA_CYCLE_SRCS.map(function(src){
       var v = document.createElement('video');
       v.src = src;
+      v.preload = 'auto';
       v.muted = true;
       v.loop = true;
       v.playsInline = true;
@@ -1637,6 +1773,7 @@ function attachHlCharExitHideAfterTransform(c){
     if(!thirdBgVid){
       thirdBgVid = document.createElement('video');
       thirdBgVid.src = 'bg.mp4';
+      thirdBgVid.preload = 'auto';
       thirdBgVid.muted = true;
       thirdBgVid.loop = true;
       thirdBgVid.playsInline = true;
@@ -1650,6 +1787,8 @@ function attachHlCharExitHideAfterTransform(c){
     }
     thirdBgVid.play().catch(function(){});
   }
+  /* Decode/buffer torus clips during idle scroll so the red beat isn’t stuck on a flat red fill. */
+  ensureThirdRingVideos();
 
   function thirdRingResize(){
     if(!thirdRingCanvas || !thirdAct) return;
@@ -1967,7 +2106,7 @@ function attachHlCharExitHideAfterTransform(c){
   /** After red fill: scale in the circular video, then run `cb` (mount headline). */
   function playThirdActVideoCircleIn(cb){
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var waitMs = reduce ? 90 : 840;
+    var waitMs = reduce ? 90 : 680;
     if(!thirdActVideoShell){
       if(typeof cb === 'function') setTimeout(cb, 0);
       return;
@@ -2061,16 +2200,16 @@ function attachHlCharExitHideAfterTransform(c){
     if(window.matchMedia('(hover: hover) and (pointer: fine)').matches){
       var lettersWm = svgElWm.querySelectorAll('.wm-l');
       if(lettersWm.length){
-        var VWWm = 2297, VHWm = 413;
+        var VWWm = 2416, VHWm = 433;
         var restsWm = [
-          [165, 255],
-          [329 + 165, 98 + 158],
-          [658 + 92, 98 + 158],
-          [994, 255],
-          [1315, 213],
-          [1535, 259],
-          [1861, 217],
-          [2144, 259]
+          [165, 268],
+          [329 + 165, 110.669 + 158],
+          [674.518 + 120, 110.669 + 157],
+          [906.7647 + 165, 268],
+          [1336.7647 + 56, 220],
+          [1447.7647 + 165, 268],
+          [1773.7647 + 165, 217],
+          [2068.7647 + 153, 268]
         ];
         var SPRINGWm = 0.035, DAMPWm = 0.88, REPELWm = 70000, MAX_FWm = 18, RADIUS_PX_Wm = 200;
         var mxWm = -99999, myWm = -99999;
@@ -2140,16 +2279,16 @@ function attachHlCharExitHideAfterTransform(c){
       }
     })();
     var dprWm = Math.min(window.devicePixelRatio || 1, 2);
-    var VWWm2 = 2297, VHWm2 = 413, TOP_PAD_CSS_WM = 160, BOTTOM_PAD_CSS_WM = 0;
+    var VWWm2 = 2416, VHWm2 = 433, TOP_PAD_CSS_WM = 160, BOTTOM_PAD_CSS_WM = 0;
     var staticsWm = [
-      {sx: 0, sy: 90},
-      {sx: 329, sy: 98},
-      {sx: 658, sy: 98},
-      {sx: 829, sy: 90},
-      {sx: 1259, sy: 0, isRect: true, rw: 111, rh: 426},
-      {sx: 1370, sy: 94},
-      {sx: 1696, sy: 0},
-      {sx: 1991, sy: 93}
+      {sx: 0, sy: 103},
+      {sx: 329, sy: 110.669},
+      {sx: 674.518, sy: 110.669},
+      {sx: 906.7647, sy: 103},
+      {sx: 1336.7647, sy: 7, isRect: true, rw: 111, rh: 426},
+      {sx: 1447.7647, sy: 103},
+      {sx: 1773.7647, sy: 0},
+      {sx: 2068.7647, sy: 102}
     ];
     var wmlWm = svgElWm.querySelectorAll('.wm-l');
     var pathsWm = Array.from(wmlWm).map(function(el, i){
@@ -2160,6 +2299,7 @@ function attachHlCharExitHideAfterTransform(c){
     var vidWm = window.__bgVid || (function(){
       var v = document.createElement('video');
       v.src = 'bg.mp4';
+      v.preload = 'auto';
       v.autoplay = true;
       v.muted = true;
       v.loop = true;
@@ -2173,6 +2313,9 @@ function attachHlCharExitHideAfterTransform(c){
     if(!window.__bgVid) window.__bgVid = vidWm;
     /* No bottom trim — index trims slack for a tighter crop; at full width it clipped descenders (S, B). */
     var VB_BOTTOM_TRIM_WM = 0;
+    /* Must match inner <g transform="... scale(...)"> on the R .wm-l (canvas mask uses path only). */
+    /* Match R cap height to U (322.331) — was 0.978, which made R visibly shorter. */
+    var WM_R_PATH_SCALE = 322.331 / 322;
 
     function resizeWm(){
       var r = svgElWm.getBoundingClientRect();
@@ -2197,6 +2340,12 @@ function attachHlCharExitHideAfterTransform(c){
     window.addEventListener('load', resizeWm);
     setTimeout(resizeWm, 100);
     setTimeout(resizeWm, 600);
+    if(typeof ResizeObserver !== 'undefined'){
+      new ResizeObserver(function(){ resizeWm(); }).observe(svgElWm);
+    }
+    ['loadedmetadata', 'loadeddata'].forEach(function(ev){
+      vidWm.addEventListener(ev, function(){ resizeWm(); }, { passive: true });
+    });
 
     var maskCanvasWm = document.createElement('canvas');
     var mctxWm = maskCanvasWm.getContext('2d');
@@ -2215,7 +2364,11 @@ function attachHlCharExitHideAfterTransform(c){
         return;
       }
       wmVidRafWm = requestAnimationFrame(wmVidFrameWm);
-      if(vidWm.readyState < 2 || !canvasWm.width) return;
+      if(vidWm.readyState < 2) return;
+      if(!canvasWm.width || canvasWm.height < 8){
+        resizeWm();
+        if(!canvasWm.width || canvasWm.height < 8) return;
+      }
 
       var cw = canvasWm.width, ch = canvasWm.height;
       var pw = cw / dprWm;
@@ -2245,7 +2398,8 @@ function attachHlCharExitHideAfterTransform(c){
         if(staticsWm[i].isRect){
           mctxWm.fillRect(0, 0, staticsWm[i].rw * scaleX, staticsWm[i].rh * scaleY);
         } else if(pathsWm[i]){
-          mctxWm.scale(scaleX, scaleY);
+          var ps = i === 2 ? WM_R_PATH_SCALE : 1;
+          mctxWm.scale(scaleX * ps, scaleY * ps);
           mctxWm.fill(pathsWm[i]);
         }
         mctxWm.restore();
@@ -2274,6 +2428,11 @@ function attachHlCharExitHideAfterTransform(c){
       ctxWm.drawImage(maskCanvasWm, 0, 0);
       ctxWm.globalCompositeOperation = 'source-over';
     }
+    resizeWm();
+    requestAnimationFrame(function(){
+      resizeWm();
+      requestAnimationFrame(resizeWm);
+    });
     wmVidRafWm = requestAnimationFrame(wmVidFrameWm);
   }
 
@@ -2289,24 +2448,109 @@ function attachHlCharExitHideAfterTransform(c){
     var kimSection = cont.querySelector('.kim-team-section');
     var kimLines = kimSection ? Array.from(kimSection.querySelectorAll('.kim-team-line')) : [];
     var wordmarkInitDone = false;
+    var footerWordmarkIntroPlayed = false;
     function initWordmarkEffectsWhenNeeded(){
       if(wordmarkInitDone) return;
       wordmarkInitDone = true;
       initScrollIntroWordmarkEffects(cont);
     }
-    function scheduleWordmarkEffectsInit(){
-      var footerEl = cont.querySelector('footer') || cont;
-      if(!('IntersectionObserver' in window)){
-        setTimeout(initWordmarkEffectsWhenNeeded, 0);
+    function runFooterWordmarkLetterEntrance(){
+      if(footerWordmarkIntroPlayed) return;
+      footerWordmarkIntroPlayed = true;
+      var wm = document.getElementById('wm-letters-scroll-intro');
+      if(!wm){
+        initWordmarkEffectsWhenNeeded();
         return;
       }
-      var wmObs = new IntersectionObserver(function(entries){
-        if(entries[0] && entries[0].isIntersecting){
-          wmObs.disconnect();
-          initWordmarkEffectsWhenNeeded();
+      var groups = wm.querySelectorAll('.wordmark-svg-physics > .wm-l');
+      if(!groups.length){
+        initWordmarkEffectsWhenNeeded();
+        return;
+      }
+      var groupList = Array.from(groups);
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      wm.classList.remove('wordmark--canvas-reveal');
+      wm.classList.add('wordmark--letter-intro');
+      if(reduce){
+        wm.classList.remove('wordmark--letter-intro');
+        initWordmarkEffectsWhenNeeded();
+        requestAnimationFrame(function(){
+          wm.classList.add('wordmark--canvas-reveal');
+        });
+        return;
+      }
+      var wr = wm.getBoundingClientRect();
+      var risePx = Math.max(120, (window.innerHeight - wr.top) + 28);
+      var baseDelay = 68;
+      function easeOutCubic(t){
+        return 1 - Math.pow(1 - t, 3);
+      }
+      var now0 = performance.now();
+      var states = groupList.map(function(g, i){
+        var delayMs = Math.round(i * baseDelay + Math.random() * 16);
+        var durMs = Math.round((0.42 + Math.random() * 0.32) * 1000);
+        var startY = risePx + Math.random() * 24;
+        g.style.opacity = '0';
+        g.setAttribute('transform', 'translate(0,' + startY.toFixed(2) + ')');
+        return {
+          el: g,
+          startMs: now0 + delayMs,
+          durMs: durMs,
+          startY: startY
+        };
+      });
+      function finishLetterIntro(){
+        wm.classList.add('wordmark--handoff');
+        wm.classList.remove('wordmark--letter-intro');
+        states.forEach(function(s){
+          s.el.style.opacity = '';
+          s.el.removeAttribute('transform');
+        });
+        initWordmarkEffectsWhenNeeded();
+        requestAnimationFrame(function(){
+          wm.classList.add('wordmark--canvas-reveal');
+          setTimeout(function(){
+            wm.classList.remove('wordmark--handoff');
+          }, 1240);
+        });
+      }
+      function tickLetterIntro(now){
+        var anyRunning = false;
+        states.forEach(function(s){
+          var elapsed = now - s.startMs;
+          if(elapsed <= 0){
+            anyRunning = true;
+            return;
+          }
+          var t = Math.min(1, elapsed / s.durMs);
+          var eased = easeOutCubic(t);
+          var y = s.startY * (1 - eased);
+          var alpha = t < 0.28 ? (t / 0.28) : 1;
+          s.el.setAttribute('transform', 'translate(0,' + y.toFixed(2) + ')');
+          s.el.style.opacity = alpha.toFixed(3);
+          if(t < 1) anyRunning = true;
+        });
+        if(anyRunning){
+          requestAnimationFrame(tickLetterIntro);
+        } else {
+          finishLetterIntro();
         }
-      }, { rootMargin: '520px 0px', threshold: 0.01 });
-      wmObs.observe(footerEl);
+      }
+      requestAnimationFrame(tickLetterIntro);
+    }
+    function isNearBottomOfPage(){
+      var de = document.documentElement;
+      var bottomY = window.scrollY + (window.innerHeight || 0);
+      var maxY = de ? de.scrollHeight : 0;
+      return bottomY >= (maxY - 2);
+    }
+    function maybeRunFooterWordmarkAtBottom(footerEl){
+      if(footerWordmarkIntroPlayed || !footerEl) return;
+      var r = footerEl.getBoundingClientRect();
+      var inView = r.top < (window.innerHeight || 0) && r.bottom > 0;
+      if(inView && isNearBottomOfPage()){
+        runFooterWordmarkLetterEntrance();
+      }
     }
     function initKimTeamScrollMotion(){
       if(!kimSection || !kimLines.length) return;
@@ -2386,7 +2630,7 @@ function attachHlCharExitHideAfterTransform(c){
       cards.forEach(function(c){ c.classList.add('in'); });
       var footRm = cont.querySelector('footer');
       if(footRm) footRm.classList.add('in');
-      scheduleWordmarkEffectsInit();
+      initWordmarkEffectsWhenNeeded();
       return;
     }
 
@@ -2432,15 +2676,66 @@ function attachHlCharExitHideAfterTransform(c){
 
     var footer = cont.querySelector('footer');
     if(footer){
-      var fobs = new IntersectionObserver(function(entries){
-        if(entries[0] && entries[0].isIntersecting){
-          footer.classList.add('in');
-          fobs.disconnect();
-        }
-      }, {threshold: 0.1});
-      fobs.observe(footer);
+      if('IntersectionObserver' in window){
+        var fobs = new IntersectionObserver(function(entries){
+          if(entries[0] && entries[0].isIntersecting){
+            footer.classList.add('in');
+            maybeRunFooterWordmarkAtBottom(footer);
+          }
+        }, {threshold: 0.1});
+        fobs.observe(footer);
+      } else {
+        footer.classList.add('in');
+        maybeRunFooterWordmarkAtBottom(footer);
+      }
+      window.addEventListener('scroll', function(){ maybeRunFooterWordmarkAtBottom(footer); }, {passive: true});
+      window.addEventListener('resize', function(){ maybeRunFooterWordmarkAtBottom(footer); }, {passive: true});
+      requestAnimationFrame(function(){ maybeRunFooterWordmarkAtBottom(footer); });
     }
-    scheduleWordmarkEffectsInit();
+
+    var hscrollTrackForNav = cont.querySelector('.hscroll-track');
+    var scrollIntroLogoNav = document.querySelector('.scroll-intro-logo');
+    var scrollIntroProjectsNav = document.querySelector('.scroll-intro-projects-link');
+    function clearScrollIntroNavInlineOpacity(){
+      if(scrollIntroLogoNav) scrollIntroLogoNav.style.removeProperty('opacity');
+      if(scrollIntroProjectsNav) scrollIntroProjectsNav.style.removeProperty('opacity');
+    }
+    function updateScrollIntroCardsOverNav(){
+      var root = document.documentElement;
+      if(!root.classList.contains('scroll-intro-scrollable')){
+        root.classList.remove('scroll-intro-cards-over-nav');
+        clearScrollIntroNavInlineOpacity();
+        return;
+      }
+      if(!hscrollTrackForNav){
+        root.classList.remove('scroll-intro-cards-over-nav');
+        clearScrollIntroNavInlineOpacity();
+        return;
+      }
+      var top = hscrollTrackForNav.getBoundingClientRect().top;
+      var liftWhenAbove = 56;
+      var lowerWhenBelow = 76;
+      var lifted = root.classList.contains('scroll-intro-cards-over-nav');
+      if(!lifted && top < liftWhenAbove){
+        root.classList.add('scroll-intro-cards-over-nav');
+        clearScrollIntroNavInlineOpacity();
+      } else if(lifted && top > lowerWhenBelow){
+        if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+          root.classList.remove('scroll-intro-cards-over-nav');
+          clearScrollIntroNavInlineOpacity();
+        } else {
+          if(scrollIntroLogoNav) scrollIntroLogoNav.style.opacity = '0';
+          if(scrollIntroProjectsNav) scrollIntroProjectsNav.style.opacity = '0';
+          root.classList.remove('scroll-intro-cards-over-nav');
+          requestAnimationFrame(function(){
+            requestAnimationFrame(clearScrollIntroNavInlineOpacity);
+          });
+        }
+      }
+    }
+    window.addEventListener('scroll', updateScrollIntroCardsOverNav, {passive: true});
+    window.addEventListener('resize', updateScrollIntroCardsOverNav);
+    requestAnimationFrame(updateScrollIntroCardsOverNav);
   }
   function tryUnlockThirdActIfReady(){
     if(phase !== 5) return;
@@ -2451,6 +2746,7 @@ function attachHlCharExitHideAfterTransform(c){
   function unlockThirdActPageScroll(){
     if(phase !== 5) return;
     phase = 6;
+    detachHeroScrollLocks();
     thirdActUnlockWheelAccum = 0;
     if(thirdAct){
       thirdAct.classList.add('third-act--in-flow');
@@ -2484,51 +2780,71 @@ function attachHlCharExitHideAfterTransform(c){
       secondParticleWrap.classList.remove('second-hl-particles-wrap--visible');
       secondParticlesStop();
     }
-    /* .hero-hl.revealed{visibility:visible} overrides parent .hero-content visibility:hidden,
-       so the second headline kept painting; stripping --second-block then flashed black ink. */
-    if(heroHl) heroHl.classList.remove('revealed');
-    if(heroContentEl) heroContentEl.style.visibility = 'hidden';
-    if(heroHl) heroHl.classList.remove('hero-hl--second-block');
-    thirdAct.classList.add('third-act--active');
-    thirdAct.setAttribute('aria-hidden', 'false');
-    if(thirdActVideoShell){
-      thirdActVideoShell.classList.remove('third-act-video-shell--in');
-      thirdActVideoShell.setAttribute('aria-hidden', 'true');
-    }
-    thirdRingStop();
-    thirdActRed.classList.remove('third-act-red--expanded');
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if(reduce){
+    function beginThirdActRedBeat(){
+      if(phase !== 40 || !exitInProgress) return;
+      /* .hero-hl.revealed{visibility:visible} overrides parent .hero-content visibility:hidden,
+         so the second headline kept painting; stripping --second-block then flashed black ink. */
+      if(heroHl) heroHl.classList.remove('revealed');
+      if(heroContentEl) heroContentEl.style.visibility = 'hidden';
+      if(heroHl) heroHl.classList.remove('hero-hl--second-block');
+      thirdAct.classList.add('third-act--active');
+      thirdAct.setAttribute('aria-hidden', 'false');
+      if(thirdActVideoShell){
+        thirdActVideoShell.classList.remove('third-act-video-shell--in');
+        thirdActVideoShell.setAttribute('aria-hidden', 'true');
+      }
+      thirdRingStop();
+      thirdActRed.classList.remove('third-act-red--expanded');
+      if(reduce){
+        void thirdActRed.offsetWidth;
+        thirdActRed.classList.add('third-act-red--expanded');
+        playThirdActVideoCircleIn(mountThirdHeadline);
+        return;
+      }
       void thirdActRed.offsetWidth;
-      thirdActRed.classList.add('third-act-red--expanded');
-      playThirdActVideoCircleIn(mountThirdHeadline);
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          thirdActRed.classList.add('third-act-red--expanded');
+        });
+      });
+      var redDone = false;
+      function finishRed(){
+        if(redDone) return;
+        redDone = true;
+        thirdActRed.removeEventListener('transitionend', onRedEnd);
+        clearTimeout(redFailSafe);
+        playThirdActVideoCircleIn(mountThirdHeadline);
+      }
+      var redFailSafe = setTimeout(finishRed, 1280);
+      function onRedEnd(e){
+        if(e.target !== thirdActRed) return;
+        var pn = e.propertyName || '';
+        if(
+          pn !== 'clip-path' &&
+          pn !== '-webkit-clip-path' &&
+          pn !== 'clipPath'
+        )
+          return;
+        finishRed();
+      }
+      thirdActRed.addEventListener('transitionend', onRedEnd);
+    }
+    var secondExitChars = heroHl
+      ? Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'))
+      : [];
+    if(!reduce && heroHl && heroHl.classList.contains('revealed') && secondExitChars.length){
+      staggerExitTiming(secondExitChars, false);
+      secondExitChars.forEach(function(c){
+        attachHlCharExitHideAfterTransform(c);
+        c.classList.add('hl-char-exit');
+      });
+      var n = secondExitChars.length;
+      var secondExitMs = Math.min(1100, 200 + (n ? (n - 1) * 14 : 0) + 720);
+      setTimeout(beginThirdActRedBeat, secondExitMs + 90);
       return;
     }
-    void thirdActRed.offsetWidth;
-    requestAnimationFrame(function(){
-      thirdActRed.classList.add('third-act-red--expanded');
-    });
-    var redDone = false;
-    function finishRed(){
-      if(redDone) return;
-      redDone = true;
-      thirdActRed.removeEventListener('transitionend', onRedEnd);
-      clearTimeout(redFailSafe);
-      playThirdActVideoCircleIn(mountThirdHeadline);
-    }
-    var redFailSafe = setTimeout(finishRed, 1200);
-    function onRedEnd(e){
-      if(e.target !== thirdActRed) return;
-      var pn = e.propertyName || '';
-      if(
-        pn !== 'clip-path' &&
-        pn !== '-webkit-clip-path' &&
-        pn !== 'clipPath'
-      )
-        return;
-      finishRed();
-    }
-    thirdActRed.addEventListener('transitionend', onRedEnd);
+    beginThirdActRedBeat();
   }
 
   function bumpPrimaryExit(amount){
@@ -2800,6 +3116,7 @@ function attachHlCharExitHideAfterTransform(c){
         var continuation = document.getElementById('scroll-intro-continuation');
         if(continuation) continuation.removeAttribute('hidden');
         document.documentElement.classList.add('scroll-intro-scrollable');
+        detachHeroScrollLocks();
         requestAnimationFrame(function(){
           requestAnimationFrame(function(){
             thirdRingResize();
@@ -2819,12 +3136,115 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
 
-  window.addEventListener('wheel', onWheel, { passive: false });
+  var heroScrollWheelOpts = { passive: false };
+  var heroScrollTouchMoveOpts = { passive: false };
+  function detachHeroScrollLocks(){
+    window.removeEventListener('wheel', onWheel, heroScrollWheelOpts);
+    window.removeEventListener('touchstart', onTouchStart, { passive: true });
+    window.removeEventListener('touchmove', onTouchMove, heroScrollTouchMoveOpts);
+    window.removeEventListener('touchend', onTouchEnd, { passive: true });
+    window.removeEventListener('touchcancel', onTouchCancel, { passive: true });
+    window.removeEventListener('keydown', onKeyDown);
+  }
+
+  window.addEventListener('wheel', onWheel, heroScrollWheelOpts);
   window.addEventListener('touchstart', onTouchStart, { passive: true });
-  window.addEventListener('touchmove', onTouchMove, { passive: false });
+  window.addEventListener('touchmove', onTouchMove, heroScrollTouchMoveOpts);
   window.addEventListener('touchend', onTouchEnd, { passive: true });
   window.addEventListener('touchcancel', onTouchCancel, { passive: true });
   window.addEventListener('keydown', onKeyDown);
+})();
+</script>
+<script>
+(function(){
+  if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var root = document.getElementById('custom-cursor-root');
+  var ring = root && root.querySelector('.custom-cursor__ring');
+  var dot = root && root.querySelector('.custom-cursor__dot');
+  if(!root || !ring || !dot) return;
+
+  var html = document.documentElement;
+  html.classList.add('custom-cursor--active');
+
+  var mx = window.innerWidth * 0.5;
+  var my = window.innerHeight * 0.5;
+  var rx = mx, ry = my, dx = mx, dy = my;
+  var ringEase = 0.18;
+  var dotEase = 0.45;
+  var ticking = false;
+  var visible = false;
+
+  function setTransforms(hover){
+    ring.style.transform =
+      'translate3d(' + rx + 'px,' + ry + 'px,0) translate(-50%,-50%)';
+    dot.style.transform =
+      'translate3d(' + dx + 'px,' + dy + 'px,0) translate(-50%,-50%)';
+    if(hover !== undefined) root.classList.toggle('custom-cursor--hover', hover);
+  }
+
+  function hitIsInteractive(x, y){
+    var n = document.elementFromPoint(x, y);
+    if(!n) return false;
+    if(n.closest){
+      return !!n.closest(
+        'a[href], button, input, textarea, select, [role="button"], [data-cursor-hover], label[for], summary'
+      );
+    }
+    return false;
+  }
+
+  function tick(){
+    rx += (mx - rx) * ringEase;
+    ry += (my - ry) * ringEase;
+    dx += (mx - dx) * dotEase;
+    dy += (my - dy) * dotEase;
+    var hover = hitIsInteractive(mx, my);
+    setTransforms(hover);
+    var moving =
+      Math.abs(mx - rx) > 0.04 ||
+      Math.abs(my - ry) > 0.04 ||
+      Math.abs(mx - dx) > 0.04 ||
+      Math.abs(my - dy) > 0.04;
+    if(moving){
+      requestAnimationFrame(tick);
+    } else {
+      ticking = false;
+    }
+  }
+
+  function onMove(e){
+    mx = e.clientX;
+    my = e.clientY;
+    if(!visible){
+      visible = true;
+      root.classList.add('custom-cursor--visible');
+    }
+    if(!ticking){
+      ticking = true;
+      requestAnimationFrame(tick);
+    }
+  }
+
+  function onScroll(){
+    if(!ticking){
+      ticking = true;
+      requestAnimationFrame(tick);
+    }
+  }
+
+  window.addEventListener('mousemove', onMove, { passive: true });
+  window.addEventListener('scroll', onScroll, { passive: true, capture: true });
+  document.documentElement.addEventListener('mouseleave', function(){
+    root.classList.remove('custom-cursor--visible');
+    visible = false;
+  });
+  document.documentElement.addEventListener('mouseenter', function(){
+    root.classList.add('custom-cursor--visible');
+    visible = true;
+  });
+
+  setTransforms(false);
 })();
 </script>
 </body>
