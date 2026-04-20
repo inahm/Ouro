@@ -9,10 +9,10 @@ function splitToChars(source, target){
   if(target === source) target.innerHTML = '';
   nodes.forEach(function(node){
     if(node.nodeType === 3){
-      // Split into word/space segments so line-breaks only occur between words
-      node.textContent.split(/(\s+)/).forEach(function(part){
+      // Split on ASCII whitespace only — NBSP stays inside one .hl-word (no orphan “new” on wrap)
+      node.textContent.split(/([\u0020\t\n\r\f\v]+)/).forEach(function(part){
         if(!part) return;
-        if(/^\s+$/.test(part)){
+        if(/^[\u0020\t\n\r\f\v]+$/.test(part)){
           // Spaces become non-animating char spans
           var sp = document.createElement('span');
           sp.className = 'hl-char hl-char--space';
@@ -1387,7 +1387,12 @@ function staggerCharsInSync(groups){
       }
     }
     var circleHlElSync = document.getElementById('circle-hl');
-    if(circleHlElSync){ circleHlElSync.style.color = circleHlVisualPhase === 0 ? 'var(--red)' : '#000'; }
+    if(circleHlElSync){
+      var _hlTxt = circleHlElSync.textContent || '';
+      var _phase1Dom = _hlTxt.toLowerCase().indexOf('only way') !== -1;
+      circleHlElSync.style.color =
+        circleHlVisualPhase === 0 || _phase1Dom ? 'var(--red)' : '#000';
+    }
 
     // ── Dot matrix ring — ribbon twist as it rotates, responds to mouse
     twistPhase += 0.010;
@@ -2558,7 +2563,7 @@ function staggerCharsInSync(groups){
     mctx.clearRect(0, 0, cw, ch);
     mctx.save();
     mctx.scale(dpr, dpr);
-    mctx.fillStyle = '#fff';
+    mctx.fillStyle = '#DDDBD6';
     Array.from(wml).forEach(function(el, i){
       var t  = el.getAttribute('transform') || 'translate(0,0)';
       var m  = t.match(/translate\(([^,]+),([^)]+)\)/);

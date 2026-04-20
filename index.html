@@ -6,7 +6,7 @@
 <title>Ouro Labs</title>
 <script>if('scrollRestoration' in history){history.scrollRestoration='manual';}document.addEventListener('DOMContentLoaded',function(){window.scrollTo(0,0);});window.addEventListener('pageshow',function(e){if(e.persisted){window.scrollTo(0,0);requestAnimationFrame(function(){if(window.__circleReset)window.__circleReset();});}});</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Didact+Gothic&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html{
@@ -15,11 +15,11 @@ html{
   min-height:100dvh;
 }
 :root{
-  --bg:#fdfcfa;
+  --bg:#DDDBD6;
   --ink:#000;
   --red:#FF1B00;
   --mid:rgba(0,0,0,0.42);
-  --bg-glass:rgba(253,252,250,0.82);
+  --bg-glass:rgba(221,219,214,0.82);
   --g:88px;
   --circle-r:345px;
   --wm-nudge-y:clamp(20px, 4.2vw, 56px);
@@ -98,10 +98,10 @@ nav{
    visible after the headline translated away and washed out the orange fill (pink band). */
 .hero-l{width:100%;}
 .hero-hl{
-  font-family:'Didact Gothic',sans-serif;
+  font-family:'Space Grotesk',sans-serif;
   font-size:clamp(52px, 12vw, 120.75px);
-  font-weight:500;
-  line-height:1.08;letter-spacing:-0.03em;color:var(--ink);
+  font-weight:400;
+  line-height:1.08;letter-spacing:0.03em;text-transform:uppercase;color:var(--ink);
   width:max-content;
   margin:0 auto;
 }
@@ -176,12 +176,12 @@ nav{
   padding:0;
   flex-direction:column;
   border-left:1px solid var(--ink);
-  border-right:1px solid rgba(255,255,255,0.12);
+  border-right:1px solid rgba(221,219,214,0.12);
 }
-.hcard--featured .pg-flag{color:rgba(255,255,255,0.38);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;}
-.hcard--featured .pg-name{color:#fff;margin:0;}
-.hcard--featured .pg-desc{color:rgba(255,255,255,0.55);}
-.hcard--featured .pg-btn{color:#fff;border-color:rgba(255,255,255,0.3);}
+.hcard--featured .pg-flag{color:rgba(221,219,214,0.38);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;}
+.hcard--featured .pg-name{color:var(--bg);margin:0;}
+.hcard--featured .pg-desc{color:rgba(221,219,214,0.55);}
+.hcard--featured .pg-btn{color:var(--bg);border-color:rgba(221,219,214,0.3);}
 .hcard--featured .hcard-copy{padding:28px 32px;}
 .hcard-copy{
   flex:0 0 auto;
@@ -196,13 +196,13 @@ nav{
   flex:1;
   min-height:260px;
   position:relative;overflow:hidden;
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  border-bottom:1px solid rgba(221,219,214,0.08);
 }
 .hcard-img::after{
   content:'App screenshot';
   position:absolute;bottom:12px;left:0;right:0;
   text-align:center;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
-  color:rgba(255,255,255,0.18);
+  color:rgba(221,219,214,0.18);
   pointer-events:none;z-index:1;
 }
 .hcard-img-inner{
@@ -210,8 +210,8 @@ nav{
   inset:-12% 0;       /* overshoot top/bottom gives parallax travel room for images */
   /* subtle tonal gradient — makes the pan movement readable without real image content */
   background:
-    radial-gradient(ellipse 80% 50% at 50% 35%, rgba(255,255,255,0.09) 0%, transparent 70%),
-    rgba(255,255,255,0.04);
+    radial-gradient(ellipse 80% 50% at 50% 35%, rgba(221,219,214,0.09) 0%, transparent 70%),
+    rgba(221,219,214,0.04);
   will-change:transform;
 }
 .hscroll-end-pad{flex:0 0 var(--g);}
@@ -237,9 +237,9 @@ nav{
 .pg-editorial-text{
   position:relative;z-index:1;padding:32px;
   pointer-events:none;
-  font-family:'Didact Gothic',sans-serif;
+  font-family:'Space Grotesk',sans-serif;
   font-size:clamp(52px, 12vw, 120.75px);
-  font-weight:500;line-height:1.08;letter-spacing:-0.03em;
+  font-weight:400;line-height:1.08;letter-spacing:0.03em;text-transform:uppercase;
   color:var(--red);white-space:nowrap;
   transition:color 0.38s var(--ease-out-settle);
 }
@@ -248,8 +248,8 @@ nav{
   font-size:9px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--red);
 }
 .pg-name{
-  font-family:'Didact Gothic',sans-serif;font-weight:500;
-  font-size:clamp(36px,4.2vw,64px);line-height:1.05;letter-spacing:-0.03em;color:var(--ink);
+  font-family:'Space Grotesk',sans-serif;font-weight:400;
+  font-size:clamp(36px,4.2vw,64px);line-height:1.05;letter-spacing:0.03em;text-transform:uppercase;color:var(--ink);
   margin:0;
 }
 .pg-desc{font-family:'Circular Std',sans-serif;font-size:15px;font-weight:400;line-height:1.5;color:var(--ink);max-width:320px;}
@@ -269,13 +269,50 @@ nav{
 }
 .belief-label{font-size:10px;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);}
 .belief-q{
-  font-family:'Didact Gothic',sans-serif;font-weight:400;font-size:clamp(28px,3.2vw,44px);line-height:1.18;letter-spacing:-0.02em;color:var(--ink);text-align:center;max-width:1100px;
+  font-family:'Space Grotesk',sans-serif;font-weight:400;font-size:clamp(28px,3.2vw,44px);line-height:1.18;letter-spacing:0.02em;text-transform:uppercase;color:var(--ink);text-align:center;max-width:1100px;
   opacity:0;
   transform:translateY(24px);
   transition:opacity 1.25s var(--ease-out-flow), transform 1.25s var(--ease-out-flow);
 }
 .belief-q em{font-style:italic;color:var(--red);}
 .belief-q.in-view{opacity:1;transform:translateY(0);}
+
+/* ── After red / circle — normal vertical scroll (no sticky, no pin) ── */
+.after-red{
+  position:relative;
+  z-index:2;
+  background:var(--bg);
+  border-top:1px solid var(--rule);
+  padding:clamp(72px,11vh,140px) var(--g) clamp(88px,14vh,160px);
+}
+.after-red__inner{
+  max-width:min(720px,100%);
+  margin:0 auto;
+}
+.after-red__kicker{
+  font-size:10px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--mid);
+  margin:0 0 1.25em;
+}
+.after-red__hl{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:400;
+  font-size:clamp(28px,3.6vw,44px);
+  line-height:1.12;
+  letter-spacing:0.02em;
+  text-transform:uppercase;
+  color:var(--ink);
+  margin:0 0 0.85em;
+}
+.after-red__body{
+  font-family:'Inter',sans-serif;
+  font-size:clamp(15px,1.05vw,17px);
+  font-weight:400;
+  line-height:1.65;
+  color:var(--ink);
+  opacity:0.88;
+  margin:0;
+}
+.after-red__body + .after-red__body{margin-top:1.1em;}
 
 /* ── FOOTER ── */
 footer{
@@ -315,8 +352,11 @@ footer{
 .hl-spread-l,.hl-spread-r{display:inline-block;will-change:transform;}
 .hl-spread-l+.hl-spread-r{margin-left:0.28em;}
 
-/* word wrapper — inline-block so line-breaks only happen between words, not letters */
-.hl-word{display:inline-block;}
+/* word wrapper — inline-block so line-breaks only happen between words, not letters (splitToChars uses ASCII whitespace only so NBSP can glue phrases) */
+.hl-word{
+  display:inline-block;
+  white-space:nowrap;
+}
 
 /* per-character fall-in: clip does the hiding, --cd controls individual fall speed */
 /* -1.5em pushes the deepest descenders (g, y, p) fully above the clip top boundary */
@@ -342,6 +382,13 @@ footer{
 
 /* ── Project card names — same char-fall animation ── */
 .pg-name.revealed .hl-char{transform:translate3d(0,0,0) rotate(0deg);opacity:1;}
+/* Hero .hl-line clip-path/containment trims glyphs; card titles wrap in narrow columns */
+.pg-name .hl-line{
+  clip-path:none;
+  contain:none;
+  padding-bottom:0;
+  margin-bottom:0;
+}
 
 /* ── Circle headline — same char-fall animation as hero ── */
 #circle-slot{position:relative;z-index:1;}
@@ -442,6 +489,8 @@ footer.in{opacity:1;transform:translateY(0);}
   .belief{padding:60px var(--g);margin-top:0;}
   .belief-q{font-size:clamp(24px,5.5vw,36px);text-align:center;max-width:100%;width:100%;}
 
+  .after-red{padding:56px var(--g) 72px;}
+
   /* circle */
   .circle-sticky-wrap{height:100dvh;}
   .circle-section{position:relative;top:auto;height:100dvh;padding:0;}
@@ -519,7 +568,7 @@ footer.in{opacity:1;transform:translateY(0);}
       </mask>
     </defs>
     <!-- Overlay rect clipped by expanding hole -->
-    <rect id="intro-bg-rect" fill="#fdfcfa" mask="url(#intro-mask)"/>
+    <rect id="intro-bg-rect" fill="#DDDBD6" mask="url(#intro-mask)"/>
     <!-- no ring needed; canvas handles the reveal -->
   </svg>
   <canvas id="intro-canvas" style="position:absolute;inset:0;"></canvas>
@@ -551,7 +600,7 @@ footer.in{opacity:1;transform:translateY(0);}
     <div class="hero-l">
       <h1 class="hero-hl" id="hero-hl" style="visibility:hidden">
         <span class="hl-line"><span class="hl-inner"><span class="hl-spread-l">We're <span style="color:var(--red)" id="hero-cycle-word">making</span></span></span></span>
-        <span class="hl-line"><span class="hl-inner"><span class="hl-spread-l">our way</span><span class="hl-spread-r">into a new</span></span></span>
+        <span class="hl-line"><span class="hl-inner"><span class="hl-spread-l">our way</span><span class="hl-spread-r">into a&nbsp;new</span></span></span>
         <span class="hl-line"><span class="hl-inner"><span class="hl-spread-r">design practice.</span></span></span>
     </h1>
   </div>
@@ -572,7 +621,7 @@ footer.in{opacity:1;transform:translateY(0);}
     </div>
     <canvas id="blob-canvas" style="position:absolute;pointer-events:none;z-index:2;left:0;top:0;"></canvas>
     <div id="blob-cell" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;pointer-events:none;box-sizing:border-box">
-      <p class="pg-editorial-text" id="circle-hl-inv-host" style="visibility:hidden;position:relative;margin:0;box-sizing:border-box"><span class="circle-hl-inv-metrics" aria-hidden="true" style="visibility:hidden;pointer-events:none"><span class="hl-line"><span class="hl-inner">The only way</span></span><span class="hl-line"><span class="hl-inner">we know how.</span></span></span><span id="blob-cell-inv" aria-hidden="true" style="position:absolute;inset:0;display:block;color:white;clip-path:circle(0px);opacity:0;pointer-events:none;overflow:visible;padding:32px;box-sizing:border-box;"><span class="hl-line"><span class="hl-inner">Experimenting</span></span><span class="hl-line"><span class="hl-inner">at the edge of</span></span><span class="hl-line"><span class="hl-inner"><em>what's possible.</em></span></span></span></p>
+      <p class="pg-editorial-text" id="circle-hl-inv-host" style="visibility:hidden;position:relative;margin:0;box-sizing:border-box"><span class="circle-hl-inv-metrics" aria-hidden="true" style="visibility:hidden;pointer-events:none"><span class="hl-line"><span class="hl-inner">The only way</span></span><span class="hl-line"><span class="hl-inner">we know how.</span></span></span><span id="blob-cell-inv" aria-hidden="true" style="position:absolute;inset:0;display:block;color:#DDDBD6;clip-path:circle(0px);opacity:0;pointer-events:none;overflow:visible;padding:32px;box-sizing:border-box;"><span class="hl-line"><span class="hl-inner">Experimenting</span></span><span class="hl-line"><span class="hl-inner">at the edge of</span></span><span class="hl-line"><span class="hl-inner"><em>what's possible.</em></span></span></span></p>
   </div>
   </div>
   </div><!-- .circle-section-lift -->
@@ -581,10 +630,23 @@ footer.in{opacity:1;transform:translateY(0);}
 
 <!-- BELIEF 2 — scrolls over the sticky circle -->
 <div class="belief belief--bottom">
-  <p class="belief-q">We work through systems, tools, code, and experimentation to shape not just products, but <em>process that creates them.</em></p>
+  <p class="belief-q">We work through systems, tools, code, and design experimentation to shape not just products, but <em>the process that creates them.</em></p>
   </div>
 
 </div><!-- end .scroll-scene -->
+
+<section class="after-red" id="after-red" aria-labelledby="after-red-heading">
+  <div class="after-red__inner">
+    <p class="after-red__kicker">Down the page</p>
+    <h2 id="after-red-heading" class="after-red__hl">Same rhythm, no tricks—just scroll.</h2>
+    <p class="after-red__body">
+      Past the pinned circle, the page opens into ordinary flow again. Use this block for process, team, contact, or any narrative that should feel calm after the red beat.
+    </p>
+    <p class="after-red__body">
+      Swap the heading and paragraphs here for your own story—the layout stays simple vertical scroll.
+    </p>
+  </div>
+</section>
 
 <!-- PROJECT HORIZONTAL SCROLL -->
 <div class="hscroll-frame" id="proj-grid-wrap">
@@ -660,10 +722,10 @@ function splitToChars(source, target){
   if(target === source) target.innerHTML = '';
   nodes.forEach(function(node){
     if(node.nodeType === 3){
-      // Split into word/space segments so line-breaks only occur between words
-      node.textContent.split(/(\s+)/).forEach(function(part){
+      // Split on ASCII whitespace only — NBSP (e.g. a&nbsp;new) stays inside one .hl-word so “new” can’t orphan
+      node.textContent.split(/([\u0020\t\n\r\f\v]+)/).forEach(function(part){
         if(!part) return;
-        if(/^\s+$/.test(part)){
+        if(/^[\u0020\t\n\r\f\v]+$/.test(part)){
           // Spaces become non-animating char spans
           var sp = document.createElement('span');
           sp.className = 'hl-char hl-char--space';
@@ -1953,7 +2015,13 @@ function attachHlCharExitHideAfterTransform(c){
       }
     }
     var circleHlElSync = document.getElementById('circle-hl');
-    if(circleHlElSync){ circleHlElSync.style.color = circleHlVisualPhase === 0 ? 'var(--red)' : '#000'; }
+    if(circleHlElSync){
+      /* circleTextPhase flips before commitPhaseDOM runs; keep PHASE1 red until DOM swaps. */
+      var _hlTxt = circleHlElSync.textContent || '';
+      var _phase1Dom = _hlTxt.toLowerCase().indexOf('only way') !== -1;
+      circleHlElSync.style.color =
+        circleHlVisualPhase === 0 || _phase1Dom ? 'var(--red)' : '#000';
+    }
 
     // ── Dot matrix ring — ribbon twist as it rotates, responds to mouse
     twistPhase += 0.010;
@@ -3193,7 +3261,7 @@ function attachHlCharExitHideAfterTransform(c){
     mctx.clearRect(0, 0, cw, ch);
     mctx.save();
     mctx.scale(dpr, dpr);
-    mctx.fillStyle = '#fff';
+    mctx.fillStyle = '#DDDBD6';
     Array.from(wml).forEach(function(el, i){
       var t  = el.getAttribute('transform') || 'translate(0,0)';
       var m  = t.match(/translate\(([^,]+),([^)]+)\)/);
