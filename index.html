@@ -922,6 +922,16 @@ function attachHlCharExitHideAfterTransform(c){
   var secondParticleCanvas = document.getElementById('second-hl-particles-canvas');
   if(!heroHl || !cycleWrap || !stage) return;
 
+  function isLikelyIOSWebKit(){
+    var ua = navigator.userAgent || '';
+    var platform = navigator.platform || '';
+    var touchPoints = navigator.maxTouchPoints || 0;
+    var isIOS = /iP(hone|od|ad)/.test(ua) || (platform === 'MacIntel' && touchPoints > 1);
+    var isWebKit = /WebKit/i.test(ua);
+    return isIOS && isWebKit;
+  }
+  var prefersDifferenceVideoBlend = !isLikelyIOSWebKit();
+
   /* ── Second-headline particle ring (canvas, mirrors index circle dot ribbon) ── */
   var spCtx, spParticles, spRaf = null;
   var spW, spH, spCx, spCy, spBaseR, spInnerR, spDpr = 1;
@@ -1429,7 +1439,7 @@ function attachHlCharExitHideAfterTransform(c){
   var TA_CYCLE_TRANS = 1800;
   var TA_CYCLE_SRCS = ['wyatt.mp4', 'cycle-2.mp4', 'cycle-4.mp4', 'cycle-3.mp4'];
   var _taVidHide =
-    'position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;visibility:hidden;';
+    'position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;';
 
   function ensureThirdRingVideos(){
     if(thirdCycleVids) return;
@@ -1579,8 +1589,8 @@ function attachHlCharExitHideAfterTransform(c){
       var vs = Math.max(diam2 / vvw, diam2 / vvh);
       var vdw = vvw * vs;
       var vdh = vvh * vs;
-      thirdRingCtx.globalAlpha = 0.6;
-      thirdRingCtx.globalCompositeOperation = 'difference';
+      thirdRingCtx.globalAlpha = prefersDifferenceVideoBlend ? 0.6 : 0.28;
+      thirdRingCtx.globalCompositeOperation = prefersDifferenceVideoBlend ? 'difference' : 'source-over';
       thirdRingCtx.drawImage(thirdBgVid, cx - vdw / 2, cy - vdh / 2, vdw, vdh);
       thirdRingCtx.globalAlpha = 1;
       thirdRingCtx.globalCompositeOperation = 'source-over';
@@ -1915,6 +1925,7 @@ function attachHlCharExitHideAfterTransform(c){
 
     var ctxWm = canvasWm.getContext('2d');
     var diffOKWm = (function(){
+      if(!prefersDifferenceVideoBlend) return false;
       try{
         var c = document.createElement('canvas');
         c.width = c.height = 1;
@@ -1955,8 +1966,7 @@ function attachHlCharExitHideAfterTransform(c){
       v.loop = true;
       v.playsInline = true;
       v.setAttribute('playsinline', '');
-      v.style.cssText =
-        'position:fixed;top:-1px;left:-1px;width:1px;height:1px;opacity:0;pointer-events:none;visibility:hidden;';
+      v.style.cssText = _taVidHide;
       document.body.appendChild(v);
       v.play().catch(function(){});
       return v;
