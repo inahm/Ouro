@@ -1925,7 +1925,6 @@ function attachHlCharExitHideAfterTransform(c){
 
     var ctxWm = canvasWm.getContext('2d');
     var diffOKWm = (function(){
-      if(!prefersDifferenceVideoBlend) return false;
       try{
         var c = document.createElement('canvas');
         c.width = c.height = 1;
@@ -2060,15 +2059,13 @@ function attachHlCharExitHideAfterTransform(c){
       ctxWm.fillStyle = redHex;
       ctxWm.fillRect(0, 0, pw, ph_total);
 
-      if(diffOKWm){
-        var vw = vidWm.videoWidth || pw, vh2 = vidWm.videoHeight || ph_svg;
-        var s = Math.max(pw / vw, ph_total / vh2);
-        ctxWm.globalAlpha = 0.5;
-        ctxWm.globalCompositeOperation = 'difference';
-        ctxWm.drawImage(vidWm, (pw - vw * s) / 2, (ph_total - vh2 * s) / 2, vw * s, vh2 * s);
-        ctxWm.globalAlpha = 1;
-        ctxWm.globalCompositeOperation = 'source-over';
-      }
+      var vw = vidWm.videoWidth || pw, vh2 = vidWm.videoHeight || ph_svg;
+      var s = Math.max(pw / vw, ph_total / vh2);
+      ctxWm.globalAlpha = diffOKWm ? 0.5 : 0.22;
+      ctxWm.globalCompositeOperation = diffOKWm ? 'difference' : 'source-over';
+      ctxWm.drawImage(vidWm, (pw - vw * s) / 2, (ph_total - vh2 * s) / 2, vw * s, vh2 * s);
+      ctxWm.globalAlpha = 1;
+      ctxWm.globalCompositeOperation = 'source-over';
       ctxWm.restore();
 
       ctxWm.globalCompositeOperation = 'destination-in';
