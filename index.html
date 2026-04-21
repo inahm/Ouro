@@ -2216,10 +2216,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function thirdActUnlockNeedPx(){
-    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 85;
-    /* Touch adds dy*multiplier per move; 200 often needs ~3 short swipes on phones. */
-    if(isMobileIntent()) return 95;
-    return 200;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 85 : 200;
   }
   /** Ouro Labs wordmark: mouse-repel physics + bg.mp4 clip (matches index.html). */
   function initScrollIntroWordmarkEffects(cont){
@@ -3104,7 +3101,18 @@ function attachHlCharExitHideAfterTransform(c){
   var touchGestureStartPhase = -1;
   function onTouchStart(e){
     if(phase === 6) return;
-    if(phase === 40 || e.touches.length !== 1) return;
+    if(phase === 40){
+      if(__dbgStickyState.phase40TouchMove < 20){
+        __dbgStickyState.phase40TouchMove += 1;
+        __dbgSticky('H10', 'index.html:onTouchStart:phase40', 'touchstart ignored because phase40 lock', {
+          touches: e.touches ? e.touches.length : 0,
+          phase: phase,
+          unlockAccum: Math.round(thirdActUnlockWheelAccum * 100) / 100
+        }, 'phase40-start-loss');
+      }
+      return;
+    }
+    if(e.touches.length !== 1) return;
     if(phase === 1 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 3 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 0) return;
@@ -3139,7 +3147,17 @@ function attachHlCharExitHideAfterTransform(c){
       }
       return;
     }
-    if(touchY == null) return;
+    if(touchY == null){
+      if(phase === 5 && __dbgStickyState.phase5TouchMove < 40){
+        __dbgStickyState.phase5TouchMove += 1;
+        __dbgSticky('H10', 'index.html:onTouchMove:phase5-touchY-null', 'phase5 touchmove ignored due to missing touchY anchor', {
+          phase: phase,
+          touches: e.touches ? e.touches.length : 0,
+          unlockAccum: Math.round(thirdActUnlockWheelAccum * 100) / 100
+        }, 'phase40-start-loss');
+      }
+      return;
+    }
     if(phase === 25) return;
     if(phase === 1 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 3 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
