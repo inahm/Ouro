@@ -154,7 +154,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   scroll-margin-top:max(64px, calc(env(safe-area-inset-top, 0px) + 48px));
   background:var(--bg);
   border-top:1px solid rgba(0,0,0,0.1);
-  /* Horizontal gutter matches .hscroll-track scroll-padding / padding-left (first card column). */
+  /* Horizontal gutter matches .hscroll-track padding + scroll-padding (card strip insets). */
   padding-left:var(--g);
   padding-right:var(--g);
   padding-top:clamp(128px,24vh,280px);
@@ -201,119 +201,212 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   display:flex;
   align-items:stretch;
   overflow-x:auto;
-  /* Horizontal-only scrollport: vertical wheel/touch chains to the page instead of “eating” the first tick. */
+  /* Horizontal scrollport + vertical page scroll: pan-x alone blocks vertical swipes on mobile when the gesture starts on a card (touch-action is not inherited but applies to the scroll container subtree). pan-y lets the page scroll while overflow-y:hidden keeps the strip from scrolling vertically. */
   overflow-y:hidden;
   overflow-anchor:none;
   overscroll-behavior-x:contain;
-  touch-action:pan-x;
-  scroll-snap-type:x proximity;
+  touch-action:pan-x pan-y;
+  scroll-snap-type:x mandatory;
+  /* Snap / scroll-into-view insets; pairs with per-card max width (100vw - 2×gutter). */
   scroll-padding-left:var(--g);
+  scroll-padding-right:var(--g);
   -webkit-overflow-scrolling:touch;
   scrollbar-width:none;
   padding-left:var(--g);
-  height:680px;
+  height:clamp(720px,78vh,900px);
   background:var(--bg);
   border-top:1px solid var(--ink);
   border-bottom:1px solid var(--ink);
 }
 .scroll-intro-continuation .hscroll-track::-webkit-scrollbar{display:none;}
+/* Aptos-style strip: dark / light panels edge-to-edge in the track. */
 .scroll-intro-continuation .hcard{
-  flex:0 0 clamp(300px,32vw,400px);
+  --hcard-ink:#f2f1ec;
+  --hcard-muted:rgba(242,241,236,0.62);
+  /* 88vw alone ignored track padding and could bleed past the right edge; cap with same gutters as --g. */
+  flex:0 0 clamp(400px,min(88vw,calc(100vw - 2 * var(--g))),760px);
   display:flex;
   flex-direction:column;
-  justify-content:flex-end;
-  gap:12px;
-  padding:40px 28px 40px 32px;
+  justify-content:flex-start;
+  align-items:stretch;
+  box-sizing:border-box;
+  padding:clamp(28px,4vw,40px);
   scroll-snap-align:start;
-  border-right:1px solid var(--ink);
+  scroll-snap-stop:always;
   position:relative;
-  opacity:0;
-  /* translateX here widened scroll overflow and forced scrollLeft≈28px → visible jump when .in removed it (see debug H2). */
-  transform:translate3d(0,18px,0);
-  transition:opacity 1.05s var(--ease-out-flow),transform 1.05s var(--ease-out-flow);
-}
-.scroll-intro-continuation .hcard.in{opacity:1;transform:translate3d(0,0,0);}
-.scroll-intro-continuation .hcard--featured{
-  flex:0 0 clamp(500px,54vw,760px);
-  background:var(--ink);
-  padding:0;
-  flex-direction:column;
+  background:#0a0a0a;
+  color:var(--hcard-ink);
   border-left:1px solid var(--ink);
-  border-right:1px solid rgba(221,219,214,0.12);
-  position:relative;
-  overflow:hidden;
+  border-right:1px solid var(--ink);
+  margin-left:-1px;
 }
-.scroll-intro-continuation .hcard--featured .pg-name{color:var(--bg);margin:0;}
-.scroll-intro-continuation .hcard--featured .pg-desc{color:rgba(221,219,214,0.55);}
-.scroll-intro-continuation .hcard--featured .hcard-copy{
-  padding:28px 32px;
-  position:relative;
-  z-index:1;
-  margin-top:auto;
-  background:linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.58) 46%, rgba(0,0,0,0.06) 100%);
+.scroll-intro-continuation .hscroll-track > .hcard:first-child{
+  margin-left:0;
 }
-.scroll-intro-continuation .hcard--featured .hcard-img{
-  position:absolute;
-  inset:0;
-  min-height:0;
-  border-bottom:0;
-  z-index:0;
+.scroll-intro-continuation .hcard--featured{
+  --hcard-ink:#E4E3E0;
+  --hcard-muted:rgba(228,227,224,0.62);
 }
-.scroll-intro-continuation .hcard--featured .hcard-img::after{
-  display:none;
-}
-/* Nota featured: minimal abstract (CSS only) */
-.scroll-intro-continuation .hcard--featured .nota-abstract-minimal{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-  background:
-    radial-gradient(ellipse 95% 60% at 75% 20%, rgba(255,27,0,0.06) 0%, transparent 55%),
-    linear-gradient(165deg, #0f0f0f 0%, #131313 50%, #090909 100%);
-}
-.scroll-intro-continuation .hcard-copy{
+.scroll-intro-continuation .hcard-top{
   flex:0 0 auto;
-  padding:36px 32px;
   display:flex;
   flex-direction:column;
-  justify-content:flex-end;
-  gap:12px;
+  gap:clamp(10px,2vw,16px);
+  padding-right:8px;
 }
-.scroll-intro-continuation .hcard-copy-bottom{display:flex;flex-direction:column;gap:12px;}
-.scroll-intro-continuation .hcard-img{
-  flex:1;
-  min-height:260px;
+.scroll-intro-continuation .hcard-visual{
+  flex:1 1 auto;
+  min-height:clamp(160px,30vh,320px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:clamp(16px,3vw,28px) 0;
   position:relative;
   overflow:hidden;
-  border-bottom:1px solid rgba(221,219,214,0.08);
 }
-.scroll-intro-continuation .hcard-img::after{
-  content:'App screenshot';
+.scroll-intro-continuation .hcard-visual-inner{
+  position:relative;
+  box-sizing:border-box;
+  flex:0 0 auto;
+  align-self:center;
+  /* One edge length for a square — avoids width + max-height fighting aspect-ratio on mobile. */
+  width:min(88%,320px,min(52vw,340px));
+  aspect-ratio:1 / 1;
+  height:auto;
+  max-width:100%;
+}
+/* Thin wireframe motifs (reference: aptosnetwork.com use-case cards) */
+.scroll-intro-continuation .hcard-visual-inner--nota{
+  width:min(90%,360px,min(56vw,380px));
+}
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-abstract-minimal{
   position:absolute;
-  bottom:12px;
-  left:0;
-  right:0;
-  text-align:center;
-  font-size:10px;
-  letter-spacing:0.12em;
-  text-transform:uppercase;
-  color:rgba(221,219,214,0.18);
-  pointer-events:none;
-  z-index:1;
-}
-.scroll-intro-continuation .hcard-img-inner{
-  position:absolute;
-  inset:-12% 0;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% 35%, rgba(221,219,214,0.09) 0%, transparent 70%),
-    rgba(221,219,214,0.04);
-}
-/* Nota featured card: use literal image framing (no zoomed inset crop). */
-.scroll-intro-continuation .hcard--featured .hcard-img-inner{
   inset:0;
-  background:transparent;
+  overflow:hidden;
+  border-radius:2px;
+  background:
+    radial-gradient(ellipse 95% 60% at 75% 20%, rgba(255,27,0,0.12) 0%, transparent 55%),
+    linear-gradient(165deg, #121212 0%, #0e0e0e 50%, #080808 100%);
 }
-.scroll-intro-continuation .hscroll-end-pad{flex:0 0 var(--g);}
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-abstract-minimal::after{
+  content:'';
+  position:absolute;
+  inset:12%;
+  border:1px solid rgba(228,227,224,0.14);
+  border-radius:50%;
+  box-shadow:
+    0 0 0 1px rgba(228,227,224,0.06),
+    inset 0 0 0 1px rgba(228,227,224,0.04);
+}
+.scroll-intro-continuation .hcard-visual-inner--atlas{
+  background:
+    linear-gradient(115deg, transparent 48.5%, rgba(242,241,236,0.16) 49%, rgba(242,241,236,0.16) 51%, transparent 51.5%),
+    linear-gradient(-25deg, transparent 48.5%, rgba(242,241,236,0.11) 49%, rgba(242,241,236,0.11) 51%, transparent 51.5%),
+    linear-gradient(rgba(242,241,236,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242,241,236,0.07) 1px, transparent 1px);
+  background-size:100% 100%,100% 100%,24px 24px,24px 24px;
+  background-position:center,center,0 0,0 0;
+  mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 35%,transparent 75%);
+  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 35%,transparent 75%);
+}
+.scroll-intro-continuation .hcard-visual-inner--scaffold{
+  border:1px solid rgba(242,241,236,0.14);
+  background:
+    linear-gradient(180deg, transparent 32%, rgba(242,241,236,0.09) 32.5%, transparent 33%),
+    linear-gradient(90deg, transparent 44%, rgba(242,241,236,0.09) 44.5%, transparent 45%),
+    repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(242,241,236,0.06) 11px, rgba(242,241,236,0.06) 12px),
+    repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(242,241,236,0.06) 11px, rgba(242,241,236,0.06) 12px);
+}
+/* Latency Atlas + Scaffold: light panel (contrast with first card). */
+.scroll-intro-continuation .hcard--light{
+  --hcard-ink:#0a0a0a;
+  --hcard-muted:rgba(10,10,10,0.55);
+  background:#ebe9e4;
+  background:color-mix(in srgb,var(--bg) 78%,#fff 22%);
+}
+.scroll-intro-continuation .hcard--light .hcard-visual-inner--atlas{
+  background:
+    linear-gradient(115deg, transparent 48.5%, rgba(0,0,0,0.11) 49%, rgba(0,0,0,0.11) 51%, transparent 51.5%),
+    linear-gradient(-25deg, transparent 48.5%, rgba(0,0,0,0.08) 49%, rgba(0,0,0,0.08) 51%, transparent 51.5%),
+    linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
+  background-size:100% 100%,100% 100%,24px 24px,24px 24px;
+  background-position:center,center,0 0,0 0;
+}
+.scroll-intro-continuation .hcard--light .hcard-visual-inner--scaffold{
+  border-color:rgba(0,0,0,0.12);
+  background:
+    linear-gradient(180deg, transparent 32%, rgba(0,0,0,0.06) 32.5%, transparent 33%),
+    linear-gradient(90deg, transparent 44%, rgba(0,0,0,0.06) 44.5%, transparent 45%),
+    repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(0,0,0,0.045) 11px, rgba(0,0,0,0.045) 12px),
+    repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(0,0,0,0.045) 11px, rgba(0,0,0,0.045) 12px);
+}
+.scroll-intro-continuation .hcard--light .hcard-discover__icon{
+  border-color:rgba(0,0,0,0.2);
+  color:var(--hcard-ink);
+}
+.scroll-intro-continuation .hcard--light .hcard-discover:hover,
+.scroll-intro-continuation .hcard--light .hcard-discover:focus-visible{
+  color:var(--ink);
+}
+.scroll-intro-continuation .hcard--light .hcard-discover:hover .hcard-discover__icon,
+.scroll-intro-continuation .hcard--light .hcard-discover:focus-visible .hcard-discover__icon{
+  border-color:rgba(0,0,0,0.35);
+}
+.scroll-intro-continuation .hcard-discover{
+  flex:0 0 auto;
+  display:inline-flex;
+  flex-direction:row;
+  align-items:center;
+  gap:14px;
+  margin:0;
+  margin-top:auto;
+  align-self:flex-start;
+  appearance:none;
+  -webkit-appearance:none;
+  background:transparent;
+  border:0;
+  cursor:pointer;
+  text-decoration:none;
+  color:var(--hcard-ink);
+  font-family:'Inter',sans-serif;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  padding:4px 0;
+  transition:opacity 0.25s ease,color 0.25s ease;
+}
+.scroll-intro-continuation .hcard-discover:hover,
+.scroll-intro-continuation .hcard-discover:focus-visible{
+  opacity:0.85;
+  color:#fff;
+}
+.scroll-intro-continuation .hcard-discover:focus-visible{
+  outline:2px solid var(--red);
+  outline-offset:4px;
+}
+.scroll-intro-continuation .hcard-discover__icon{
+  flex-shrink:0;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  border:1px solid rgba(242,241,236,0.28);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--hcard-ink);
+  transition:border-color 0.25s ease,transform 0.35s var(--ease-out-flow);
+}
+.scroll-intro-continuation .hcard-discover:hover .hcard-discover__icon,
+.scroll-intro-continuation .hcard-discover:focus-visible .hcard-discover__icon{
+  border-color:rgba(242,241,236,0.5);
+  transform:translate3d(2px,-2px,0);
+}
+.scroll-intro-continuation .hscroll-end-pad{
+  flex:0 0 var(--g);
+  scroll-snap-align:none;
+}
 .scroll-intro-continuation .kim-team-section{
   position:relative;
   background:var(--bg);
@@ -386,11 +479,11 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 .scroll-intro-continuation .pg-name{
   font-family:'Space Grotesk',sans-serif;
   font-weight:400;
-  font-size:clamp(36px,4.2vw,64px);
-  line-height:1.05;
-  letter-spacing:0.03em;
+  font-size:clamp(22px,3.4vw,34px);
+  line-height:1.12;
+  letter-spacing:0.04em;
   text-transform:uppercase;
-  color:var(--ink);
+  color:var(--hcard-ink,#f2f1ec);
   margin:0;
 }
 /* Hero .hl-line uses clip-path + contain:paint to trim the big headline; same rules clip wrapped card titles */
@@ -402,11 +495,12 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 .scroll-intro-continuation .pg-desc{
   font-family:'Inter',sans-serif;
-  font-size:15px;
+  font-size:clamp(13px,1.35vw,15px);
   font-weight:400;
-  line-height:1.5;
-  color:var(--ink);
-  max-width:320px;
+  line-height:1.55;
+  color:var(--hcard-muted,rgba(242,241,236,0.62));
+  max-width:36ch;
+  margin:0;
 }
 .scroll-intro-continuation .pg-name.revealed .hl-char{
   transform:translate3d(0,0,0) rotate(0deg);
@@ -552,16 +646,18 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   fill:currentColor !important;
 }
 @media (max-width:900px){
-  .scroll-intro-continuation .hscroll-track{height:580px;}
-  .scroll-intro-continuation .hcard{flex:0 0 clamp(240px,36vw,320px);padding-left:32px;}
-  .scroll-intro-continuation .hcard--featured{flex:0 0 clamp(420px,68vw,600px);padding:0;}
+  .scroll-intro-continuation .hscroll-track{height:clamp(640px,74vh,820px);}
+  .scroll-intro-continuation .hcard{flex:0 0 clamp(360px,min(90vw,calc(100vw - 2 * var(--g))),680px);}
 }
 @media (max-width:600px){
-  .scroll-intro-continuation .hscroll-track{height:520px;}
-  .scroll-intro-continuation .hcard{flex:0 0 72vw;padding:32px 20px 32px 32px;}
-  .scroll-intro-continuation .hcard--featured{flex:0 0 88vw;flex-direction:column;padding:0;}
-  .scroll-intro-continuation .hcard-copy{flex:0 0 auto;padding:24px 20px;}
-  .scroll-intro-continuation .hcard-img{flex:1;min-height:200px;}
+  .scroll-intro-continuation .hscroll-track{height:clamp(600px,72vh,760px);}
+  .scroll-intro-continuation .hcard{flex:0 0 clamp(260px,min(92vw,560px,calc(100vw - 2 * var(--g))),560px);padding:24px 22px;}
+  .scroll-intro-continuation .hcard-visual-inner{
+    width:min(88%,280px,min(64vw,300px));
+  }
+  .scroll-intro-continuation .hcard-visual-inner--nota{
+    width:min(90%,300px,min(68vw,320px));
+  }
 }
 
 body{
@@ -989,7 +1085,8 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   pointer-events:none;
 }
 .third-act .third-act-hl{
-  color:var(--bg);
+  color:#E4E3E0;
+  -webkit-text-fill-color:#E4E3E0;
   width:100%;
   max-width:var(--content-max);
   margin-left:auto;
@@ -1084,25 +1181,32 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
 <div class="hscroll-frame" id="proj-grid-wrap">
 <div class="hscroll-track">
 
-  <div class="hcard hcard--featured">
-    <div class="hcard-img"><div class="hcard-img-inner"><div class="nota-abstract-minimal" aria-hidden="true"></div></div></div>
-    <div class="hcard-copy">
-      <div class="hcard-copy-bottom">
-        <div class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></div>
-        <div class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</div>
-      </div>
+  <article class="hcard hcard--featured">
+    <div class="hcard-top">
+      <div class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></div>
+      <p class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</p>
     </div>
-  </div>
+    <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--nota"><div class="nota-abstract-minimal"></div></div></div>
+    <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
+  </article>
 
-  <div class="hcard">
-    <div class="pg-name"><span class="hl-line"><span class="hl-inner">Latency Atlas</span></span></div>
-    <div class="pg-desc">A map of where AI latency actually matters in real user flows.</div>
-  </div>
+  <article class="hcard hcard--light">
+    <div class="hcard-top">
+      <div class="pg-name"><span class="hl-line"><span class="hl-inner">Latency Atlas</span></span></div>
+      <p class="pg-desc">A map of where AI latency actually matters in real user flows.</p>
+    </div>
+    <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--atlas"></div></div>
+    <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
+  </article>
 
-  <div class="hcard">
-    <div class="pg-name"><span class="hl-line"><span class="hl-inner">Scaffold Runner</span></span></div>
-    <div class="pg-desc">Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.</div>
-  </div>
+  <article class="hcard hcard--light">
+    <div class="hcard-top">
+      <div class="pg-name"><span class="hl-line"><span class="hl-inner">Scaffold Runner</span></span></div>
+      <p class="pg-desc">Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.</p>
+    </div>
+    <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--scaffold"></div></div>
+    <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
+  </article>
 
   <div class="hscroll-end-pad"></div>
 </div>
@@ -2465,7 +2569,6 @@ function attachHlCharExitHideAfterTransform(c){
     window.__scrollIntroContInit = true;
 
     var track = cont.querySelector('.hscroll-track');
-    var cards = cont.querySelectorAll('.hcard');
     var pgNames = cont.querySelectorAll('.hscroll-track .pg-name');
     var kimSection = cont.querySelector('.kim-team-section');
     var kimLines = kimSection ? Array.from(kimSection.querySelectorAll('.kim-team-line')) : [];
@@ -2623,6 +2726,7 @@ function attachHlCharExitHideAfterTransform(c){
     }
 
     /* Vertical wheel over overflow-x track did not chain to document scroll (nested scrollport); route explicitly. */
+    /* Same for touch on mobile: WebKit often keeps vertical pans on the horizontal scrollport even with touch-action pan-y. */
     if(track){
       track.addEventListener('wheel', function(e){
         var ady = Math.abs(e.deltaY), adx = Math.abs(e.deltaX);
@@ -2633,68 +2737,55 @@ function attachHlCharExitHideAfterTransform(c){
         e.preventDefault();
         window.scrollBy(0, dy);
       }, {passive: false, capture: true});
+
+      var hScrollTouchX = null;
+      var hScrollTouchY = null;
+      function resetHScrollTouch(){
+        hScrollTouchX = null;
+        hScrollTouchY = null;
+      }
+      track.addEventListener('touchstart', function(e){
+        if(e.touches.length !== 1){ resetHScrollTouch(); return; }
+        hScrollTouchX = e.touches[0].clientX;
+        hScrollTouchY = e.touches[0].clientY;
+      }, {passive: true});
+      track.addEventListener('touchmove', function(e){
+        if(hScrollTouchY == null || e.touches.length !== 1) return;
+        var x = e.touches[0].clientX;
+        var y = e.touches[0].clientY;
+        var dx = x - hScrollTouchX;
+        var dy = y - hScrollTouchY;
+        hScrollTouchX = x;
+        hScrollTouchY = y;
+        if(Math.abs(dy) <= Math.abs(dx)) return;
+        if(Math.abs(dy) < 0.5 && Math.abs(dx) < 0.5) return;
+        e.preventDefault();
+        window.scrollBy(0, -dy);
+      }, {passive: false, capture: true});
+      track.addEventListener('touchend', resetHScrollTouch, {passive: true});
+      track.addEventListener('touchcancel', resetHScrollTouch, {passive: true});
     }
 
     pgNames.forEach(function(pn){
       pn.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
     });
+    /* Titles visible immediately — no scroll-triggered stagger (last card was fading/sliding in late). */
+    pgNames.forEach(function(pn){
+      var chars = Array.from(pn.querySelectorAll('.hl-char:not(.hl-char--space)'));
+      chars.forEach(function(ch){
+        ch.style.transitionDelay = '0ms';
+        ch.style.setProperty('--cd', '0.01s');
+      });
+      pn.classList.add('revealed');
+    });
     initKimTeamScrollMotion();
 
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-      pgNames.forEach(function(pn){
-        var chars = Array.from(pn.querySelectorAll('.hl-char:not(.hl-char--space)'));
-        chars.forEach(function(ch){
-          ch.style.transitionDelay = '0ms';
-          ch.style.setProperty('--cd', '0.01s');
-        });
-        pn.classList.add('revealed');
-      });
-      cards.forEach(function(c){ c.classList.add('in'); });
       var footRm = cont.querySelector('footer');
       if(footRm) footRm.classList.add('in');
       initWordmarkEffectsWhenNeeded();
       return;
     }
-
-    function revealPgName(cardOrPn){
-      var pn = cardOrPn && cardOrPn.classList && cardOrPn.classList.contains('pg-name')
-        ? cardOrPn
-        : (cardOrPn && cardOrPn.querySelector ? cardOrPn.querySelector('.pg-name') : null);
-      if(!pn || pn.classList.contains('revealed')) return;
-      var chars = Array.from(pn.querySelectorAll('.hl-char:not(.hl-char--space)'));
-      staggerChars(chars);
-      requestAnimationFrame(function(){
-        pn.classList.add('revealed');
-      });
-    }
-
-    if(track && cards.length){
-      var obs = new IntersectionObserver(function(entries){
-        entries.forEach(function(e){
-          if(e.isIntersecting){
-            e.target.classList.add('in');
-            obs.unobserve(e.target);
-          }
-        });
-      }, {root: track, threshold: 0.08});
-      cards.forEach(function(el){ obs.observe(el); });
-    }
-
-    function isPgNameInViewport(pn){
-      var r = pn.getBoundingClientRect();
-      return r.top < window.innerHeight * 0.92 && r.bottom > 0 && r.left < window.innerWidth && r.right > 0;
-    }
-    function checkPgNames(){
-      pgNames.forEach(function(pn){
-        if(!pn.classList.contains('revealed') && isPgNameInViewport(pn)){
-          var card = pn.closest('.hcard');
-          if(card) revealPgName(card);
-        }
-      });
-    }
-    window.addEventListener('scroll', checkPgNames, {passive: true});
-    if(track) track.addEventListener('scroll', checkPgNames, {passive: true});
-    checkPgNames();
 
     var footer = cont.querySelector('footer');
     if(footer){
@@ -2765,7 +2856,7 @@ function attachHlCharExitHideAfterTransform(c){
     if(tpBlasted) need = Math.min(need, 95);
     if(thirdActUnlockWheelAccum >= need) unlockThirdActPageScroll();
   }
-  function unlockThirdActPageScroll(){
+  function unlockThirdActPageScroll(onDone){
     if(phase !== 5) return;
     phase = 6;
     detachHeroScrollLocks();
@@ -2783,6 +2874,7 @@ function attachHlCharExitHideAfterTransform(c){
         if(w && w.clientWidth >= 12 && w.clientHeight >= 12) thirdParticleSetup();
         initScrollIntroContinuation();
         updateNavThirdRedOverlap();
+        if(typeof onDone === 'function') onDone();
       });
     });
   }
@@ -3051,20 +3143,21 @@ function attachHlCharExitHideAfterTransform(c){
     if(phase === 5){
       if(isMobileIntent() && !mobilePhase5FastUnlockDone){
         mobilePhase5FastUnlockDone = true;
-        unlockThirdActPageScroll();
-        /* iOS: unlock mid-gesture — smooth anchor to next section (replaces single-frame scrollTop jump). */
-        void document.documentElement.offsetHeight;
-        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var nextSection =
-          document.getElementById('scroll-intro-below') || document.getElementById('proj-grid-wrap');
-        var scrollBehavior = reduceMotion ? 'auto' : 'smooth';
-        if(nextSection){
-          nextSection.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
-        } else {
-          var se = document.scrollingElement || document.documentElement;
-          var vh = window.innerHeight || 640;
-          se.scrollTop = Math.min(se.scrollTop + Math.round(vh * 0.2), se.scrollHeight);
-        }
+        /* Scroll after continuation inits (same frame chain as unlock) to avoid layout jump. */
+        unlockThirdActPageScroll(function(){
+          void document.documentElement.offsetHeight;
+          var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          var nextSection =
+            document.getElementById('scroll-intro-below') || document.getElementById('proj-grid-wrap');
+          var scrollBehavior = reduceMotion ? 'auto' : 'smooth';
+          if(nextSection){
+            nextSection.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+          } else {
+            var se = document.scrollingElement || document.documentElement;
+            var vh = window.innerHeight || 640;
+            se.scrollTop = Math.min(se.scrollTop + Math.round(vh * 0.2), se.scrollHeight);
+          }
+        });
         return;
       }
       thirdActUnlockWheelAccum += amt;
@@ -3142,18 +3235,23 @@ function attachHlCharExitHideAfterTransform(c){
     if(!projectsSection) return;
     projectsSection.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
+  /** Wait for continuation layout before scrolling — avoids post-scroll reflow jump. */
+  function scheduleJumpToProjects(){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(jumpToProjects);
+    });
+  }
 
   var projectsNavLink = document.getElementById('projects-nav-link');
   if(projectsNavLink){
     projectsNavLink.addEventListener('click', function(e){
       e.preventDefault();
       if(phase === 6){
-        jumpToProjects();
+        scheduleJumpToProjects();
         return;
       }
       if(phase === 5){
-        unlockThirdActPageScroll();
-        jumpToProjects();
+        unlockThirdActPageScroll(jumpToProjects);
         return;
       }
       phase = 6;
@@ -3170,7 +3268,6 @@ function attachHlCharExitHideAfterTransform(c){
       if(continuation) continuation.removeAttribute('hidden');
       document.documentElement.classList.add('scroll-intro-scrollable');
       detachHeroScrollLocks();
-      jumpToProjects();
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){
           thirdRingResize();
@@ -3184,10 +3281,20 @@ function attachHlCharExitHideAfterTransform(c){
           thirdParticlesStart();
           initScrollIntroContinuation();
           updateNavThirdRedOverlap();
+          jumpToProjects();
         });
       });
     });
   }
+
+  document.querySelectorAll('a[href="#proj-grid-wrap"]').forEach(function(link){
+    if(link.id === 'projects-nav-link') return;
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      scheduleJumpToProjects();
+      if(history.replaceState) history.replaceState(null, '', '#proj-grid-wrap');
+    });
+  });
 
   function updateNavThirdRedOverlap(){
     var root = document.documentElement;
