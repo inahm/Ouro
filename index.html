@@ -1248,7 +1248,8 @@ function attachHlCharExitHideAfterTransform(c){
     unlock: 0,
     phase5TouchMove: 0,
     phase40TouchMove: 0,
-    gestureLogs: 0
+    gestureLogs: 0,
+    mobileAnchor: 0
   };
   function __dbgSticky(hypothesisId, location, message, data, runId){
     if(!window.__OURO_DEBUG_STICKY) window.__OURO_DEBUG_STICKY = true;
@@ -2184,6 +2185,7 @@ function attachHlCharExitHideAfterTransform(c){
         phase = 5;
         exitInProgress = false;
         thirdActUnlockWheelAccum = 0;
+        mobilePhase5AnchorUsed = false;
         __dbgSticky('H6', 'index.html:mountThirdHeadline', 'phase switched to 5 (unlock allowed)', {
           phase: phase,
           ts: Date.now(),
@@ -3099,6 +3101,7 @@ function attachHlCharExitHideAfterTransform(c){
   var touchGestureAccum = 0;
   var touchGestureStartTs = 0;
   var touchGestureStartPhase = -1;
+  var mobilePhase5AnchorUsed = false;
   function onTouchStart(e){
     if(phase === 6) return;
     if(phase === 40){
@@ -3168,6 +3171,31 @@ function attachHlCharExitHideAfterTransform(c){
     if(dy <= 0) return;
     var amt = dy * touchIntentMultiplier();
     if(phase === 5){
+      if(isMobileIntent() && !mobilePhase5AnchorUsed){
+        mobilePhase5AnchorUsed = true;
+        if(__dbgStickyState.mobileAnchor < 6){
+          __dbgStickyState.mobileAnchor += 1;
+          __dbgSticky('H11', 'index.html:onTouchMove:phase5-firstSwipeAnchor', 'mobile first swipe forces unlock + anchor', {
+            dy: Math.round(dy * 100) / 100,
+            amt: Math.round(amt * 100) / 100,
+            beforeAccum: Math.round(thirdActUnlockWheelAccum * 100) / 100
+          }, 'mobile-first-swipe-anchor');
+        }
+        unlockThirdActPageScroll();
+        requestAnimationFrame(function(){
+          var nextSection = document.getElementById('scroll-intro-below') || document.getElementById('proj-grid-wrap');
+          if(nextSection) nextSection.scrollIntoView({ behavior: 'auto', block: 'start' });
+          if(__dbgStickyState.mobileAnchor < 10){
+            __dbgStickyState.mobileAnchor += 1;
+            __dbgSticky('H11', 'index.html:onTouchMove:phase5-firstSwipeAnchor', 'anchor applied after unlock', {
+              phase: phase,
+              scrollY: Math.round((window.scrollY || 0) * 100) / 100,
+              target: nextSection ? (nextSection.id || 'unknown') : 'none'
+            }, 'mobile-first-swipe-anchor');
+          }
+        });
+        return;
+      }
       thirdActUnlockWheelAccum += amt;
       touchGestureAccum += amt;
       if(__dbgStickyState.phase5TouchMove < 24){
