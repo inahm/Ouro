@@ -96,16 +96,26 @@ html,body{
   margin-top:0;
   background:#fff;
 }
-/* After third act: native vertical scroll + continuation (see unlockThirdActPageScroll) */
-html.scroll-intro-scrollable,
-html.scroll-intro-scrollable body{
+/* After third act: native vertical scroll + continuation (see unlockThirdActPageScroll)
+   Single scroll root on <html> — iOS Safari often “sticks” when both html and body are overflow-y:auto. */
+html.scroll-intro-scrollable{
   height:auto;
   min-height:100%;
+  min-height:100dvh;
   overflow-x:hidden;
   overflow-y:auto;
   overscroll-behavior-y:auto;
   touch-action:pan-y;
   -webkit-overflow-scrolling:touch;
+}
+html.scroll-intro-scrollable body{
+  height:auto;
+  min-height:100%;
+  min-height:100dvh;
+  overflow-x:hidden;
+  overflow-y:visible;
+  overscroll-behavior-y:auto;
+  touch-action:pan-y;
 }
 html.scroll-intro-scrollable .stage{
   position:relative;
@@ -824,13 +834,6 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
     padding-top:max(26px, env(safe-area-inset-top, 0px) + 16px);
     padding-bottom:max(26px, env(safe-area-inset-bottom, 0px) + 16px);
   }
-  /* Mobile card rail: lock each swipe to a card edge. */
-  .scroll-intro-continuation .hscroll-track{
-    scroll-snap-type:x mandatory;
-  }
-  .scroll-intro-continuation .hcard{
-    scroll-snap-stop:always;
-  }
 }
 @media (prefers-reduced-motion: reduce){
   .second-hl-particles-wrap{ transition-duration:0.12s; }
@@ -1241,22 +1244,6 @@ function attachHlCharExitHideAfterTransform(c){
     return isIOS && isWebKit;
   }
   var prefersDifferenceVideoBlend = !isLikelyIOSWebKit();
-  var __dbgStickyState = {
-    p6TouchMove: 0,
-    trackTouchMove: 0,
-    trackScroll: 0,
-    unlock: 0,
-    phase5TouchMove: 0,
-    phase40TouchMove: 0,
-    gestureLogs: 0,
-    mobileAnchor: 0
-  };
-  function __dbgSticky(hypothesisId, location, message, data, runId){
-    if(!window.__OURO_DEBUG_STICKY) window.__OURO_DEBUG_STICKY = true;
-    // #region agent log
-    fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6757e4'},body:JSON.stringify({sessionId:'6757e4',runId:runId || 'baseline-mobile-stickiness',hypothesisId:hypothesisId,location:location,message:message,data:data,timestamp:Date.now()})}).catch(function(){});
-    // #endregion
-  }
 
   /* ── Second-headline particle ring (canvas, mirrors index circle dot ribbon) ── */
   var spCtx, spParticles, spRaf = null;
@@ -2185,12 +2172,7 @@ function attachHlCharExitHideAfterTransform(c){
         phase = 5;
         exitInProgress = false;
         thirdActUnlockWheelAccum = 0;
-        mobilePhase5AnchorUsed = false;
-        __dbgSticky('H6', 'index.html:mountThirdHeadline', 'phase switched to 5 (unlock allowed)', {
-          phase: phase,
-          ts: Date.now(),
-          unlockNeed: thirdActUnlockNeedPx()
-        }, 'phase40-lock-window');
+        mobilePhase5FastUnlockDone = false;
       });
     }, 300);
   }
@@ -2641,48 +2623,6 @@ function attachHlCharExitHideAfterTransform(c){
 
     /* Vertical wheel over overflow-x track did not chain to document scroll (nested scrollport); route explicitly. */
     if(track){
-      __dbgSticky('H4', 'index.html:initScrollIntroContinuation', 'track style at init', {
-        touchAction: getComputedStyle(track).touchAction || '',
-        overscrollBehaviorX: getComputedStyle(track).overscrollBehaviorX || '',
-        snapType: getComputedStyle(track).scrollSnapType || '',
-        isCoarsePointer: window.matchMedia('(hover: none) and (pointer: coarse)').matches
-      });
-      var trackTouchStart = null;
-      track.addEventListener('touchstart', function(e){
-        if(!e.touches || !e.touches.length) return;
-        trackTouchStart = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-          winY: window.scrollY || 0,
-          trackLeft: track.scrollLeft || 0
-        };
-      }, {passive: true});
-      track.addEventListener('touchmove', function(e){
-        if(!trackTouchStart || !e.touches || !e.touches.length) return;
-        if(__dbgStickyState.trackTouchMove >= 10) return;
-        __dbgStickyState.trackTouchMove += 1;
-        var dx = e.touches[0].clientX - trackTouchStart.x;
-        var dy = e.touches[0].clientY - trackTouchStart.y;
-        __dbgSticky('H2', 'index.html:hscroll-track touchmove', 'touchmove on cards rail', {
-          absDx: Math.round(Math.abs(dx) * 10) / 10,
-          absDy: Math.round(Math.abs(dy) * 10) / 10,
-          dominantAxis: Math.abs(dy) > Math.abs(dx) ? 'y' : 'x',
-          cancelable: !!e.cancelable,
-          defaultPrevented: !!e.defaultPrevented,
-          trackScrollLeft: Math.round((track.scrollLeft || 0) * 10) / 10,
-          windowScrollY: Math.round((window.scrollY || 0) * 10) / 10
-        });
-      }, {passive: true});
-      track.addEventListener('scroll', function(){
-        if(__dbgStickyState.trackScroll >= 10) return;
-        __dbgStickyState.trackScroll += 1;
-        __dbgSticky('H3', 'index.html:hscroll-track scroll', 'cards rail scrolled/snap candidate', {
-          scrollLeft: Math.round((track.scrollLeft || 0) * 10) / 10,
-          scrollWidth: track.scrollWidth || 0,
-          clientWidth: track.clientWidth || 0,
-          snapType: getComputedStyle(track).scrollSnapType || ''
-        });
-      }, {passive: true});
       track.addEventListener('wheel', function(e){
         var ady = Math.abs(e.deltaY), adx = Math.abs(e.deltaX);
         if(ady < adx || ady + adx <= 1.5) return;
@@ -2835,16 +2775,6 @@ function attachHlCharExitHideAfterTransform(c){
     var continuation = document.getElementById('scroll-intro-continuation');
     if(continuation) continuation.removeAttribute('hidden');
     document.documentElement.classList.add('scroll-intro-scrollable');
-    if(__dbgStickyState.unlock < 4){
-      __dbgStickyState.unlock += 1;
-      __dbgSticky('H1', 'index.html:unlockThirdActPageScroll', 'entered phase 6/unlocked scroll', {
-        phase: phase,
-        scrollableClass: document.documentElement.classList.contains('scroll-intro-scrollable'),
-        touchActionHtml: getComputedStyle(document.documentElement).touchAction || '',
-        touchActionBody: getComputedStyle(document.body).touchAction || '',
-        scrollY: window.scrollY || 0
-      });
-    }
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         thirdRingResize();
@@ -2867,10 +2797,6 @@ function attachHlCharExitHideAfterTransform(c){
     scrollIntent = 0;
     exitInProgress = true;
     phase = 40;
-    __dbgSticky('H6', 'index.html:startThirdAct', 'phase switched to 40', {
-      phase: phase,
-      ts: Date.now()
-    }, 'phase40-lock-window');
     thirdParticlesStop();
     if(secondParticleWrap){
       secondParticleWrap.classList.remove('second-hl-particles-wrap--visible');
@@ -3098,69 +3024,20 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   var touchY = null;
-  var touchGestureAccum = 0;
-  var touchGestureStartTs = 0;
-  var touchGestureStartPhase = -1;
-  var mobilePhase5AnchorUsed = false;
+  var mobilePhase5FastUnlockDone = false;
   function onTouchStart(e){
     if(phase === 6) return;
-    if(phase === 40){
-      if(__dbgStickyState.phase40TouchMove < 20){
-        __dbgStickyState.phase40TouchMove += 1;
-        __dbgSticky('H10', 'index.html:onTouchStart:phase40', 'touchstart ignored because phase40 lock', {
-          touches: e.touches ? e.touches.length : 0,
-          phase: phase,
-          unlockAccum: Math.round(thirdActUnlockWheelAccum * 100) / 100
-        }, 'phase40-start-loss');
-      }
-      return;
-    }
+    if(phase === 40) return;
     if(e.touches.length !== 1) return;
     if(phase === 1 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 3 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 0) return;
     touchY = e.touches[0].clientY;
-    touchGestureAccum = 0;
-    touchGestureStartTs = Date.now();
-    touchGestureStartPhase = phase;
   }
   function onTouchMove(e){
-    if(phase === 6){
-      if(__dbgStickyState.p6TouchMove < 8){
-        __dbgStickyState.p6TouchMove += 1;
-        __dbgSticky('H1', 'index.html:onTouchMove', 'global touchmove still firing in phase 6', {
-          cancelable: !!e.cancelable,
-          defaultPrevented: !!e.defaultPrevented,
-          touchYNull: touchY == null,
-          touches: e.touches ? e.touches.length : 0,
-          scrollY: window.scrollY || 0
-        });
-      }
-      return;
-    }
-    if(phase === 40){
-      if(__dbgStickyState.phase40TouchMove < 12){
-        __dbgStickyState.phase40TouchMove += 1;
-        __dbgSticky('H6', 'index.html:onTouchMove:phase40', 'touchmove during phase40 (locked transition)', {
-          cancelable: !!e.cancelable,
-          defaultPrevented: !!e.defaultPrevented,
-          touches: e.touches ? e.touches.length : 0,
-          scrollY: window.scrollY || 0
-        }, 'phase40-lock-window');
-      }
-      return;
-    }
-    if(touchY == null){
-      if(phase === 5 && __dbgStickyState.phase5TouchMove < 40){
-        __dbgStickyState.phase5TouchMove += 1;
-        __dbgSticky('H10', 'index.html:onTouchMove:phase5-touchY-null', 'phase5 touchmove ignored due to missing touchY anchor', {
-          phase: phase,
-          touches: e.touches ? e.touches.length : 0,
-          unlockAccum: Math.round(thirdActUnlockWheelAccum * 100) / 100
-        }, 'phase40-start-loss');
-      }
-      return;
-    }
+    if(phase === 6) return;
+    if(phase === 40) return;
+    if(touchY == null) return;
     if(phase === 25) return;
     if(phase === 1 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 3 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
@@ -3171,44 +3048,12 @@ function attachHlCharExitHideAfterTransform(c){
     if(dy <= 0) return;
     var amt = dy * touchIntentMultiplier();
     if(phase === 5){
-      if(isMobileIntent() && !mobilePhase5AnchorUsed){
-        mobilePhase5AnchorUsed = true;
-        if(__dbgStickyState.mobileAnchor < 6){
-          __dbgStickyState.mobileAnchor += 1;
-          __dbgSticky('H11', 'index.html:onTouchMove:phase5-firstSwipeAnchor', 'mobile first swipe forces unlock + anchor', {
-            dy: Math.round(dy * 100) / 100,
-            amt: Math.round(amt * 100) / 100,
-            beforeAccum: Math.round(thirdActUnlockWheelAccum * 100) / 100
-          }, 'mobile-first-swipe-anchor');
-        }
+      if(isMobileIntent() && !mobilePhase5FastUnlockDone){
+        mobilePhase5FastUnlockDone = true;
         unlockThirdActPageScroll();
-        requestAnimationFrame(function(){
-          var nextSection = document.getElementById('scroll-intro-below') || document.getElementById('proj-grid-wrap');
-          if(nextSection) nextSection.scrollIntoView({ behavior: 'auto', block: 'start' });
-          if(__dbgStickyState.mobileAnchor < 10){
-            __dbgStickyState.mobileAnchor += 1;
-            __dbgSticky('H11', 'index.html:onTouchMove:phase5-firstSwipeAnchor', 'anchor applied after unlock', {
-              phase: phase,
-              scrollY: Math.round((window.scrollY || 0) * 100) / 100,
-              target: nextSection ? (nextSection.id || 'unknown') : 'none'
-            }, 'mobile-first-swipe-anchor');
-          }
-        });
         return;
       }
       thirdActUnlockWheelAccum += amt;
-      touchGestureAccum += amt;
-      if(__dbgStickyState.phase5TouchMove < 24){
-        __dbgStickyState.phase5TouchMove += 1;
-        __dbgSticky('H5', 'index.html:onTouchMove:phase5', 'third-act unlock accum (touch)', {
-          dy: Math.round(dy * 100) / 100,
-          amt: Math.round(amt * 100) / 100,
-          accum: Math.round(thirdActUnlockWheelAccum * 100) / 100,
-          need: thirdActUnlockNeedPx(),
-          tpBlasted: !!tpBlasted,
-          coarse: isMobileIntent()
-        }, 'phase5-unlock-threshold');
-      }
       tryUnlockThirdActIfReady();
       if(phase === 6) return;
     }
@@ -3229,27 +3074,10 @@ function attachHlCharExitHideAfterTransform(c){
     }
   }
   function onTouchEnd(){
-    if(__dbgStickyState.gestureLogs < 16 && touchGestureStartTs){
-      __dbgStickyState.gestureLogs += 1;
-      __dbgSticky('H7', 'index.html:onTouchEnd', 'touch gesture summary', {
-        startPhase: touchGestureStartPhase,
-        endPhase: phase,
-        gestureAccum: Math.round(touchGestureAccum * 100) / 100,
-        unlockNeed: thirdActUnlockNeedPx(),
-        unlockAccumNow: Math.round(thirdActUnlockWheelAccum * 100) / 100,
-        durationMs: Date.now() - touchGestureStartTs
-      }, 'gesture-unlock-summary');
-    }
     touchY = null;
-    touchGestureAccum = 0;
-    touchGestureStartTs = 0;
-    touchGestureStartPhase = -1;
   }
   function onTouchCancel(){
     touchY = null;
-    touchGestureAccum = 0;
-    touchGestureStartTs = 0;
-    touchGestureStartPhase = -1;
   }
 
   function onKeyDown(e){
