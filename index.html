@@ -151,6 +151,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 .scroll-intro-below{
   position:relative;
   z-index:0;
+  scroll-margin-top:max(64px, calc(env(safe-area-inset-top, 0px) + 48px));
   background:var(--bg);
   border-top:1px solid rgba(0,0,0,0.1);
   /* Horizontal gutter matches .hscroll-track scroll-padding / padding-left (first card column). */
@@ -3051,6 +3052,19 @@ function attachHlCharExitHideAfterTransform(c){
       if(isMobileIntent() && !mobilePhase5FastUnlockDone){
         mobilePhase5FastUnlockDone = true;
         unlockThirdActPageScroll();
+        /* iOS: unlock mid-gesture — smooth anchor to next section (replaces single-frame scrollTop jump). */
+        void document.documentElement.offsetHeight;
+        var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var nextSection =
+          document.getElementById('scroll-intro-below') || document.getElementById('proj-grid-wrap');
+        var scrollBehavior = reduceMotion ? 'auto' : 'smooth';
+        if(nextSection){
+          nextSection.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+        } else {
+          var se = document.scrollingElement || document.documentElement;
+          var vh = window.innerHeight || 640;
+          se.scrollTop = Math.min(se.scrollTop + Math.round(vh * 0.2), se.scrollHeight);
+        }
         return;
       }
       thirdActUnlockWheelAccum += amt;
