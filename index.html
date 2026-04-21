@@ -1245,12 +1245,15 @@ function attachHlCharExitHideAfterTransform(c){
     p6TouchMove: 0,
     trackTouchMove: 0,
     trackScroll: 0,
-    unlock: 0
+    unlock: 0,
+    phase5TouchMove: 0,
+    phase40TouchMove: 0,
+    gestureLogs: 0
   };
-  function __dbgSticky(hypothesisId, location, message, data){
+  function __dbgSticky(hypothesisId, location, message, data, runId){
     if(!window.__OURO_DEBUG_STICKY) window.__OURO_DEBUG_STICKY = true;
     // #region agent log
-    fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6757e4'},body:JSON.stringify({sessionId:'6757e4',runId:'baseline-mobile-stickiness',hypothesisId:hypothesisId,location:location,message:message,data:data,timestamp:Date.now()})}).catch(function(){});
+    fetch('http://127.0.0.1:7493/ingest/df73f759-0ef4-48de-96f3-705e593fc0a6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6757e4'},body:JSON.stringify({sessionId:'6757e4',runId:runId || 'baseline-mobile-stickiness',hypothesisId:hypothesisId,location:location,message:message,data:data,timestamp:Date.now()})}).catch(function(){});
     // #endregion
   }
 
@@ -2181,6 +2184,11 @@ function attachHlCharExitHideAfterTransform(c){
         phase = 5;
         exitInProgress = false;
         thirdActUnlockWheelAccum = 0;
+        __dbgSticky('H6', 'index.html:mountThirdHeadline', 'phase switched to 5 (unlock allowed)', {
+          phase: phase,
+          ts: Date.now(),
+          unlockNeed: thirdActUnlockNeedPx()
+        }, 'phase40-lock-window');
       });
     }, 300);
   }
@@ -2208,7 +2216,10 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function thirdActUnlockNeedPx(){
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 85 : 200;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return 85;
+    /* Touch adds dy*multiplier per move; 200 often needs ~3 short swipes on phones. */
+    if(isMobileIntent()) return 95;
+    return 200;
   }
   /** Ouro Labs wordmark: mouse-repel physics + bg.mp4 clip (matches index.html). */
   function initScrollIntroWordmarkEffects(cont){
@@ -2857,6 +2868,10 @@ function attachHlCharExitHideAfterTransform(c){
     scrollIntent = 0;
     exitInProgress = true;
     phase = 40;
+    __dbgSticky('H6', 'index.html:startThirdAct', 'phase switched to 40', {
+      phase: phase,
+      ts: Date.now()
+    }, 'phase40-lock-window');
     thirdParticlesStop();
     if(secondParticleWrap){
       secondParticleWrap.classList.remove('second-hl-particles-wrap--visible');
@@ -3084,6 +3099,9 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   var touchY = null;
+  var touchGestureAccum = 0;
+  var touchGestureStartTs = 0;
+  var touchGestureStartPhase = -1;
   function onTouchStart(e){
     if(phase === 6) return;
     if(phase === 40 || e.touches.length !== 1) return;
@@ -3091,6 +3109,9 @@ function attachHlCharExitHideAfterTransform(c){
     if(phase === 3 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 0) return;
     touchY = e.touches[0].clientY;
+    touchGestureAccum = 0;
+    touchGestureStartTs = Date.now();
+    touchGestureStartPhase = phase;
   }
   function onTouchMove(e){
     if(phase === 6){
@@ -3106,7 +3127,19 @@ function attachHlCharExitHideAfterTransform(c){
       }
       return;
     }
-    if(phase === 40 || touchY == null) return;
+    if(phase === 40){
+      if(__dbgStickyState.phase40TouchMove < 12){
+        __dbgStickyState.phase40TouchMove += 1;
+        __dbgSticky('H6', 'index.html:onTouchMove:phase40', 'touchmove during phase40 (locked transition)', {
+          cancelable: !!e.cancelable,
+          defaultPrevented: !!e.defaultPrevented,
+          touches: e.touches ? e.touches.length : 0,
+          scrollY: window.scrollY || 0
+        }, 'phase40-lock-window');
+      }
+      return;
+    }
+    if(touchY == null) return;
     if(phase === 25) return;
     if(phase === 1 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 3 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
@@ -3118,6 +3151,18 @@ function attachHlCharExitHideAfterTransform(c){
     var amt = dy * touchIntentMultiplier();
     if(phase === 5){
       thirdActUnlockWheelAccum += amt;
+      touchGestureAccum += amt;
+      if(__dbgStickyState.phase5TouchMove < 24){
+        __dbgStickyState.phase5TouchMove += 1;
+        __dbgSticky('H5', 'index.html:onTouchMove:phase5', 'third-act unlock accum (touch)', {
+          dy: Math.round(dy * 100) / 100,
+          amt: Math.round(amt * 100) / 100,
+          accum: Math.round(thirdActUnlockWheelAccum * 100) / 100,
+          need: thirdActUnlockNeedPx(),
+          tpBlasted: !!tpBlasted,
+          coarse: isMobileIntent()
+        }, 'phase5-unlock-threshold');
+      }
       tryUnlockThirdActIfReady();
       if(phase === 6) return;
     }
@@ -3137,8 +3182,29 @@ function attachHlCharExitHideAfterTransform(c){
       }
     }
   }
-  function onTouchEnd(){ touchY = null; }
-  function onTouchCancel(){ touchY = null; }
+  function onTouchEnd(){
+    if(__dbgStickyState.gestureLogs < 16 && touchGestureStartTs){
+      __dbgStickyState.gestureLogs += 1;
+      __dbgSticky('H7', 'index.html:onTouchEnd', 'touch gesture summary', {
+        startPhase: touchGestureStartPhase,
+        endPhase: phase,
+        gestureAccum: Math.round(touchGestureAccum * 100) / 100,
+        unlockNeed: thirdActUnlockNeedPx(),
+        unlockAccumNow: Math.round(thirdActUnlockWheelAccum * 100) / 100,
+        durationMs: Date.now() - touchGestureStartTs
+      }, 'gesture-unlock-summary');
+    }
+    touchY = null;
+    touchGestureAccum = 0;
+    touchGestureStartTs = 0;
+    touchGestureStartPhase = -1;
+  }
+  function onTouchCancel(){
+    touchY = null;
+    touchGestureAccum = 0;
+    touchGestureStartTs = 0;
+    touchGestureStartPhase = -1;
+  }
 
   function onKeyDown(e){
     if(phase === 40) return;
