@@ -1,0 +1,110 @@
+================================================================================
+OURO LABS — SITE COPY (for editing)
+Source: index.html  •  Created for easy reference; re-apply changes in the file.
+================================================================================
+
+BROWSER / TAB
+-------------
+  Title: Hero scroll test — fixed viewport
+
+
+NAV (TOP)
+---------
+  Logo link (accessibility): Ouro Labs home
+  Link: Projects
+
+
+HERO — PRIMARY (first screen)
+-----------------------------
+  Line 1: We're [CYCLE] our
+          [CYCLE] rotates through these three words (must match script):
+          making  |  building  |  breaking
+  Line 2: way into a new
+  Line 3: design practice.
+
+  In JavaScript, keep these in sync (auto-fit + rotation):
+  • CYCLE_WORDS: making, building, breaking
+  • HERO_PRIMARY_TEMPLATE_LINES (all-caps, used to measure line width):
+      WE'RE MAKING OUR
+      WE'RE BUILDING OUR
+      WE'RE BREAKING OUR
+      WAY INTO A NEW
+      DESIGN PRACTICE.
+
+
+HERO — SECOND BLOCK (after first interaction sequence)
+-----------------------------------------------------
+  Line 1: The only way
+  Line 2: we know how.
+
+  JavaScript mirror for layout (all caps):
+  HERO_SECOND_TEMPLATE_LINES: THE ONLY WAY  |  WE KNOW HOW.
+
+
+THIRD ACT — RED FULL-SCREEN HEADLINE
+--------------------------------------
+  Line 1: Experimenting
+  Line 2: at the edge of
+  Line 3: what's possible.        (uses narrow no-break space before "of" in code)
+
+  JavaScript: THIRD_LINES (same text; \u00a0 and \u2019 in source)
+
+
+STATEMENT (GREY SECTION BELOW INTRO)
+------------------------------------
+  We work through systems, tools, code, design and experimentation to shape
+  not just products, but the process that creates them.
+  (The phrase "creates them." is emphasized / italic in the design.)
+
+
+PROJECT STRIP (HORIZONTAL CARDS)
+--------------------------------
+  [Nota]
+  Turn video into a working document with timestamped notes, searchable
+  transcripts, and shareable moments.
+  Button: Discover
+
+  [Latency Atlas]
+  A map of where AI latency actually matters in real user flows.
+  Button: Discover
+
+  [Scaffold Runner]
+  Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.
+  Button: Discover
+
+
+FOOTER
+------
+  (Large “Ouro” — graphic wordmark, not text copy)
+
+  Nav label (accessibility): Site links
+  Links:
+    Projects
+    Contact     →  hello@ourolabs.com
+    Nota        →  https://nota.app
+
+  Section label (accessibility): Ouro Labs
+
+
+TEAM / MARQUEE SECTION (CURRENTLY HIDDEN IN MARKUP)
+---------------------------------------------------
+  Line 1: SYSTEMS. TOOLS. CODE. AND. DESIGN.
+  Line 2: EXPERIMENTATION. PROTOTYPES. AND. PLAY.
+  Line 3: PROCESS. PRACTICE. AND. WHAT'S. NEXT.
+
+  Section aria-label: Team section
+
+
+WHERE TO EDIT IN index.html
+-----------------------------
+  • <title> — near top
+  • Primary hero: <h1 id="hero-hl"> and #hero-cycle-word
+  • CYCLE_WORDS, HERO_PRIMARY_TEMPLATE_LINES, HERO_SECOND_TEMPLATE_LINES,
+    SECOND_LINES, THIRD_LINES — in the main <script> block
+  • Statement: #scroll-intro-below-statement
+  • Project cards: .pg-name, .pg-desc, .hcard-discover__label, footer <nav> links
+  • Marquee: .kim-team-line (section has hidden attribute)
+
+================================================================================
+End of copy list
+================================================================================
