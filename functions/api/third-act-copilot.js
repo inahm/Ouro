@@ -18,6 +18,13 @@ const ALLOWED_ACCENTS = new Set([
   '#0ea5e9',
   '#06b6d4',
   '#f4c025',
+  '#fbbf24',
+  '#facc15',
+  '#fde047',
+  '#fde68a',
+  '#fef3c7',
+  '#fff7ed',
+  '#fef9c3',
   '#8b5cf6',
   '#e8ddd4',
   '#000000',
@@ -86,17 +93,18 @@ export async function onRequest({ request, env }) {
   var base = (env.OPENAI_BASE_URL || 'https://api.openai.com').replace(/\/$/, '');
   var model = env.OPENAI_MODEL || 'gpt-4o-mini';
   var system = [
-    'You help map a short user creative request to a single JSON object for a live art site third act (full-screen).',
-    'Keys: accent (string, hex color — MUST be exactly one of: ' +
-      Array.from(ALLOWED_ACCENTS).join(', ') +
-      '),',
-    'typeface (one of: grotesk, sans, serif, mono),',
-    'sound: default (broad), calm, pulse, bright, hiphop — use hiphop for hip hop, rap, trap, beats, "song" with urban rhythm.',
-    'flow (one of: default, calm, chaos — particle feel),',
-    'fx: none, or glitter if the user wants glitter, sparkles, shine, or stars.',
-    'summary (one short human sentence, max 120 chars).',
-    'Blue / cyan / sky → pick a blue or cyan from the list (e.g. #3b82f6, #1e40af, #0ea5e9).',
-    'If the user names multiple (e.g. blue + glitter + hip hop), combine: accent, fx glitter, sound hiphop.',
+    'You are a small prompt engine. Users type natural language to style ONE screen at once.',
+    'Always interpret the FULL sentence together. Chain adjectives are normal (color + mood + vibe).',
+    'You MUST return JSON with all keys: accent, typeface, sound, flow, fx, summary.',
+    'accent: string hex, EXACTLY one of: ' + Array.from(ALLOWED_ACCENTS).join(', ') + '.',
+    'typeface: grotesk (default display), sans (open/friendly/soft), serif (elegant/calm/editorial), mono (code/tech).',
+    'sound: default, calm, pulse, bright, hiphop — bright for happy, joyful, sunny mood, upbeat, celebratory; calm for slow, soft, sad, night; pulse for energy, fast, club; hiphop for rap/hip-hop/trap/beats.',
+    'flow: default, calm, chaos — calm for still/gentle; chaos for wild/storm; default for neutral.',
+    'fx: none or glitter for sparkles/shine/glamour.',
+    'Examples: "sunny and yellow and happy" → accent #facc15 or #fbbf24, typeface sans, sound bright, flow default, fx none.',
+    '"dark blue rainy calm" → #1e40af, serif, calm, flow calm, fx none.',
+    'Pick the closest allowlisted hex; never invent a hex outside the list.',
+    'summary: one short line describing the vibe you applied (max 120 chars).',
     'Reply with JSON only, no markdown.',
   ].join(' ');
 
@@ -111,8 +119,8 @@ export async function onRequest({ request, env }) {
       body: JSON.stringify({
         model: model,
         response_format: { type: 'json_object' },
-        temperature: 0.4,
-        max_tokens: 200,
+        temperature: 0.5,
+        max_tokens: 220,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: prompt },

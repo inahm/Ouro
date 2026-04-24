@@ -8,6 +8,7 @@
     reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   } catch (_) {}
 
+  /* Fallback when API unavailable — same axes as the server: color, type, sound, flow, fx. */
   var ACCENT_MAP = {
     green: '#0d8f4a',
     forest: '#2d6a4f',
@@ -19,7 +20,7 @@
     'royal blue': '#1d4ed8',
     teal: '#06b6d4',
     gold: '#f4c025',
-    yellow: '#f4c025',
+    yellow: '#fbbf24',
     purple: '#8b5cf6',
     violet: '#8b5cf6',
     cream: '#e8ddd4',
@@ -29,6 +30,16 @@
     pink: '#e63946',
     default: '#FF1B00',
   };
+
+  var COLOR_RULES = [
+    { re: /sky\s*blue|azure|cornflower/i, accent: '#60a5fa' },
+    { re: /(royal|deep|midnight)\s*blue|navy\b/i, accent: '#1e3a5f' },
+    { re: /lemon|canary|daffodil|buttercup/i, accent: '#facc15' },
+    { re: /yellow|golden(\s+hour)?|yolk/i, accent: '#fbbf24' },
+    { re: /sunny|sunshine|daylight|beach|morning\s*light|high\s*noon/i, accent: '#fde68a' },
+    { re: /cream|vanilla|wheat|ivory|parchment/i, accent: '#fff7ed' },
+    { re: /peach|apricot|tangerine|sunset(?!\s*orange)/i, accent: '#fef3c7' },
+  ];
 
   var glitterRaf = null;
   var glitterSparks = null;
@@ -158,37 +169,105 @@
       sound: 'default',
       flow: 'default',
       fx: 'none',
-      summary: 'Applied a best-guess local preset (interpreter not reachable).',
+      summary: '',
     };
-    for (var k in ACCENT_MAP) {
-      if (k !== 'default' && t.indexOf(k) !== -1) {
-        out.accent = ACCENT_MAP[k];
-        break;
+    var hasSunny = /(\bsunny\b|sunshine|daylight|beach|morning\s*light|high\s*noon)/.test(t);
+    var hasYellow = /\b(yellow|lemon|canary|daffodil|golden|yolk|butter|buttery)\b/.test(t);
+
+    if (hasSunny && hasYellow) {
+      out.accent = '#facc15';
+    } else {
+      var colorHit = false;
+      for (var ci = 0; ci < COLOR_RULES.length; ci++) {
+        if (COLOR_RULES[ci].re.test(t)) {
+          out.accent = COLOR_RULES[ci].accent;
+          colorHit = true;
+          break;
+        }
+      }
+      if (!colorHit) {
+        for (var k in ACCENT_MAP) {
+          if (k === 'default') continue;
+          if (t.indexOf(k) !== -1) {
+            out.accent = ACCENT_MAP[k];
+            break;
+          }
+        }
       }
     }
-    if (/(mono|typewriter|code|console)/i.test(t)) out.typeface = 'mono';
-    else if (/(serif|book|read|elegant|classic)/i.test(t)) out.typeface = 'serif';
-    else if (/(inter|ui|swiss|clean|plain|sans|simple)/i.test(t)) out.typeface = 'sans';
-    if (/(glitter|sparkle|spark|shine|glimmer|bokeh|sequin|gold\s*speck|stars?)/i.test(t)) {
-      out.fx = 'glitter';
-    }
-    if (/(hip[\s-]?hop|rap\b|trap|beats?|rapper|808|boom|urban\s*beat)/i.test(t)) {
+
+    if (/(hip[\s-]?hop|rap\b|trap|beats?|rapper|808|boom|urban\s*beat|grime)/.test(t)) {
       out.sound = 'hiphop';
       if (out.flow === 'default') out.flow = 'chaos';
-    } else if (/(calm|soft|quiet|slow|lull|gentle)/i.test(t)) {
+    } else if (
+      /(happy|joy|joyful|cheer|cheerful|upbeat|delight|bliss|playful|optimis|smile|grin|glee|jolly|merry|positiv|bubbl|bounc|celebrat|festi|feel\s*good|uplift|warm\s*and|cozy|sunny|sunshine|bright\s*mood|good\s*vibes|cheery)/.test(
+        t
+      ) ||
+      (hasSunny && /(and\s*)?(happy|joy|cheer|feel|bright|light)/.test(t))
+    ) {
+      out.sound = 'bright';
+    } else if (/(calm|soft|quiet|slow|lull|gentle|mellow|sad|melanch|gloom|grief|tired|sleep|insomnia|night|peace|rain|drizzle|still|lullab)/.test(t)) {
       out.sound = 'calm';
       if (out.flow === 'default') out.flow = 'calm';
-    } else if (/(pulse|fast|driving|dance|energy|club)/i.test(t)) {
+    } else if (/(pulse|fast|driv|dance|energy|intense|club|electric|rush|run|workout|hype|adrenaline)/.test(t)) {
       out.sound = 'pulse';
-    } else if (/(bright|loud|open|big)/i.test(t)) {
+    } else if (/(bright|loud|open|big|huge|flash)/.test(t)) {
       out.sound = 'bright';
     }
-    if (/(chaos|wild|scattered|frenzy|storm)/i.test(t)) out.flow = 'chaos';
-    else if (out.sound === 'calm' && /(order|gentle|slow)/i.test(t)) out.flow = 'calm';
+
+    if (/(mono|typewriter|code|console|terminal|dev\b|hacker|matrix)/i.test(t)) {
+      out.typeface = 'mono';
+    } else if (/(serif|elegant|editorial|magazine|formal|bookish|read\b|serious|classy|sophisticat|vogue|newspaper)/i.test(t)) {
+      out.typeface = 'serif';
+    } else if (
+      /(sans|inter|ui|swiss|clean|plain|simple|round|friendly|playful|soft|airy|bubbl|sunny|happy|warm\s*and|comfy|cozy)/i.test(t) ||
+      out.sound === 'bright' ||
+      (hasSunny && out.sound === 'bright')
+    ) {
+      if (out.typeface === 'grotesk') out.typeface = 'sans';
+    }
+
+    if (/(glitter|sparkle|\bshine\b|glimmer|bokeh|sequin|stardust|twinkle|glam|disco|confetti|stars?)/i.test(t)) {
+      out.fx = 'glitter';
+    }
+    if (/(chaos|wild|scattered|frenzy|storm|turbulen|messy|mayhem|untamed)/.test(t)) {
+      out.flow = 'chaos';
+    } else if (out.sound === 'calm' && /(float|drift|breeze|gentle|still)/.test(t)) {
+      out.flow = 'calm';
+    }
     if (t.indexOf(' song') !== -1 && (t.indexOf('hip') !== -1 || t.indexOf('rap') !== -1)) {
       out.sound = 'hiphop';
     }
+
+    if (out.accent === '#FF1B00' && (/(happy|joy|cheer|upbeat|sunny|playful|positiv|warm|cozy|light\s*and)/.test(t) && !/(red|angry|horror|blood|dark|scary)/.test(t))) {
+      out.accent = '#fef9c3';
+    }
+
+    out.summary = summarizeVibeLocal(out, hasSunny, hasYellow);
     return out;
+  }
+
+  function summarizeVibeLocal(out, hasSunny, hasYellow) {
+    var bits = [];
+    if (out.accent && out.accent !== '#FF1B00') {
+      if (out.accent === '#facc15' || out.accent === '#fbbf24' || (hasSunny && hasYellow)) {
+        bits.push('warm yellow field');
+      } else if (hasSunny) {
+        bits.push('sunny light');
+      } else {
+        bits.push('field color ' + out.accent);
+      }
+    }
+    if (out.typeface === 'sans') bits.push('open sans-like type');
+    else if (out.typeface === 'serif') bits.push('serif type');
+    else if (out.typeface === 'mono') bits.push('mono type');
+    if (out.sound === 'bright') bits.push('bright sound');
+    else if (out.sound === 'calm') bits.push('soft calm sound');
+    else if (out.sound === 'pulse') bits.push('driving pulse');
+    else if (out.sound === 'hiphop') bits.push('beat-forward sound');
+    if (out.fx === 'glitter') bits.push('glitter');
+    if (!bits.length) bits.push('subtle default');
+    return bits.join(' · ') + ' (local)';
   }
 
   function applyFlowToPhysics(flow) {
@@ -206,6 +285,11 @@
   function applyHiphopNudge() {
     if (!window.__ouroThirdActPhysics) return;
     __ouroThirdActPhysics.set(1.05, 1.16, 0.99);
+  }
+
+  function applyBrightNudge() {
+    if (!window.__ouroThirdActPhysics) return;
+    __ouroThirdActPhysics.set(1.04, 1.1, 0.99);
   }
 
   function applyTypeface(third, tf) {
@@ -227,6 +311,8 @@
     var flow = payload.flow || 'default';
     if (payload.sound === 'hiphop' && flow === 'default') {
       applyHiphopNudge();
+    } else if (payload.sound === 'bright' && flow === 'default') {
+      applyBrightNudge();
     } else {
       applyFlowToPhysics(flow);
     }
@@ -313,13 +399,11 @@
             return;
           }
           var loc = localInterpret(raw);
-          loc.summary = 'Local: ' + (loc.summary || 'Applied heuristics.');
           done(loc, false);
         })
         .catch(function () {
-          var loc = localInterpret(raw);
-          loc.summary = 'Local: ' + (loc.summary || 'Applied heuristics.');
-          done(loc, false);
+          var loc2 = localInterpret(raw);
+          done(loc2, false);
         });
     });
 
