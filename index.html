@@ -5,12 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#DDDBD6">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Hero scroll test — fixed viewport</title>
+<meta name="description" content="Ouro Labs is a design and AI practice built by two design leaders. Design, code, and AI-native workflows. Values: Play, Precision, Craft.">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<link rel="canonical" href="https://www.ouro-labs.com/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Ouro Labs">
+<meta property="og:url" content="https://www.ouro-labs.com/">
+<meta property="og:title" content="Ouro Labs | AI-Native Product Studio">
+<meta property="og:description" content="A design and AI practice built by two design leaders. Working across design, code, and AI-native workflows to shape products and the practices that create them.">
+<meta property="og:image" content="https://www.ouro-labs.com/footer-bg.png">
+<meta property="og:image:alt" content="Ouro Labs — brand atmosphere">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Ouro Labs | AI-Native Product Studio">
+<meta name="twitter:description" content="A design and AI practice built by two design leaders. Play, Precision, Craft.">
+<meta name="twitter:image" content="https://www.ouro-labs.com/footer-bg.png">
+<link rel="icon" href="https://www.ouro-labs.com/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="https://www.ouro-labs.com/fav.svg" type="image/svg+xml" sizes="any">
+<link rel="apple-touch-icon" href="https://www.ouro-labs.com/favicon.ico">
+<title>Ouro Labs | AI-Native Product Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.ouro-labs.com/#organization",
+      "name": "Ouro Labs",
+      "url": "https://www.ouro-labs.com/",
+      "description": "A design and AI practice built by two design leaders. Working across design, code, and AI-native workflows to shape products and the practices that create them.",
+      "slogan": "Play, Precision, Craft",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.ouro-labs.com/ouro-labs.svg",
+        "contentUrl": "https://www.ouro-labs.com/ouro-labs.svg"
+      },
+      "brand": {
+        "@type": "Brand",
+        "name": "Ouro Labs"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.ouro-labs.com/#website",
+      "name": "Ouro Labs",
+      "url": "https://www.ouro-labs.com/",
+      "description": "A design and AI practice built by two design leaders. Design, code, and AI-native workflows.",
+      "inLanguage": "en-US",
+      "publisher": { "@id": "https://www.ouro-labs.com/#organization" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://www.ouro-labs.com/#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.ouro-labs.com/"
+        }
+      ]
+    }
+  ]
+}
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="preload" href="bg.mp4" as="video" type="video/mp4">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+.sr-only{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  border:0;
+  white-space:nowrap;
+}
 :root{
   --bg:#DDDBD6;
   --ink:#000;
@@ -78,7 +152,7 @@ html,body{
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
 }
-/* Custom cursor (desktop / fine pointer) — lagging ring + dot, difference blend like chkstepan.com */
+/* Custom cursor (desktop / fine pointer) — solid dot; ring only on links / interactive, difference blend */
 @media (hover:hover) and (pointer:fine){
   html.custom-cursor--active,
   html.custom-cursor--active *{
@@ -109,21 +183,27 @@ html,body{
   will-change:transform;
   border-radius:50%;
 }
+/* Outer ring: canvas of rotating particles, hidden until an interactive target is under the pointer */
 .custom-cursor__ring{
+  display:block;
   width:42px;
   height:42px;
   margin-left:0;
   margin-top:0;
-  border:1px solid #fff;
-  transition:width 0.35s var(--ease-out-flow),height 0.35s var(--ease-out-flow),border-width 0.2s ease;
+  background:transparent;
+  box-sizing:border-box;
+  opacity:0;
+  transition:opacity 0.2s var(--ease-out-flow), width 0.3s var(--ease-out-flow), height 0.3s var(--ease-out-flow);
+  pointer-events:none;
 }
 .custom-cursor.custom-cursor--hover .custom-cursor__ring{
+  opacity:1;
   width:56px;
   height:56px;
 }
 .custom-cursor__dot{
-  width:7px;
-  height:7px;
+  width:14px;
+  height:14px;
   margin-left:0;
   margin-top:0;
   background:#fff;
@@ -633,6 +713,17 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   z-index:3;
   background:var(--bg);
 }
+.scroll-intro-continuation .wordmark-footer-copyright{
+  margin-right:auto;
+  font-family:'Inter',sans-serif;
+  font-size:clamp(11px,1.2vw,13px);
+  font-weight:400;
+  letter-spacing:0.04em;
+  text-transform:none;
+  color:var(--ink);
+  opacity:0.58;
+  user-select:none;
+}
 .scroll-intro-continuation .wordmark-footer-nav a{
   color:var(--ink);
   text-decoration:none;
@@ -738,7 +829,7 @@ body{
   display:block;
   line-height:0;
   mix-blend-mode:normal;
-  transition:opacity 0.42s var(--ease-out-flow), color 0.95s var(--ease-out-settle), outline-color 0.95s var(--ease-out-settle);
+  transition:opacity 0.42s var(--ease-out-flow), color 0.35s var(--ease-out-flow), outline-color 0.35s var(--ease-out-flow);
 }
 .scroll-intro-logo svg{
   display:block;
@@ -749,11 +840,19 @@ body{
   outline:2px solid var(--ink);
   outline-offset:3px;
 }
-.scroll-intro-projects-link{
+.scroll-intro-top-nav{
   position:fixed;
   top:var(--scroll-intro-nav-top);
   right:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-right, 0px) + 8px));
   z-index:6;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:clamp(16px, 2.2vw, 26px);
+  margin:0;
+  padding:0;
+}
+.scroll-intro-nav-link{
   color:var(--ink);
   text-decoration:none;
   font-family:'Space Grotesk',sans-serif;
@@ -765,48 +864,62 @@ body{
   mix-blend-mode:normal;
   transition:opacity 0.42s var(--ease-out-flow), color 0.35s var(--ease-out-flow), outline-color 0.35s var(--ease-out-flow);
 }
-.scroll-intro-projects-link:focus-visible{
+.scroll-intro-nav-link:focus-visible{
   outline:2px solid var(--ink);
   outline-offset:3px;
 }
-/* Projects: hover / focus tracks nav context (grey vs accent vs red third act). */
-.scroll-intro-projects-link:hover,
-.scroll-intro-projects-link:focus-visible{
+/* Top nav: hover / focus tracks nav context (grey vs accent vs red third act). */
+.scroll-intro-nav-link:hover,
+.scroll-intro-nav-link:focus-visible{
   color:var(--nav-second-hl-accent);
 }
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-projects-link:hover,
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-projects-link:focus-visible{
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:focus-visible{
   color:var(--ink);
 }
-html.nav-over-third-red .scroll-intro-projects-link:hover,
-html.nav-over-third-red .scroll-intro-projects-link:focus-visible{
+html.nav-over-third-red .scroll-intro-nav-link:hover,
+html.nav-over-third-red .scroll-intro-nav-link:focus-visible{
+  color:var(--ink);
+}
+/* Logo: same hover / focus color play as Projects */
+.scroll-intro-logo:hover,
+.scroll-intro-logo:focus-visible{
+  color:var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo:focus-visible{
+  color:var(--ink);
+}
+html.nav-over-third-red .scroll-intro-logo:hover,
+html.nav-over-third-red .scroll-intro-logo:focus-visible{
   color:var(--ink);
 }
 /* Third-act red fills the viewport — light ink on red. */
 html.nav-over-third-red .scroll-intro-logo,
-html.nav-over-third-red .scroll-intro-projects-link{
+html.nav-over-third-red .scroll-intro-nav-link{
   color:var(--bg);
   mix-blend-mode:normal;
 }
 html.nav-over-third-red .scroll-intro-logo:focus-visible,
-html.nav-over-third-red .scroll-intro-projects-link:focus-visible{
+html.nav-over-third-red .scroll-intro-nav-link:focus-visible{
   outline-color:var(--ink);
 }
 /* Second hero headline — warm red/orange nav (normal blend on grey). :not so red-act overlap wins. */
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo,
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-projects-link{
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link{
   color:var(--nav-second-hl-accent);
   mix-blend-mode:normal;
 }
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo:focus-visible{
   outline-color:var(--nav-second-hl-accent);
 }
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-projects-link:focus-visible{
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:focus-visible{
   outline-color:var(--ink);
 }
 @media (prefers-reduced-motion: reduce){
   .scroll-intro-logo,
-  .scroll-intro-projects-link{
+  .scroll-intro-nav-link,
+  .site-meta-btn{
     transition-duration:0.05s;
   }
 }
@@ -1051,18 +1164,50 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
 .third-act.third-act--active{
   visibility:visible;
   opacity:1;
+  /* Base .third-act uses pointer-events:none; re-enable on the full-screen so wheel/tap/touch
+     on the red layer consistently hit the third act and bubble to #stage. touch-action: pan-y
+     pairs with the intro scroll lock (html touch-action:none) so vertical drags on this surface
+     are not dropped before window listeners. */
+  pointer-events:auto;
+  touch-action:pan-y;
+}
+.third-act.third-act--active .third-act-inner{
+  touch-action:pan-y;
+}
+#third-act{
+  /* Copilot: override red field; inherit brand default */
+  --third-act-red:var(--red);
 }
 .third-act-red{
   position:absolute;
   inset:0;
-  background:var(--red);
+  background:var(--third-act-red);
   -webkit-clip-path:circle(0px at 50% 50%);
   clip-path:circle(0px at 50% 50%);
+  transition:background 0.6s var(--ease-out-flow);
 }
 .third-act-red.third-act-red--expanded{
   -webkit-clip-path:circle(160vmax at 50% 50%);
   clip-path:circle(160vmax at 50% 50%);
   transition:-webkit-clip-path var(--third-act-red-iris-duration) var(--third-act-red-iris-ease), clip-path var(--third-act-red-iris-duration) var(--third-act-red-iris-ease);
+}
+.third-act-fx-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  display:block;
+  pointer-events:none;
+  mix-blend-mode:overlay;
+  opacity:0;
+  transition:opacity 0.5s var(--ease-out-flow);
+}
+#third-act.third-act--fx-glitter .third-act-fx-canvas{
+  opacity:0.9;
+}
+@media (prefers-reduced-motion: reduce){
+  #third-act.third-act--fx-glitter .third-act-fx-canvas{ opacity:0.35; mix-blend-mode:soft-light; }
 }
 .third-act-inner{
   position:absolute;
@@ -1189,7 +1334,23 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   max-width:var(--content-max);
   margin-left:auto;
   margin-right:auto;
+  transition:font-family 0.45s var(--ease-out-flow);
 }
+.third-act.third-act--font-sans .third-act-hl{
+  font-family:'Inter',sans-serif;
+  letter-spacing:-0.04em;
+}
+.third-act.third-act--font-serif .third-act-hl{
+  font-family:Georgia,'Times New Roman',serif;
+  letter-spacing:-0.02em;
+  font-weight:400;
+}
+.third-act.third-act--font-mono .third-act-hl{
+  font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  letter-spacing:-0.06em;
+  font-weight:500;
+}
+/* Default third-act headline: inherits .hero-hl (Space Grotesk) */
 /* One visual row per .hl-line like #hero-hl — avoids wrapped sub-lines and mismatched drop distance. */
 .third-act .third-act-hl .hl-line{
   white-space:nowrap;
@@ -1205,11 +1366,472 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
     transition-duration:0.06s;
   }
 }
+/* Particle-ring interaction sound — bottom-right waves; rollover shows SOUND ON / OFF. */
+.particle-sound-btn{
+  position:fixed;
+  z-index:4;
+  bottom:max(20px, env(safe-area-inset-bottom, 0px) + 10px);
+  right:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-right, 0px) + 8px));
+  margin:0;
+  padding:0;
+  font:inherit;
+  background:transparent;
+  border:none;
+  border-radius:0;
+  cursor:pointer;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.22s ease, color 0.35s var(--ease-out-flow);
+}
+.particle-sound-btn--third{
+  color:var(--bg);
+}
+.particle-sound-btn--second{
+  color:var(--nav-second-hl-accent);
+}
+.particle-sound-btn__inner{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  padding:10px 8px;
+}
+.particle-sound-btn__rollover{
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.07em;
+  white-space:nowrap;
+  max-width:0;
+  opacity:0;
+  overflow:hidden;
+  margin:0;
+  padding:0;
+  pointer-events:none;
+  transition:max-width 0.22s var(--ease-out-flow), opacity 0.18s ease, margin 0.22s var(--ease-out-flow);
+}
+/* Rollover text is set in JS (action on click); stays stable while pointer stays over after click. */
+.particle-sound-btn:hover .particle-sound-btn__rollover,
+.particle-sound-btn:focus-visible .particle-sound-btn__rollover{
+  max-width:7.5rem;
+  opacity:1;
+  margin-right:10px;
+}
+.particle-sound-btn__waves{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:3px;
+  width:28px;
+  height:18px;
+}
+.particle-sound-btn__bar{
+  width:3px;
+  height:16px;
+  border-radius:1.5px;
+  background:currentColor;
+  flex-shrink:0;
+  transform-origin:50% 100%;
+  transform:scaleY(0.3);
+  opacity:0.9;
+  will-change:transform;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar{
+  animation-duration:0.7s;
+  animation-timing-function:ease-in-out;
+  animation-iteration-count:infinite;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar:nth-child(1){
+  animation-name:particle-sound-w1;
+  animation-delay:0s;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar:nth-child(2){
+  animation-name:particle-sound-w2;
+  animation-delay:0.08s;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar:nth-child(3){
+  animation-name:particle-sound-w3;
+  animation-delay:0.16s;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar:nth-child(4){
+  animation-name:particle-sound-w4;
+  animation-delay:0.24s;
+}
+/* Vertical bars: classic audio-wave / EQ motion (staggered height, not dot bounce). */
+@keyframes particle-sound-w1{
+  0%, 100%{ transform:scaleY(0.32); }
+  50%{ transform:scaleY(0.95); }
+}
+@keyframes particle-sound-w2{
+  0%, 100%{ transform:scaleY(0.85); }
+  50%{ transform:scaleY(0.28); }
+}
+@keyframes particle-sound-w3{
+  0%, 100%{ transform:scaleY(0.4); }
+  50%{ transform:scaleY(1); }
+}
+@keyframes particle-sound-w4{
+  0%, 100%{ transform:scaleY(0.75); }
+  50%{ transform:scaleY(0.35); }
+}
+.particle-sound-btn[aria-pressed="false"] .particle-sound-btn__bar{
+  animation:none;
+  transform:scaleY(0.3);
+  opacity:0.85;
+}
+.third-act.third-act--active.third-act--torus-in .particle-sound-btn--third{
+  opacity:1;
+  pointer-events:auto;
+}
+/* Third act — micro “terminal” (OpenAI via /api; Cursor Composer is editor-only) */
+.third-act-term{
+  position:fixed;
+  z-index:58;
+  left:max(12px, env(safe-area-inset-left, 0px) + 6px);
+  bottom:max(68px, env(safe-area-inset-bottom, 0px) + 50px);
+  max-width:min(360px, calc(100vw - 24px));
+  visibility:hidden;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.35s var(--ease-out-flow);
+  font-family:ui-monospace,'SFMono-Regular',Menlo,monospace;
+  font-size:12px;
+  line-height:1.35;
+  color:var(--bg);
+  text-align:left;
+}
+.third-act.third-act--active.third-act--torus-in .third-act-term{
+  visibility:visible;
+  opacity:1;
+  pointer-events:auto;
+}
+html.nav-over-third-red .third-act-term{ color:var(--bg); }
+.third-act-term__trigger{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:2rem;
+  min-height:2rem;
+  margin:0;
+  padding:0 0.2rem;
+  font:inherit;
+  color:inherit;
+  background:rgba(0,0,0,0.18);
+  border:1px solid color-mix(in srgb, var(--bg) 40%, transparent);
+  border-radius:3px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.third-act-term__trigger.is-open{
+  background:rgba(0,0,0,0.32);
+  border-color:color-mix(in srgb, var(--bg) 55%, transparent);
+}
+.third-act-term__panel{
+  margin-top:8px;
+  padding:10px 10px 12px;
+  background:rgba(0,0,0,0.5);
+  border:1px solid color-mix(in srgb, var(--bg) 32%, transparent);
+  border-radius:4px;
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+  color:#E4E3E0;
+}
+.third-act-term__panel[hidden]{
+  display:none!important;
+  margin:0;
+  padding:0;
+  border:0;
+}
+.third-act-term__hint{
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  opacity:0.72;
+  margin-bottom:6px;
+}
+.third-act-term__form{ margin:0; }
+.third-act-term__input-wrap{
+  display:flex;
+  align-items:stretch;
+  gap:6px;
+}
+.third-act-term__prompt{ color:color-mix(in srgb, #E4E3E0 80%, #888); }
+.third-act-term__input{
+  flex:1;
+  min-width:0;
+  margin:0;
+  padding:6px 8px;
+  font:inherit;
+  color:#f5f4f0;
+  background:rgba(0,0,0,0.35);
+  border:1px solid color-mix(in srgb, #E4E3E0 25%, transparent);
+  border-radius:2px;
+  outline:none;
+}
+.third-act-term__input::placeholder{ color:color-mix(in srgb, #E4E3E0 40%, #555); }
+.third-act-term__input:focus{
+  border-color:color-mix(in srgb, #E4E3E0 50%, transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb, #E4E3E0 20%, transparent);
+}
+.third-act-term__go{
+  flex-shrink:0;
+  margin:0;
+  padding:6px 10px;
+  font:inherit;
+  font-weight:600;
+  color:#0a0a0a;
+  background:#E4E3E0;
+  border:0;
+  border-radius:2px;
+  cursor:pointer;
+}
+.third-act-term__go:hover,
+.third-act-term__go:focus-visible{
+  background:#fff;
+}
+.third-act-term__out{
+  margin-top:8px;
+  min-height:1.2em;
+  color:color-mix(in srgb, #E4E3E0 90%, #aaa);
+  word-break:break-word;
+}
+.third-act-term__micro{
+  margin-top:6px;
+  font-size:9px;
+  line-height:1.3;
+  opacity:0.55;
+  color:color-mix(in srgb, #E4E3E0 80%, #666);
+}
+.third-act-term__trigger:focus-visible,
+.third-act-term__go:focus-visible{
+  outline:2px solid #E4E3E0;
+  outline-offset:2px;
+}
+@media (max-width:600px){
+  .third-act-term{ bottom:max(62px, env(safe-area-inset-bottom, 0px) + 46px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .third-act-term{ transition-duration:0.1s; }
+}
+#stage .second-hl-particles-wrap.second-hl-particles-wrap--visible ~ .particle-sound-btn--second{
+  opacity:1;
+  pointer-events:auto;
+}
+.particle-sound-btn:hover,
+.particle-sound-btn:focus-visible{
+  color:var(--ink);
+}
+.particle-sound-btn:focus-visible{
+  outline:2px solid var(--ink);
+  outline-offset:3px;
+}
+/* Build stats: bottom-left trigger — above #third-act (z-index 50) so it stays tappable on red. */
+.site-meta-btn{
+  position:fixed;
+  z-index:60;
+  bottom:max(20px, env(safe-area-inset-bottom, 0px) + 10px);
+  left:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-left, 0px) + 8px));
+  margin:0;
+  padding:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:0;
+  color:var(--ink);
+  background:transparent;
+  border:none;
+  border-radius:0;
+  cursor:pointer;
+  mix-blend-mode:normal;
+  transition:opacity 0.42s var(--ease-out-flow), color 0.35s var(--ease-out-flow), outline-color 0.35s var(--ease-out-flow);
+}
+.site-meta-btn:hover,
+.site-meta-btn:focus-visible{
+  color:var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
+  color:var(--ink);
+}
+html.nav-over-third-red .site-meta-btn{
+  color:var(--bg);
+}
+html.nav-over-third-red .site-meta-btn:hover,
+html.nav-over-third-red .site-meta-btn:focus-visible{
+  color:var(--ink);
+}
+html.nav-over-third-red .site-meta-btn:focus-visible{
+  outline-color:var(--ink);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn{
+  color:var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
+  outline-color:var(--nav-second-hl-accent);
+}
+.site-meta-btn:focus-visible{
+  outline:2px solid var(--ink);
+  outline-offset:3px;
+}
+.site-meta-btn__icon{
+  display:block;
+  width:22px;
+  height:22px;
+  overflow:visible;
+}
+/* Three dots on a small ring, rotating as a group (revolve around a shared center). */
+.site-meta-orbit{
+  transform-origin:50% 50%;
+  transform-box:fill-box;
+  animation:site-meta-orbit 4.5s linear infinite;
+}
+@keyframes site-meta-orbit{
+  to{
+    transform:rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .site-meta-orbit{
+    animation:none;
+  }
+}
+/* Full-viewport layer — text anchor bottom-left */
+.site-meta-panel{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  align-items:flex-start;
+  min-height:100%;
+  min-height:100dvh;
+  padding-top:max(48px, env(safe-area-inset-top, 0px) + 40px);
+  padding-right:max(var(--g), calc(env(safe-area-inset-right, 0px) + 12px));
+  padding-bottom:max(var(--g), calc(env(safe-area-inset-bottom, 0px) + 12px));
+  padding-left:max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
+  margin:0;
+  border:0;
+  background:var(--bg);
+  color:var(--ink);
+  text-align:left;
+  overflow:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  box-sizing:border-box;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity 0.45s var(--ease-snap-out), visibility 0.45s;
+}
+.site-meta-panel.site-meta-panel--open{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+}
+.site-meta-panel__inner{
+  position:relative;
+  width:100%;
+  max-width:min(var(--content-max), 60ch);
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  text-align:left;
+  transform:translate3d(0, 0.5rem, 0);
+  transition:transform 0.5s var(--ease-snap-out);
+}
+.site-meta-panel--open .site-meta-panel__inner{
+  transform:translate3d(0,0,0);
+}
+.site-meta-panel__close{
+  position:fixed;
+  top:max(18px, env(safe-area-inset-top, 0px) + 8px);
+  right:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-right, 0px) + 8px));
+  z-index:1;
+  margin:0;
+  padding:10px 4px 10px 12px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(12px, 1.45vw, 14px);
+  font-weight:500;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  line-height:1;
+  color:var(--ink);
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  transition:color 0.3s var(--ease-out-flow);
+}
+.site-meta-panel__close:hover,
+.site-meta-panel__close:focus-visible{
+  color:var(--red);
+}
+.site-meta-panel__close:focus-visible{
+  outline:2px solid var(--ink);
+  outline-offset:3px;
+}
+.site-meta-panel__headline{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.5rem, 3.2vw, 2.25rem);
+  font-weight:500;
+  line-height:1.15;
+  letter-spacing:-0.02em;
+  margin:0 0 1.25rem;
+  max-width:32ch;
+}
+.site-meta-panel__prose{
+  font-family:'Inter',sans-serif;
+  font-size:clamp(0.95rem, 1.5vw, 1.05rem);
+  font-weight:400;
+  line-height:1.65;
+  max-width:60ch;
+  margin:0 0 1.25rem;
+  opacity:0.92;
+}
+.site-meta-panel__prose em{
+  font-style:italic;
+}
+.site-meta-panel__lede{
+  font-size:clamp(1.02rem, 1.65vw, 1.12rem);
+  opacity:0.98;
+}
+.site-meta-panel__outro{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(1.1rem, 2vw, 1.35rem);
+  font-weight:500;
+  letter-spacing:0.01em;
+  margin:2rem 0 0;
+  color:var(--red);
+  max-width:40ch;
+}
+@media (prefers-reduced-motion: reduce){
+  .site-meta-panel,
+  .site-meta-panel__inner{
+    transition-duration:0.08s, 0.1s;
+  }
+}
+/* No particle-ring interaction audio on touch-primary devices (see red-lullaby.js / second-lullaby.js). */
+@media (pointer: coarse){
+  .particle-sound-btn{
+    display:none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce){
+  .particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar{
+    animation:none;
+    transform:scaleY(0.5);
+    opacity:0.88;
+  }
+  .particle-sound-btn__rollover{
+    transition-duration:0.05s;
+  }
+}
 </style>
 </head>
 <body>
 <div class="custom-cursor" id="custom-cursor-root" aria-hidden="true">
-  <div class="custom-cursor__ring"></div>
+  <canvas class="custom-cursor__ring" id="custom-cursor-ring-canvas" width="64" height="64" aria-hidden="true"></canvas>
   <div class="custom-cursor__dot"></div>
 </div>
 <!-- O torus clip: same geometry as circle.svg#ouro-circle-ring-path (734×734) -->
@@ -1227,23 +1849,60 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
     <path d="M1458 242.252C1470.36 163.355 1538.63 103 1621 103C1703.37 103 1771.64 163.355 1784 242.252V0H1895V112.041C1911.92 106.184 1930.09 103 1949 103C2020.23 103 2080.91 148.13 2104.02 211.355C2104.02 211.134 2104.01 210.912 2104.01 210.689C2104.01 172.703 2123.56 142.885 2152.13 124.822C2178.56 108.112 2211.18 102 2242.9 102C2308.44 102 2356.49 129.135 2377.96 167.666L2290.6 216.334C2291.06 217.165 2272.04 198.359 2233 196.5C2212 195.5 2205 198 2205 206C2205 214 2218.79 217 2242.9 217.5C2267 218 2305.53 222.004 2332.29 236.623C2362.02 252.869 2384.28 282.013 2384.28 322.198C2384.28 361.024 2363.52 390.973 2335.27 409.058C2308.58 426.144 2275.48 433 2242.9 433C2211 433 2178.73 427.303 2150.93 416.452C2126.36 406.861 2099.14 390.768 2082.49 364.992C2052.5 406.208 2003.88 433 1949 433C1866.63 433 1798.36 372.645 1786 293.747V433H1624.5L1624.51 432.96C1623.35 432.984 1622.17 433 1621 433C1538.63 433 1470.36 372.645 1458 293.747V433H1347V0H1458V242.252ZM2113.36 253.344C2113.78 258.173 2114 263.061 2114 268C2114 298.992 2105.45 327.986 2090.59 352.759L2166.56 310.846C2166.56 310.846 2175 322.32 2211.28 333C2248.94 344.085 2271.5 339 2271.78 328C2272.06 317 2258.78 316.5 2243.78 316C2228.78 315.5 2179.36 312.143 2152.89 296.157C2135.76 285.815 2121.89 271.305 2113.36 253.344ZM1621 212C1590.07 212 1565 237.072 1565 268C1565 298.928 1590.07 324 1621 324C1651.93 324 1677 298.928 1677 268C1677 237.072 1651.93 212 1621 212ZM1949 212C1918.07 212 1893 237.072 1893 268C1893 298.928 1918.07 324 1949 324C1979.93 324 2005 298.928 2005 268C2005 237.072 1979.93 212 1949 212Z" fill="currentColor"/>
   </svg>
 </a>
-<a class="scroll-intro-projects-link" id="projects-nav-link" href="#proj-grid-wrap">Projects</a>
+<nav class="scroll-intro-top-nav" aria-label="Page sections">
+  <a class="scroll-intro-nav-link" id="studio-nav-link" href="#scroll-intro-below">Studio</a>
+  <a class="scroll-intro-nav-link" id="projects-nav-link" href="#proj-grid-wrap">Projects</a>
+</nav>
+
+<button type="button" class="site-meta-btn" id="site-meta-open" aria-expanded="false" aria-controls="site-meta-panel" aria-label="How this site was built">
+  <svg class="site-meta-btn__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <g transform="translate(12,12)">
+      <g class="site-meta-orbit">
+        <circle r="2.3" fill="currentColor" cx="0" cy="-4"/>
+        <circle r="2.3" fill="currentColor" cx="0" cy="-4" transform="rotate(120)"/>
+        <circle r="2.3" fill="currentColor" cx="0" cy="-4" transform="rotate(240)"/>
+      </g>
+    </g>
+  </svg>
+</button>
+
+<div class="site-meta-panel" id="site-meta-panel" role="dialog" aria-modal="true" aria-labelledby="site-meta-heading" aria-hidden="true" inert>
+  <button type="button" class="site-meta-panel__close" id="site-meta-close" aria-label="Close">Close</button>
+  <div class="site-meta-panel__inner">
+    <h2 class="site-meta-panel__headline" id="site-meta-heading">AI-native build</h2>
+    <p class="site-meta-panel__prose site-meta-panel__lede">This site was not handed off to a traditional dev pipeline. It was designed, written, structured, and shipped through the same AI-native workflows Ouro Labs exists to explore.</p>
+    <p class="site-meta-panel__prose">Over 24 days, we worked through roughly 89 hours of tracked AI-assisted build sessions, 1,800 Composer requests, 47 conversations, 65 commits, and more than 17,000 AI-attributed line changes — all directed, edited, and shaped by human judgment.</p>
+    <p class="site-meta-panel__outro">Not a theory. A working practice.</p>
+  </div>
+</div>
 
 <div class="stage" id="stage" role="presentation">
   <div class="second-hl-particles-wrap" id="second-hl-particles-wrap" aria-hidden="true">
     <canvas id="second-hl-particles-canvas" width="300" height="300"></canvas>
   </div>
+  <button type="button" class="particle-sound-btn particle-sound-btn--second" id="second-act-sound-btn" aria-pressed="true" aria-label="Mute interaction sound">
+    <span class="particle-sound-btn__inner">
+      <span class="particle-sound-btn__rollover" aria-hidden="true"></span>
+      <span class="particle-sound-btn__waves" aria-hidden="true">
+        <span class="particle-sound-btn__bar"></span>
+        <span class="particle-sound-btn__bar"></span>
+        <span class="particle-sound-btn__bar"></span>
+        <span class="particle-sound-btn__bar"></span>
+      </span>
+    </span>
+  </button>
   <div class="hero-content">
     <div class="hero-hl-mask" id="hero-hl-mask">
-    <h1 class="hero-hl" id="hero-hl">
-      <span class="hl-line"><span class="hl-inner">Experimenting</span></span>
-      <span class="hl-line"><span class="hl-inner">with new methods</span></span>
-      <span class="hl-line"><span class="hl-inner">of <span class="hero-hl-accent">creation.</span></span></span>
-    </h1>
+      <h1 class="hero-hl" id="hero-hl">
+        <span class="hl-line"><span class="hl-inner">Experimenting</span></span>
+        <span class="hl-line"><span class="hl-inner">with new methods</span></span>
+        <span class="hl-line"><span class="hl-inner">of <span class="hero-hl-accent">creation.</span></span></span>
+      </h1>
     </div>
   </div>
   <div class="third-act" id="third-act" aria-hidden="true">
     <div class="third-act-red" id="third-act-red"></div>
+    <canvas class="third-act-fx-canvas" id="third-act-fx-canvas" width="2" height="2" aria-hidden="true"></canvas>
     <div class="third-act-inner third-act-inner--ring">
       <div class="third-act-video-plane">
         <div class="third-act-video-shell" id="third-act-video-shell" aria-hidden="true">
@@ -1262,112 +1921,147 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
         <h2 class="hero-hl third-act-hl" id="third-act-hl"></h2>
       </div>
     </div>
+    <button type="button" class="particle-sound-btn particle-sound-btn--third" id="third-act-sound-btn" aria-pressed="true" aria-label="Mute interaction sound">
+      <span class="particle-sound-btn__inner">
+        <span class="particle-sound-btn__rollover" aria-hidden="true"></span>
+        <span class="particle-sound-btn__waves" aria-hidden="true">
+          <span class="particle-sound-btn__bar"></span>
+          <span class="particle-sound-btn__bar"></span>
+          <span class="particle-sound-btn__bar"></span>
+          <span class="particle-sound-btn__bar"></span>
+        </span>
+      </span>
+    </button>
+    <div class="third-act-term" id="third-act-term" role="group" aria-label="Third act mood">
+      <button type="button" class="third-act-term__trigger" id="third-act-term-trigger" aria-expanded="false" aria-controls="third-act-term-panel" title="Open prompt">&gt;<!-- --></button>
+      <div class="third-act-term__panel" id="third-act-term-panel" role="dialog" aria-labelledby="third-act-term-hint" hidden>
+        <div class="third-act-term__hint" id="third-act-term-hint">Describe this act</div>
+        <p class="third-act-term__micro">Mood is interpreted on the server (OpenAI; Cursor&rsquo;s Composer model is editor-only). Add OPENAI_API_KEY to Cloudflare secrets for live mode.</p>
+        <form class="third-act-term__form" id="third-act-term-form" autocomplete="off">
+          <div class="third-act-term__input-wrap">
+            <span class="third-act-term__prompt" aria-hidden="true">&gt;</span>
+            <input type="text" class="third-act-term__input" id="third-act-term-input" name="mood" maxlength="500" placeholder="e.g. green, calm, monospace type" />
+            <button type="submit" class="third-act-term__go">enter</button>
+          </div>
+        </form>
+        <div class="third-act-term__out" id="third-act-term-out" aria-live="polite"></div>
+      </div>
+    </div>
   </div>
 </div>
 
 <div id="scroll-intro-continuation" class="scroll-intro-continuation" hidden>
-<section class="scroll-intro-below" id="scroll-intro-below" aria-labelledby="scroll-intro-below-statement">
-  <div class="scroll-intro-below__inner">
-    <div id="scroll-intro-below-statement" class="scroll-intro-below__statements">
-      <p class="scroll-intro-below__statement">Ouro Labs exists to reject the old model and explore the emerging intersection of design, code, systems, and AI. <em>We do this through practice, not theory.</em></p>
+  <section class="scroll-intro-below" id="scroll-intro-below" aria-labelledby="scroll-intro-below-heading">
+    <div class="scroll-intro-below__inner">
+      <h2 class="sr-only" id="scroll-intro-below-heading">Practice and purpose</h2>
+      <div id="scroll-intro-below-statement" class="scroll-intro-below__statements">
+        <p class="scroll-intro-below__statement">Ouro Labs exists to reject the old model and explore the emerging intersection of design, code, systems, and AI. <em>We do this through practice, not theory.</em></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="hscroll-frame" id="proj-grid-wrap" aria-labelledby="projects-heading">
+    <h2 class="sr-only" id="projects-heading">Work and experiments</h2>
+    <div class="hscroll-track">
+
+      <article class="hcard hcard--featured">
+        <div class="hcard-top">
+          <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></h3>
+          <p class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</p>
+        </div>
+        <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--nota"><div class="nota-abstract-minimal"></div></div></div>
+        <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
+      </article>
+
+      <article class="hcard hcard--light">
+        <div class="hcard-top">
+          <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Latency Atlas</span></span></h3>
+          <p class="pg-desc">A map of where AI latency actually matters in real user flows.</p>
+        </div>
+        <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--atlas"></div></div>
+        <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
+      </article>
+
+      <article class="hcard hcard--light">
+        <div class="hcard-top">
+          <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Scaffold Runner</span></span></h3>
+          <p class="pg-desc">Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.</p>
+        </div>
+        <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--scaffold"></div></div>
+        <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
+      </article>
+
+      <div class="hscroll-end-pad"></div>
     </div>
   </div>
-</section>
 
-<div class="hscroll-frame" id="proj-grid-wrap">
-<div class="hscroll-track">
-
-  <article class="hcard hcard--featured">
-    <div class="hcard-top">
-      <div class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></div>
-      <p class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</p>
+  <section class="scroll-intro-below" id="scroll-intro-below-after-cards" aria-labelledby="scroll-intro-below-leaders-heading">
+    <div class="scroll-intro-below__inner">
+      <h2 class="sr-only" id="scroll-intro-below-leaders-heading">Experience and leadership</h2>
+      <div id="scroll-intro-below-statement-leaders" class="scroll-intro-below__statements">
+        <p class="scroll-intro-below__statement">We are two design leaders who&rsquo;ve spent years leading teams and launching products used by millions. And now we&rsquo;re building our own apps, tools, and brands, and we treat each one as a way to sharpen our craft.</p>
+      </div>
     </div>
-    <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--nota"><div class="nota-abstract-minimal"></div></div></div>
-    <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
-  </article>
+  </section>
 
-  <article class="hcard hcard--light">
-    <div class="hcard-top">
-      <div class="pg-name"><span class="hl-line"><span class="hl-inner">Latency Atlas</span></span></div>
-      <p class="pg-desc">A map of where AI latency actually matters in real user flows.</p>
+  <section class="kim-team-section" aria-labelledby="kim-team-heading" hidden>
+    <h2 class="sr-only" id="kim-team-heading">Systems and experimentation</h2>
+    <div class="kim-team-wall">
+      <div class="kim-team-lines" aria-hidden="true">
+        <div class="kim-team-line">SYSTEMS. TOOLS. CODE. AND. DESIGN.</div>
+        <div class="kim-team-line">EXPERIMENTATION. PROTOTYPES. AND. PLAY.</div>
+        <div class="kim-team-line">PROCESS. PRACTICE. AND. WHAT&#8217;S. NEXT.</div>
+      </div>
+      <div class="kim-team-note" aria-hidden="true"></div>
     </div>
-    <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--atlas"></div></div>
-    <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
-  </article>
+  </section>
 
-  <article class="hcard hcard--light">
-    <div class="hcard-top">
-      <div class="pg-name"><span class="hl-line"><span class="hl-inner">Scaffold Runner</span></span></div>
-      <p class="pg-desc">Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.</p>
+  <footer aria-label="Ouro Labs">
+    <div class="wordmark-row">
+      <span class="wordmark" id="wm-letters-scroll-intro">
+        <svg class="wordmark-svg-physics" viewBox="0 0 2416 433" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+          <g class="wm-l"><g transform="translate(0,103)">
+            <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(329,110.669)">
+            <path d="M164.759 322.331C246.738 322.331 329.518 272.312 329.518 157.571L329.519 1.71015e-06L219.587 -1.91969e-05L219.587 157.571L219.679 157.571C219.679 187.868 195.057 212.492 164.759 212.492C134.461 212.492 109.839 187.868 109.839 157.571L109.931 157.571L109.931 -9.61051e-06L-2.8179e-05 0L-1.44037e-05 157.571C-6.44968e-06 248.555 73.7758 322.331 164.759 322.331Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(674.518,110.669) scale(1.00102795)">
+            <path d="M111 322H0V0H111V322ZM184 0C214.928 0 240 25.0721 240 56C240 86.9279 214.928 112 184 112C153.072 112 128 86.9279 128 56C128 25.0721 153.072 0 184 0Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(906.7647,103)">
+            <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(1336.7647,7)">
+            <rect width="111" height="426" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(1447.7647,103)">
+            <path d="M165 0C256.127 0 330 73.873 330 165C330 165.334 329.995 165.667 329.993 166H330V323H212.691C197.593 327.551 181.582 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(1773.7647,0)">
+            <path d="M111 112.041C127.92 106.184 146.088 103 165 103C256.127 103 330 176.873 330 268C330 359.127 256.127 433 165 433C74.2066 433 0 359.667 0 269H0V0H111V112.041ZM165 212C134.072 212 109 237.072 109 268C109 298.928 134.072 324 165 324C195.928 324 221 298.928 221 268C221 237.072 195.928 212 165 212Z" fill="currentColor"/>
+          </g></g>
+          <g class="wm-l"><g transform="translate(2068.7647,102)">
+            <path d="M298.958 65.666C277.492 27.1351 229.441 0 163.896 0C132.18 0 99.5579 6.11249 73.1309 22.8223C44.5649 40.8846 25.0146 70.7029 25.0146 108.689C25.0148 146.896 44.7452 176.559 73.8867 194.157C100.358 210.143 149.779 213.5 164.779 214C179.779 214.5 193.059 215 192.779 226C192.5 237 169.935 242.085 132.279 231C96 220.32 87.5586 208.846 87.5586 208.846L0 257.154C16.1188 286.37 45.5592 304.157 71.9346 314.452C99.7317 325.303 131.996 331 163.896 331C196.479 331 229.579 324.144 256.269 307.058C284.516 288.973 305.279 259.024 305.279 220.198C305.279 180.013 283.016 150.869 253.286 134.623C226.532 120.004 188 116 163.896 115.5C139.793 115 126 112 126 104C126 96 133 93.5 154 94.5C193.036 96.3588 212.063 115.165 211.601 114.334L298.958 65.666Z" fill="currentColor"/>
+          </g></g>
+        </svg>
+        <canvas id="wm-vid-canvas-scroll-intro" width="300" height="150" aria-hidden="true"></canvas>
+      </span>
+      <hr class="wordmark-footer-hairline" aria-hidden="true">
+      <nav class="wordmark-footer-nav" aria-label="Site links">
+        <span class="wordmark-footer-copyright">2026 &copy;</span>
+        <a href="#scroll-intro-below">Studio</a>
+        <a href="#proj-grid-wrap">Projects</a>
+        <a href="mailto:hello@ourolabs.com">Contact</a>
+      </nav>
     </div>
-    <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--scaffold"></div></div>
-    <button type="button" class="hcard-discover"><span class="hcard-discover__icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg></span><span class="hcard-discover__label">Discover</span></button>
-  </article>
+  </footer>
 
-  <div class="hscroll-end-pad"></div>
 </div>
-</div>
 
-<section class="scroll-intro-below" id="scroll-intro-below-after-cards" aria-labelledby="scroll-intro-below-statement-leaders">
-  <div class="scroll-intro-below__inner">
-    <div id="scroll-intro-below-statement-leaders" class="scroll-intro-below__statements">
-      <p class="scroll-intro-below__statement">We are two design leaders who&rsquo;ve spent years leading teams and launching products used by millions. And now we&rsquo;re building our own apps, tools, and brands, and we treat each one as a way to sharpen our craft.</p>
-    </div>
-  </div>
-</section>
-
-<section class="kim-team-section" aria-label="Team section" hidden>
-  <div class="kim-team-wall">
-    <div class="kim-team-lines" aria-hidden="true">
-      <div class="kim-team-line">SYSTEMS. TOOLS. CODE. AND. DESIGN.</div>
-      <div class="kim-team-line">EXPERIMENTATION. PROTOTYPES. AND. PLAY.</div>
-      <div class="kim-team-line">PROCESS. PRACTICE. AND. WHAT&#8217;S. NEXT.</div>
-    </div>
-    <div class="kim-team-note" aria-hidden="true"></div>
-  </div>
-</section>
-
-<footer aria-label="Ouro Labs">
-  <div class="wordmark-row">
-    <span class="wordmark" id="wm-letters-scroll-intro">
-      <svg class="wordmark-svg-physics" viewBox="0 0 2416 433" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-        <g class="wm-l"><g transform="translate(0,103)">
-          <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(329,110.669)">
-          <path d="M164.759 322.331C246.738 322.331 329.518 272.312 329.518 157.571L329.519 1.71015e-06L219.587 -1.91969e-05L219.587 157.571L219.679 157.571C219.679 187.868 195.057 212.492 164.759 212.492C134.461 212.492 109.839 187.868 109.839 157.571L109.931 157.571L109.931 -9.61051e-06L-2.8179e-05 0L-1.44037e-05 157.571C-6.44968e-06 248.555 73.7758 322.331 164.759 322.331Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(674.518,110.669) scale(1.00102795)">
-          <path d="M111 322H0V0H111V322ZM184 0C214.928 0 240 25.0721 240 56C240 86.9279 214.928 112 184 112C153.072 112 128 86.9279 128 56C128 25.0721 153.072 0 184 0Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(906.7647,103)">
-          <path d="M165 0C256.127 0 330 73.873 330 165C330 256.127 256.127 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(1336.7647,7)">
-          <rect width="111" height="426" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(1447.7647,103)">
-          <path d="M165 0C256.127 0 330 73.873 330 165C330 165.334 329.995 165.667 329.993 166H330V323H212.691C197.593 327.551 181.582 330 165 330C73.873 330 0 256.127 0 165C0 73.873 73.873 0 165 0ZM165 109C134.072 109 109 134.072 109 165C109 195.928 134.072 221 165 221C195.928 221 221 195.928 221 165C221 134.072 195.928 109 165 109Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(1773.7647,0)">
-          <path d="M111 112.041C127.92 106.184 146.088 103 165 103C256.127 103 330 176.873 330 268C330 359.127 256.127 433 165 433C74.2066 433 0 359.667 0 269H0V0H111V112.041ZM165 212C134.072 212 109 237.072 109 268C109 298.928 134.072 324 165 324C195.928 324 221 298.928 221 268C221 237.072 195.928 212 165 212Z" fill="currentColor"/>
-        </g></g>
-        <g class="wm-l"><g transform="translate(2068.7647,102)">
-          <path d="M298.958 65.666C277.492 27.1351 229.441 0 163.896 0C132.18 0 99.5579 6.11249 73.1309 22.8223C44.5649 40.8846 25.0146 70.7029 25.0146 108.689C25.0148 146.896 44.7452 176.559 73.8867 194.157C100.358 210.143 149.779 213.5 164.779 214C179.779 214.5 193.059 215 192.779 226C192.5 237 169.935 242.085 132.279 231C96 220.32 87.5586 208.846 87.5586 208.846L0 257.154C16.1188 286.37 45.5592 304.157 71.9346 314.452C99.7317 325.303 131.996 331 163.896 331C196.479 331 229.579 324.144 256.269 307.058C284.516 288.973 305.279 259.024 305.279 220.198C305.279 180.013 283.016 150.869 253.286 134.623C226.532 120.004 188 116 163.896 115.5C139.793 115 126 112 126 104C126 96 133 93.5 154 94.5C193.036 96.3588 212.063 115.165 211.601 114.334L298.958 65.666Z" fill="currentColor"/>
-        </g></g>
-      </svg>
-      <canvas id="wm-vid-canvas-scroll-intro" width="300" height="150" aria-hidden="true"></canvas>
-    </span>
-    <hr class="wordmark-footer-hairline" aria-hidden="true">
-    <nav class="wordmark-footer-nav" aria-label="Site links">
-      <a href="#proj-grid-wrap">Projects</a>
-      <a href="mailto:hello@ourolabs.com">Contact</a>
-    </nav>
-  </div>
-</footer>
-
-</div>
-
+<script src="assets/red-lullaby.js"></script>
+<script src="assets/third-act-terminal.js" defer></script>
+<script src="assets/second-lullaby.js"></script>
 <script>
 function splitToChars(source, target){
   if(!target) target = source;
@@ -1432,12 +2126,10 @@ function attachHlCharExitHideAfterTransform(c){
   }
   c.addEventListener('transitionend', onEnd);
 }
-</script>
 
-<script>
 (function(){
-  var stage     = document.getElementById('stage');
-  var heroHl    = document.getElementById('hero-hl');
+  var stage = document.getElementById('stage');
+  var heroHl = document.getElementById('hero-hl');
   var secondParticleWrap = document.getElementById('second-hl-particles-wrap');
   var secondParticleCanvas = document.getElementById('second-hl-particles-canvas');
   if(!heroHl || !stage) return;
@@ -1549,10 +2241,17 @@ function attachHlCharExitHideAfterTransform(c){
   function secondParticleFrame(){
     if(!secondParticleWrap || !secondParticleWrap.classList.contains('second-hl-particles-wrap--visible')){
       spRaf = null;
+      if(window.OuroSecondLullaby) window.OuroSecondLullaby.tick({ zone: false, mouseSpd: 0 });
       return;
     }
     spRaf = requestAnimationFrame(secondParticleFrame);
-    if(!spCtx || !spParticles || !spParticles.length) return;
+    if(!spCtx || !spParticles || !spParticles.length){
+      if(window.OuroSecondLullaby){
+        var inRingEarly = spPointerInRingAudioZone();
+        window.OuroSecondLullaby.tick({ zone: inRingEarly, mouseSpd: inRingEarly ? spMouse.spd || 0 : 0 });
+      }
+      return;
+    }
 
     var dxm = spMouse.x - spMouse.px, dym = spMouse.y - spMouse.py;
     spMouse.spd =
@@ -1602,6 +2301,11 @@ function attachHlCharExitHideAfterTransform(c){
     });
     spCtx.globalAlpha = 1;
     spCtx.restore();
+
+    if(window.OuroSecondLullaby){
+      var inRingSp = spPointerInRingAudioZone();
+      window.OuroSecondLullaby.tick({ zone: inRingSp, mouseSpd: inRingSp ? spMouse.spd || 0 : 0 });
+    }
   }
 
   function secondParticlesStart(){
@@ -1616,6 +2320,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function secondParticlesStop(){
+    if(window.OuroSecondLullaby) window.OuroSecondLullaby.reset();
     if(spRaf){
       cancelAnimationFrame(spRaf);
       spRaf = null;
@@ -1627,6 +2332,17 @@ function attachHlCharExitHideAfterTransform(c){
     var r = secondParticleCanvas.getBoundingClientRect();
     spMouse.x = clientX - r.left;
     spMouse.y = clientY - r.top;
+  }
+
+  /** Same expanded O-disc as third-act audio: center + ring + outer buffer (canvas space). */
+  function spPointerInRingAudioZone(){
+    if(spMouse.x === -9999 || spMouse.y === -9999) return false;
+    if(!(spBaseR > 0 && spInnerR > 0)) return false;
+    var dx = spMouse.x - spCx;
+    var dy = spMouse.y - spCy;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var outerBuf = 76;
+    return dist <= spBaseR + outerBuf;
   }
 
   function tpUpdatePointer(clientX, clientY){
@@ -1656,6 +2372,27 @@ function attachHlCharExitHideAfterTransform(c){
   var thirdExplodeMeter = 0;
   var thirdBurstTimer = null;
   var thirdActUnlockWheelAccum = 0;
+  var TP_FORCE_MUL = 1;
+  var TP_MFORCE_MUL = 1;
+  var TP_DAMP_MUL = 1;
+  window.__ouroThirdActPhysics = {
+    set: function (f, m, d) {
+      TP_FORCE_MUL = typeof f === 'number' && f > 0 ? f : 1;
+      TP_MFORCE_MUL = typeof m === 'number' && m > 0 ? m : 1;
+      TP_DAMP_MUL = typeof d === 'number' && d > 0 ? Math.min(1.1, d) : 1;
+    },
+  };
+
+  /** Pointer inside expanded O: center hole + ring + outer buffer (canvas space; not whole screen). */
+  function tpPointerInRingAudioZone(){
+    if(tpMouse.x === -9999 || tpMouse.y === -9999) return false;
+    if(!(tpBaseR > 0 && tpInnerR > 0)) return false;
+    var dx = tpMouse.x - tpCx;
+    var dy = tpMouse.y - tpCy;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var outerBuf = tpBlasted ? 200 : 76;
+    return dist <= tpBaseR + outerBuf;
+  }
 
   function thirdParticleSetup(){
     var wrap = document.getElementById('third-act-particles-vp-wrap');
@@ -1751,10 +2488,17 @@ function attachHlCharExitHideAfterTransform(c){
       !wrap.classList.contains('third-act-particles-vp-wrap--visible')
     ){
       tpRaf = null;
+      if(window.OuroRedLullaby) window.OuroRedLullaby.tick({ zone: false, mouseSpd: 0 });
       return;
     }
     tpRaf = requestAnimationFrame(thirdParticleFrame);
-    if(!tpCtx || !tpParticles || !tpParticles.length) return;
+    if(!tpCtx || !tpParticles || !tpParticles.length){
+      if(window.OuroRedLullaby){
+        var inRingEarly = tpPointerInRingAudioZone();
+        window.OuroRedLullaby.tick({ zone: inRingEarly, mouseSpd: inRingEarly ? tpMouse.spd || 0 : 0 });
+      }
+      return;
+    }
 
     var dxm = tpMouse.x - tpMouse.px, dym = tpMouse.y - tpMouse.py;
     tpMouse.spd =
@@ -1783,15 +2527,18 @@ function attachHlCharExitHideAfterTransform(c){
       var ox = tpCx + Math.cos(p.angle) * rEff;
       var oy = tpCy + Math.sin(p.angle) * rEff;
       if(!tpBlasted){
-        p.vx += (ox - p.x) * SP_FORCE;
-        p.vy += (oy - p.y) * SP_FORCE;
+        var tpf = SP_FORCE * TP_FORCE_MUL;
+        var tpmf = SP_MFORCE * TP_MFORCE_MUL;
+        var tpd = Math.min(0.999, SP_DAMP * TP_DAMP_MUL);
+        p.vx += (ox - p.x) * tpf;
+        p.vy += (oy - p.y) * tpf;
         var mdx = p.x - tpMouse.x, mdy = p.y - tpMouse.y;
         var md = Math.sqrt(mdx * mdx + mdy * mdy);
         var mr = Math.max(0, 1 - md / TP_MRAD);
-        p.vx += md > 0 ? (mdx / md) * mr * mr * SP_MFORCE * tpMouse.spd : 0;
-        p.vy += md > 0 ? (mdy / md) * mr * mr * SP_MFORCE * tpMouse.spd : 0;
-        p.vx *= SP_DAMP;
-        p.vy *= SP_DAMP;
+        p.vx += md > 0 ? (mdx / md) * mr * mr * tpmf * tpMouse.spd : 0;
+        p.vy += md > 0 ? (mdy / md) * mr * mr * tpmf * tpMouse.spd : 0;
+        p.vx *= tpd;
+        p.vy *= tpd;
       } else {
         p.vx *= tpDampOut;
         p.vy *= tpDampOut;
@@ -1809,6 +2556,11 @@ function attachHlCharExitHideAfterTransform(c){
     });
     tpCtx.globalAlpha = 1;
     tpCtx.restore();
+
+    if(window.OuroRedLullaby){
+      var inRing = tpPointerInRingAudioZone();
+      window.OuroRedLullaby.tick({ zone: inRing, mouseSpd: inRing ? tpMouse.spd || 0 : 0 });
+    }
   }
 
   function thirdParticlesStart(){
@@ -1856,6 +2608,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function thirdParticlesStop(){
+    if(window.OuroRedLullaby) window.OuroRedLullaby.tick({ zone: false, mouseSpd: 0 });
     if(thirdBurstTimer){
       clearTimeout(thirdBurstTimer);
       thirdBurstTimer = null;
@@ -1953,6 +2706,72 @@ function attachHlCharExitHideAfterTransform(c){
   var thirdActRed = document.getElementById('third-act-red');
   var thirdActHl = document.getElementById('third-act-hl');
   var thirdActVideoShell = document.getElementById('third-act-video-shell');
+  var thirdActSoundBtn = document.getElementById('third-act-sound-btn');
+
+  function syncThirdActTorusInFromShell(){
+    if(!thirdAct || !thirdActVideoShell) return;
+    thirdAct.classList.toggle(
+      'third-act--torus-in',
+      thirdActVideoShell.classList.contains('third-act-video-shell--in')
+    );
+  }
+
+  function syncThirdActSoundButton(){
+    if(!thirdActSoundBtn || !window.OuroRedLullaby) return;
+    var muted = OuroRedLullaby.isMuted();
+    thirdActSoundBtn.setAttribute('aria-pressed', muted ? 'false' : 'true');
+    thirdActSoundBtn.setAttribute('aria-label', muted ? 'Unmute interaction sound' : 'Mute interaction sound');
+  }
+  /** Rollover shows click action; do not refresh while :hover so the label does not flash on toggle. */
+  function wireParticleSoundRollover(btn, getMuted){
+    if(!btn || !getMuted) return;
+    var el = btn.querySelector('.particle-sound-btn__rollover');
+    if(!el) return;
+    function refresh(){
+      el.textContent = getMuted() ? 'SOUND ON' : 'SOUND OFF';
+    }
+    btn.addEventListener('mouseenter', refresh);
+    btn.addEventListener('focusin', refresh);
+    btn.addEventListener('click', function(){
+      if(!btn.matches(':hover')){
+        refresh();
+      }
+    });
+    btn.addEventListener('mouseleave', function(){
+      el.textContent = '';
+    });
+    btn.addEventListener('blur', function(){
+      el.textContent = '';
+    });
+  }
+  if(thirdActSoundBtn && window.OuroRedLullaby){
+    syncThirdActSoundButton();
+    thirdActSoundBtn.addEventListener('click', function(){
+      OuroRedLullaby.setMuted(!OuroRedLullaby.isMuted());
+      syncThirdActSoundButton();
+    });
+    wireParticleSoundRollover(thirdActSoundBtn, function(){
+      return OuroRedLullaby.isMuted();
+    });
+  }
+  var secondActSoundBtn = document.getElementById('second-act-sound-btn');
+  function syncSecondActSoundButton(){
+    if(!secondActSoundBtn || !window.OuroSecondLullaby) return;
+    var muted = OuroSecondLullaby.isMuted();
+    secondActSoundBtn.setAttribute('aria-pressed', muted ? 'false' : 'true');
+    secondActSoundBtn.setAttribute('aria-label', muted ? 'Unmute interaction sound' : 'Mute interaction sound');
+  }
+  if(secondActSoundBtn && window.OuroSecondLullaby){
+    syncSecondActSoundButton();
+    secondActSoundBtn.addEventListener('click', function(){
+      OuroSecondLullaby.setMuted(!OuroSecondLullaby.isMuted());
+      syncSecondActSoundButton();
+    });
+    wireParticleSoundRollover(secondActSoundBtn, function(){
+      return OuroSecondLullaby.isMuted();
+    });
+  }
+  syncThirdActTorusInFromShell();
   var thirdRingCanvas = document.getElementById('third-act-ring-canvas');
   var thirdRingRaf = null;
   var thirdRingCtx = null;
@@ -2353,9 +3172,11 @@ function attachHlCharExitHideAfterTransform(c){
     thirdParticlesStop();
     thirdRingStop();
     thirdActVideoShell.classList.remove('third-act-video-shell--in');
+    syncThirdActTorusInFromShell();
     void thirdActVideoShell.offsetWidth;
     thirdActVideoShell.classList.add('third-act-video-shell--in');
     thirdActVideoShell.setAttribute('aria-hidden', 'false');
+    syncThirdActTorusInFromShell();
     thirdRingStart();
     thirdParticlesStart();
     setTimeout(function(){
@@ -3015,10 +3836,12 @@ function attachHlCharExitHideAfterTransform(c){
 
     var subcopyBlockForNav = cont.querySelector('#scroll-intro-below');
     var scrollIntroLogoNav = document.querySelector('.scroll-intro-logo');
-    var scrollIntroProjectsNav = document.querySelector('.scroll-intro-projects-link');
+    var scrollIntroNavLinks = document.querySelectorAll('.scroll-intro-nav-link');
     function clearScrollIntroNavInlineOpacity(){
       if(scrollIntroLogoNav) scrollIntroLogoNav.style.removeProperty('opacity');
-      if(scrollIntroProjectsNav) scrollIntroProjectsNav.style.removeProperty('opacity');
+      if(scrollIntroNavLinks && scrollIntroNavLinks.length){
+        scrollIntroNavLinks.forEach(function(a){ a.style.removeProperty('opacity'); });
+      }
     }
     function updateScrollIntroCardsOverNav(){
       var root = document.documentElement;
@@ -3045,7 +3868,9 @@ function attachHlCharExitHideAfterTransform(c){
           clearScrollIntroNavInlineOpacity();
         } else {
           if(scrollIntroLogoNav) scrollIntroLogoNav.style.opacity = '0';
-          if(scrollIntroProjectsNav) scrollIntroProjectsNav.style.opacity = '0';
+          if(scrollIntroNavLinks && scrollIntroNavLinks.length){
+            scrollIntroNavLinks.forEach(function(a){ a.style.opacity = '0'; });
+          }
           root.classList.remove('scroll-intro-cards-over-nav');
           requestAnimationFrame(function(){
             requestAnimationFrame(clearScrollIntroNavInlineOpacity);
@@ -3135,6 +3960,7 @@ function attachHlCharExitHideAfterTransform(c){
         thirdActVideoShell.classList.remove('third-act-video-shell--in');
         thirdActVideoShell.setAttribute('aria-hidden', 'true');
       }
+      syncThirdActTorusInFromShell();
       thirdRingStop();
       thirdActRed.classList.remove('third-act-red--expanded');
       if(reduce){
@@ -3454,6 +4280,64 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
 
+  function jumpToStudio(){
+    var studioSection = document.getElementById('scroll-intro-below');
+    if(!studioSection) return;
+    studioSection.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }
+  function scheduleJumpToStudio(){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(jumpToStudio);
+    });
+  }
+
+  var studioNavLink = document.getElementById('studio-nav-link');
+  if(studioNavLink){
+    studioNavLink.addEventListener('click', function(e){
+      e.preventDefault();
+      if(phase === 6){
+        scheduleJumpToStudio();
+        return;
+      }
+      if(phase === 5){
+        unlockThirdActPageScroll(jumpToStudio);
+        return;
+      }
+      phase = 6;
+      syncNavHeroSecondHeadline();
+      thirdActUnlockWheelAccum = 0;
+      if(thirdAct){
+        thirdAct.classList.add('third-act--active', 'third-act--in-flow');
+        thirdAct.setAttribute('aria-hidden', 'false');
+      }
+      if(thirdActRed){
+        thirdActRed.classList.add('third-act-red--expanded');
+      }
+      mountThirdHeadlineStatic();
+      var continuation = document.getElementById('scroll-intro-continuation');
+      if(continuation) continuation.removeAttribute('hidden');
+      document.documentElement.classList.add('scroll-intro-scrollable');
+      detachHeroScrollLocks();
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          thirdRingResize();
+          var w = document.getElementById('third-act-particles-vp-wrap');
+          if(w && w.clientWidth >= 12 && w.clientHeight >= 12) thirdParticleSetup();
+          if(thirdActVideoShell){
+            thirdActVideoShell.classList.add('third-act-video-shell--in');
+            thirdActVideoShell.setAttribute('aria-hidden', 'false');
+          }
+          syncThirdActTorusInFromShell();
+          thirdRingStart();
+          thirdParticlesStart();
+          initScrollIntroContinuation();
+          updateNavThirdRedOverlap();
+          jumpToStudio();
+        });
+      });
+    });
+  }
+
   var projectsNavLink = document.getElementById('projects-nav-link');
   if(projectsNavLink){
     projectsNavLink.addEventListener('click', function(e){
@@ -3490,6 +4374,7 @@ function attachHlCharExitHideAfterTransform(c){
             thirdActVideoShell.classList.add('third-act-video-shell--in');
             thirdActVideoShell.setAttribute('aria-hidden', 'false');
           }
+          syncThirdActTorusInFromShell();
           thirdRingStart();
           thirdParticlesStart();
           initScrollIntroContinuation();
@@ -3506,6 +4391,14 @@ function attachHlCharExitHideAfterTransform(c){
       e.preventDefault();
       scheduleJumpToProjects();
       if(history.replaceState) history.replaceState(null, '', '#proj-grid-wrap');
+    });
+  });
+  document.querySelectorAll('a[href="#scroll-intro-below"]').forEach(function(link){
+    if(link.id === 'studio-nav-link') return;
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      scheduleJumpToStudio();
+      if(history.replaceState) history.replaceState(null, '', '#scroll-intro-below');
     });
   });
 
@@ -3546,6 +4439,7 @@ function attachHlCharExitHideAfterTransform(c){
   window.addEventListener('keydown', onKeyDown);
 })();
 </script>
+
 <script>
 (function(){
   if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
@@ -3554,24 +4448,120 @@ function attachHlCharExitHideAfterTransform(c){
   var ring = root && root.querySelector('.custom-cursor__ring');
   var dot = root && root.querySelector('.custom-cursor__dot');
   if(!root || !ring || !dot) return;
+  var ctx = ring.getContext('2d');
+  if(!ctx) return;
 
-  var html = document.documentElement;
-  html.classList.add('custom-cursor--active');
+  document.documentElement.classList.add('custom-cursor--active');
 
   var mx = window.innerWidth * 0.5;
   var my = window.innerHeight * 0.5;
-  var rx = mx, ry = my, dx = mx, dy = my;
-  var ringEase = 0.18;
-  var dotEase = 0.45;
+  var dx = mx, dy = my;
+  var posEase = 0.4;
   var ticking = false;
   var visible = false;
+  var lastHover = false;
+  var ringRaf = null;
+  var ringAngle = 0;
+  var ringDpr = 1;
+  var ringLogical = 64;
+  var particleCount = 32;
+  var particleRadius = 25;
+  var spinSpeed = 0.01;
+
+  function applyRingDpr(){
+    ringDpr = Math.min(window.devicePixelRatio || 1, 2);
+    ring.width = ringLogical * ringDpr;
+    ring.height = ringLogical * ringDpr;
+    ctx.setTransform(ringDpr, 0, 0, ringDpr, 0, 0);
+  }
+  applyRingDpr();
+  window.addEventListener('resize', applyRingDpr, { passive: true });
+
+  /** One ring, three shape kinds — same rhythm as the torus dots (round) + wordmark (square rect on R) + triadic accent (△). */
+  function drawRotatingRing(){
+    var cx = ringLogical * 0.5;
+    var cy = ringLogical * 0.5;
+    var i, a, r, pr, x, y, kind, s, Rtri, v, ta, px, py;
+    ctx.clearRect(0, 0, ringLogical, ringLogical);
+    for(i = 0; i < particleCount; i++){
+      a = (i / particleCount) * (Math.PI * 2) + ringAngle;
+      r = particleRadius;
+      pr = 0.9 + (i % 4) * 0.32;
+      x = cx + Math.cos(a) * r;
+      y = cy + Math.sin(a) * r;
+      kind = i % 3;
+      ctx.save();
+      ctx.fillStyle = '#fff';
+      ctx.globalAlpha = 0.7 + (i % 3) * 0.1;
+      if(kind === 0){
+        /* Match torus / second-hl / third-act: filled circular nodes (~SP_DOT_R / TP_DOT_R) */
+        ctx.beginPath();
+        ctx.arc(x, y, pr, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        /* Square + triangle roll on the same arc (tangent = forward along rotation) */
+        ctx.translate(x, y);
+        ctx.rotate(a + Math.PI * 0.5);
+        if(kind === 1){
+          s = 1.75 * pr;
+          ctx.fillRect(-s * 0.5, -s * 0.5, s, s);
+        } else {
+          Rtri = pr * 1.22;
+          ctx.beginPath();
+          for(v = 0; v < 3; v++){
+            ta = (v / 3) * Math.PI * 2 - Math.PI * 0.5;
+            px = Rtri * Math.cos(ta);
+            py = Rtri * Math.sin(ta);
+            if(v === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  function startRingAnim(){
+    if(ringRaf != null) return;
+    function loop(){
+      if(
+        !root.classList.contains('custom-cursor--hover') ||
+        !visible
+      ){
+        ringRaf = null;
+        ctx.setTransform(ringDpr, 0, 0, ringDpr, 0, 0);
+        ctx.clearRect(0, 0, ringLogical, ringLogical);
+        return;
+      }
+      ringAngle -= spinSpeed;
+      drawRotatingRing();
+      ringRaf = requestAnimationFrame(loop);
+    }
+    ringRaf = requestAnimationFrame(loop);
+  }
+
+  function stopRingAnim(){
+    if(ringRaf != null){
+      cancelAnimationFrame(ringRaf);
+      ringRaf = null;
+    }
+    ctx.setTransform(ringDpr, 0, 0, ringDpr, 0, 0);
+    ctx.clearRect(0, 0, ringLogical, ringLogical);
+  }
 
   function setTransforms(hover){
-    ring.style.transform =
-      'translate3d(' + rx + 'px,' + ry + 'px,0) translate(-50%,-50%)';
-    dot.style.transform =
-      'translate3d(' + dx + 'px,' + dy + 'px,0) translate(-50%,-50%)';
-    if(hover !== undefined) root.classList.toggle('custom-cursor--hover', hover);
+    var t = 'translate3d(' + dx + 'px,' + dy + 'px,0) translate(-50%,-50%)';
+    ring.style.transform = t;
+    dot.style.transform = t;
+    if(hover !== undefined){
+      var now = !!hover;
+      root.classList.toggle('custom-cursor--hover', now);
+      if(now && !lastHover) startRingAnim();
+      if(!now && lastHover) stopRingAnim();
+      lastHover = now;
+    }
   }
 
   function hitIsInteractive(x, y){
@@ -3586,17 +4576,11 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function tick(){
-    rx += (mx - rx) * ringEase;
-    ry += (my - ry) * ringEase;
-    dx += (mx - dx) * dotEase;
-    dy += (my - dy) * dotEase;
+    dx += (mx - dx) * posEase;
+    dy += (my - dy) * posEase;
     var hover = hitIsInteractive(mx, my);
     setTransforms(hover);
-    var moving =
-      Math.abs(mx - rx) > 0.04 ||
-      Math.abs(my - ry) > 0.04 ||
-      Math.abs(mx - dx) > 0.04 ||
-      Math.abs(my - dy) > 0.04;
+    var moving = Math.abs(mx - dx) > 0.04 || Math.abs(my - dy) > 0.04;
     if(moving){
       requestAnimationFrame(tick);
     } else {
@@ -3627,8 +4611,10 @@ function attachHlCharExitHideAfterTransform(c){
   window.addEventListener('mousemove', onMove, { passive: true });
   window.addEventListener('scroll', onScroll, { passive: true, capture: true });
   document.documentElement.addEventListener('mouseleave', function(){
-    root.classList.remove('custom-cursor--visible');
+    root.classList.remove('custom-cursor--visible', 'custom-cursor--hover');
     visible = false;
+    lastHover = false;
+    stopRingAnim();
   });
   document.documentElement.addEventListener('mouseenter', function(){
     root.classList.add('custom-cursor--visible');
@@ -3636,6 +4622,43 @@ function attachHlCharExitHideAfterTransform(c){
   });
 
   setTransforms(false);
+})();
+</script>
+<script>
+(function(){
+  var openBtn = document.getElementById('site-meta-open');
+  var panel = document.getElementById('site-meta-panel');
+  var closeBtn = document.getElementById('site-meta-close');
+  if(!openBtn || !panel || !closeBtn) return;
+  var lastFocus = null;
+  function openPanel(){
+    lastFocus = document.activeElement;
+    panel.removeAttribute('inert');
+    panel.classList.add('site-meta-panel--open');
+    panel.setAttribute('aria-hidden', 'false');
+    openBtn.setAttribute('aria-expanded', 'true');
+    document.documentElement.classList.add('site-meta-open');
+    closeBtn.focus();
+  }
+  function closePanel(){
+    panel.setAttribute('inert', '');
+    panel.classList.remove('site-meta-panel--open');
+    panel.setAttribute('aria-hidden', 'true');
+    openBtn.setAttribute('aria-expanded', 'false');
+    document.documentElement.classList.remove('site-meta-open');
+    if(lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+    else openBtn.focus();
+  }
+  openBtn.addEventListener('click', openPanel);
+  closeBtn.addEventListener('click', closePanel);
+  panel.addEventListener('click', function(e){
+    if(e.target === panel) closePanel();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape' || !panel.classList.contains('site-meta-panel--open')) return;
+    e.preventDefault();
+    closePanel();
+  });
 })();
 </script>
 </body>

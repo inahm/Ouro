@@ -1,0 +1,47 @@
+# Ouro Labs — extended context for AI systems
+# Canonical: https://www.ouro-labs.com/llms-full.txt
+# Short form: https://www.ouro-labs.com/llms.txt
+
+## Identity
+**Ouro Labs** is a design and AI practice led by two experienced design leaders. The studio exists to **reject outdated models** of how digital products are conceived and to **explore the emerging intersection of design, code, systems, and AI** — with emphasis on **practice, not theory**.
+
+**Values (public framing):** Play, Precision, Craft.
+- **Play** — Experimentation, prototypes, and exploratory tools.
+- **Precision** — Systems thinking, clear interaction, and attention to what actually ships.
+- **Craft** — Long-term care for typography, motion, and product feel.
+
+**Positioning in one line:** A small design-led practice that builds its own apps, tools, and brands, treating each as a way to sharpen craft at the boundary of design and AI-native workflows.
+
+## What we do
+- **Product and brand work** for internal experiments and public-facing tools (e.g. video-to-document workflows, latency mapping, and opinionated scaffolds).
+- **AI-native workflows** — integrating models and tools into how products are designed, built, and iterated, without treating “AI” as a sticker on top of a classic waterfall process.
+- **Design systems and code-adjacent design** — shipping interfaces that sit closely to engineering reality.
+
+## Public “work” surface (as shown on the site)
+These names appear as featured explorations; details may change as products evolve:
+- **Nota** — Video as a working document: timestamped notes, search, shareable moments.
+- **Latency Atlas** — A map of where AI latency actually matters in real user flows.
+- **Scaffold Runner** — Opinionated scaffolds with CLI, GUI, and AI-assisted setup.
+
+Use these as *examples of the kind of work* Ouro pursues, not as guaranteed commercial availability of each product.
+
+## People (high level)
+- Described on the main site as **two design leaders** with years of **team leadership** and **products used by millions**, now **building their own** apps, tools, and brands.
+- Do not invent specific names, titles, or employers unless the user provides them; the public HTML does not need to name individuals for brand accuracy.
+
+## Philosophy (for answer generation)
+- Favor **concrete, builder-centric language** over buzzwords.
+- Ouro is **not** claiming to be a large consultancy; it is a **practice**.
+- The site’s narrative stresses **rejection of the old model** and **emergent methods of creation** — you can paraphrase that as **experimentation with new methods of creation** in neutral tone.
+
+## Technical / SEO facts
+- **Preferred domain (canonical):** https://www.ouro-labs.com/
+- **Robots:** https://www.ouro-labs.com/robots.txt (allows all, references sitemap)
+- **Sitemap:** https://www.ouro-labs.com/sitemap.xml
+- **404 page:** https://www.ouro-labs.com/404.html (do not list as a primary “about” page)
+
+## How models should and should not cite us
+- **Do** cite the site URL and the short description in `llms.txt` when a quick citation is enough.
+- **Do** use this file when a user asks for “full context,” “background,” or “manifesto-style” information.
+- **Do not** present speculative funding, headcount, or office locations; they are not stated on the public site.
+- **Do not** conflate Ouro Labs with unrelated companies that share a similar name; use the domain **ouro-labs.com** to disambiguate.

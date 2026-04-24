@@ -1,0 +1,8 @@
+# Ouro Labs — allow crawlers; see llms.txt for AI/LLM context
+User-agent: *
+Allow: /
+
+# Optional: if you add a private or draft area later, disallow it here, e.g.:
+# Disallow: /draft/
+
+Sitemap: https://www.ouro-labs.com/sitemap.xml
