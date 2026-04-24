@@ -1391,7 +1391,7 @@ function staggerCharsInSync(groups){
       var _hlTxt = circleHlElSync.textContent || '';
       var _phase1Dom = _hlTxt.toLowerCase().indexOf('only way') !== -1;
       circleHlElSync.style.color =
-        circleHlVisualPhase === 0 || _phase1Dom ? 'var(--red)' : '#000';
+        circleHlVisualPhase === 0 || _phase1Dom ? 'var(--red)' : '#000000';
     }
 
     // ── Dot matrix ring — ribbon twist as it rotates, responds to mouse
