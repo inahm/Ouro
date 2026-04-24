@@ -286,9 +286,6 @@
           return;
         }
         outEl.textContent = (p.summary || 'Applied.') + (usedApi ? '' : ' (offline preset)');
-        try {
-          window.sessionStorage.setItem('ouroThirdActCopilot', JSON.stringify(p));
-        } catch (_) {}
       };
       fetch('/api/third-act-copilot', {
         method: 'POST',
@@ -326,12 +323,9 @@
         });
     });
 
+    /* Copilot styling is in-memory only for this page load; refresh restores defaults. */
     try {
-      var saved = window.sessionStorage.getItem('ouroThirdActCopilot');
-      if (saved) {
-        var ob = JSON.parse(saved);
-        if (ob && ob.accent) applyFromPayload(ob);
-      }
+      window.sessionStorage.removeItem('ouroThirdActCopilot');
     } catch (_) {}
   }
 
