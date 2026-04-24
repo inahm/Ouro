@@ -7,17 +7,11 @@
  */
 (function () {
   var LOOKAHEAD = 1.55;
-  var DEFAULT_BPM_MIN = 44;
-  var DEFAULT_BPM_MAX = 82;
-  var DEFAULT_PULSE_BPM_PER_SPD = 88;
-  var DEFAULT_MAX_MIX = 0.34;
   var BPM_MIN = 44;
   var BPM_MAX = 82;
-  var DEFAULT_BPM_SMOOTH = 0.055;
   var BPM_SMOOTH_IN_LOOP = 0.055;
   var PULSE_BPM_PER_SPD_DELTA = 88;
   var MAX_MIX = 0.34;
-  var SOUND_MOOD = 'default';
   var MOTION_FLOOR = 0.012;
   var MOTION_SCALE = 0.22;
   var ATTACK_TC = 0.1;
@@ -494,49 +488,11 @@
     src.stop(t + dur + 0.05);
   }
 
-  /** 808-style thump for hip-hop / boom-bap layer */
-  function play808Kick(t, vel) {
-    if (!ctx) return;
-    var v = Math.min(0.2, Math.max(0, vel == null ? 0.14 : vel));
-    var o = ctx.createOscillator();
-    o.type = 'sine';
-    o.frequency.setValueAtTime(150, t);
-    o.frequency.exponentialRampToValueAtTime(42, t + 0.11);
-    var g = ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(v, t + 0.0035);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-    o.connect(g);
-    routeAmbience(g);
-    o.start(t);
-    o.stop(t + 0.24);
-  }
-
-  function playHipSnare(t) {
-    if (!ctx || !noiseShort) return;
-    var src = ctx.createBufferSource();
-    src.buffer = noiseShort;
-    var bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass';
-    bp.frequency.value = 2000;
-    bp.Q.value = 0.65;
-    var g = ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.055, t + 0.002);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-    src.connect(bp);
-    bp.connect(g);
-    routeAmbience(g);
-    src.start(t);
-    src.stop(t + 0.14);
-  }
-
   function scheduleStep(step, tAudio, barDur) {
     var bar = step % 4;
     lastScheduledHarmonyBar = bar;
     var layer = chordLayers[bar];
-    var padScale = SOUND_MOOD === 'hiphop' ? 1.14 : 1.36;
-    var padLen = barDur * padScale;
+    var padLen = barDur * 1.36;
 
     playStringPad(tAudio, layer.pad, padLen);
     var arp2 = [];
@@ -551,14 +507,6 @@
     var a = layer.arp;
     playPianoNote(tAudio + barDur * 0.26, a[1 % a.length], 0.055, 5.2, 0);
     playPianoNote(tAudio + barDur * 0.54, a[2 % a.length], 0.085, 6.2, 0);
-
-    if (SOUND_MOOD === 'hiphop') {
-      var beat = barDur * 0.25;
-      play808Kick(tAudio + beat * 0, 0.15);
-      playHipSnare(tAudio + beat * 1);
-      play808Kick(tAudio + beat * 2, 0.12);
-      playHipSnare(tAudio + beat * 3);
-    }
   }
 
   function pumpLoop() {
@@ -608,47 +556,6 @@
     if (schedRaf) {
       cancelAnimationFrame(schedRaf);
       schedRaf = null;
-    }
-  }
-
-  function applySoundMood(mood) {
-    var m = (mood == null || mood === '' ? 'default' : String(mood)).toLowerCase();
-    if (m === 'reset') m = 'default';
-    if (m === 'hiphop' || m === 'hip-hop' || m === 'rap' || m === 'trap' || m === 'beats') {
-      SOUND_MOOD = 'hiphop';
-      BPM_MIN = 72;
-      BPM_MAX = 102;
-      MAX_MIX = 0.44;
-      PULSE_BPM_PER_SPD_DELTA = 70;
-      BPM_SMOOTH_IN_LOOP = 0.072;
-    } else if (m === 'calm' || m === 'soft' || m === 'slow') {
-      SOUND_MOOD = 'calm';
-      BPM_MIN = 38;
-      BPM_MAX = 62;
-      MAX_MIX = 0.22;
-      PULSE_BPM_PER_SPD_DELTA = 64;
-      BPM_SMOOTH_IN_LOOP = DEFAULT_BPM_SMOOTH;
-    } else if (m === 'pulse' || m === 'fast' || m === 'driving') {
-      SOUND_MOOD = 'pulse';
-      BPM_MIN = 50;
-      BPM_MAX = 90;
-      MAX_MIX = 0.4;
-      PULSE_BPM_PER_SPD_DELTA = 98;
-      BPM_SMOOTH_IN_LOOP = DEFAULT_BPM_SMOOTH;
-    } else if (m === 'bright' || m === 'loud' || m === 'open') {
-      SOUND_MOOD = 'bright';
-      BPM_MIN = 46;
-      BPM_MAX = 84;
-      MAX_MIX = 0.36;
-      PULSE_BPM_PER_SPD_DELTA = 88;
-      BPM_SMOOTH_IN_LOOP = DEFAULT_BPM_SMOOTH;
-    } else {
-      SOUND_MOOD = 'default';
-      BPM_MIN = DEFAULT_BPM_MIN;
-      BPM_MAX = DEFAULT_BPM_MAX;
-      MAX_MIX = DEFAULT_MAX_MIX;
-      PULSE_BPM_PER_SPD_DELTA = DEFAULT_PULSE_BPM_PER_SPD;
-      BPM_SMOOTH_IN_LOOP = DEFAULT_BPM_SMOOTH;
     }
   }
 
@@ -765,18 +672,6 @@
         } catch (_) {}
       }
       teardown();
-    },
-
-    /**
-     * Third-act copilot: map natural-language-driven presets to engine params.
-     * @param {string} mood - default | calm | pulse | bright | hiphop
-     */
-    applySoundMood: function (mood) {
-      applySoundMood(mood);
-    },
-
-    getSoundMood: function () {
-      return SOUND_MOOD;
     },
   };
 

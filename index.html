@@ -1174,40 +1174,17 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
 .third-act.third-act--active .third-act-inner{
   touch-action:pan-y;
 }
-#third-act{
-  /* Copilot: override red field; inherit brand default */
-  --third-act-red:var(--red);
-}
 .third-act-red{
   position:absolute;
   inset:0;
-  background:var(--third-act-red);
+  background:var(--red);
   -webkit-clip-path:circle(0px at 50% 50%);
   clip-path:circle(0px at 50% 50%);
-  transition:background 0.6s var(--ease-out-flow);
 }
 .third-act-red.third-act-red--expanded{
   -webkit-clip-path:circle(160vmax at 50% 50%);
   clip-path:circle(160vmax at 50% 50%);
   transition:-webkit-clip-path var(--third-act-red-iris-duration) var(--third-act-red-iris-ease), clip-path var(--third-act-red-iris-duration) var(--third-act-red-iris-ease);
-}
-.third-act-fx-canvas{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  z-index:0;
-  display:block;
-  pointer-events:none;
-  mix-blend-mode:overlay;
-  opacity:0;
-  transition:opacity 0.5s var(--ease-out-flow);
-}
-#third-act.third-act--fx-glitter .third-act-fx-canvas{
-  opacity:0.9;
-}
-@media (prefers-reduced-motion: reduce){
-  #third-act.third-act--fx-glitter .third-act-fx-canvas{ opacity:0.35; mix-blend-mode:soft-light; }
 }
 .third-act-inner{
   position:absolute;
@@ -1334,23 +1311,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   max-width:var(--content-max);
   margin-left:auto;
   margin-right:auto;
-  transition:font-family 0.45s var(--ease-out-flow);
 }
-.third-act.third-act--font-sans .third-act-hl{
-  font-family:'Inter',sans-serif;
-  letter-spacing:-0.04em;
-}
-.third-act.third-act--font-serif .third-act-hl{
-  font-family:Georgia,'Times New Roman',serif;
-  letter-spacing:-0.02em;
-  font-weight:400;
-}
-.third-act.third-act--font-mono .third-act-hl{
-  font-family:ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
-  letter-spacing:-0.06em;
-  font-weight:500;
-}
-/* Default third-act headline: inherits .hero-hl (Space Grotesk) */
 /* One visual row per .hl-line like #hero-hl — avoids wrapped sub-lines and mismatched drop distance. */
 .third-act .third-act-hl .hl-line{
   white-space:nowrap;
@@ -1482,137 +1443,6 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
 .third-act.third-act--active.third-act--torus-in .particle-sound-btn--third{
   opacity:1;
   pointer-events:auto;
-}
-/* Third act — micro “terminal” (OpenAI via /api; Cursor Composer is editor-only) */
-.third-act-term{
-  position:fixed;
-  z-index:58;
-  left:max(12px, env(safe-area-inset-left, 0px) + 6px);
-  bottom:max(68px, env(safe-area-inset-bottom, 0px) + 50px);
-  max-width:min(360px, calc(100vw - 24px));
-  visibility:hidden;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity 0.35s var(--ease-out-flow);
-  font-family:ui-monospace,'SFMono-Regular',Menlo,monospace;
-  font-size:12px;
-  line-height:1.35;
-  color:var(--bg);
-  text-align:left;
-}
-.third-act.third-act--active.third-act--torus-in .third-act-term{
-  visibility:visible;
-  opacity:1;
-  pointer-events:auto;
-}
-html.nav-over-third-red .third-act-term{ color:var(--bg); }
-.third-act-term__trigger{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:2rem;
-  min-height:2rem;
-  margin:0;
-  padding:0 0.2rem;
-  font:inherit;
-  color:inherit;
-  background:rgba(0,0,0,0.18);
-  border:1px solid color-mix(in srgb, var(--bg) 40%, transparent);
-  border-radius:3px;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-.third-act-term__trigger.is-open{
-  background:rgba(0,0,0,0.32);
-  border-color:color-mix(in srgb, var(--bg) 55%, transparent);
-}
-.third-act-term__panel{
-  margin-top:8px;
-  padding:10px 10px 12px;
-  background:rgba(0,0,0,0.5);
-  border:1px solid color-mix(in srgb, var(--bg) 32%, transparent);
-  border-radius:4px;
-  -webkit-backdrop-filter:blur(8px);
-  backdrop-filter:blur(8px);
-  color:#E4E3E0;
-}
-.third-act-term__panel[hidden]{
-  display:none!important;
-  margin:0;
-  padding:0;
-  border:0;
-}
-.third-act-term__hint{
-  font-size:10px;
-  font-weight:500;
-  letter-spacing:0.04em;
-  text-transform:uppercase;
-  opacity:0.72;
-  margin-bottom:6px;
-}
-.third-act-term__form{ margin:0; }
-.third-act-term__input-wrap{
-  display:flex;
-  align-items:stretch;
-  gap:6px;
-}
-.third-act-term__prompt{ color:color-mix(in srgb, #E4E3E0 80%, #888); }
-.third-act-term__input{
-  flex:1;
-  min-width:0;
-  margin:0;
-  padding:6px 8px;
-  font:inherit;
-  color:#f5f4f0;
-  background:rgba(0,0,0,0.35);
-  border:1px solid color-mix(in srgb, #E4E3E0 25%, transparent);
-  border-radius:2px;
-  outline:none;
-}
-.third-act-term__input::placeholder{ color:color-mix(in srgb, #E4E3E0 40%, #555); }
-.third-act-term__input:focus{
-  border-color:color-mix(in srgb, #E4E3E0 50%, transparent);
-  box-shadow:0 0 0 1px color-mix(in srgb, #E4E3E0 20%, transparent);
-}
-.third-act-term__go{
-  flex-shrink:0;
-  margin:0;
-  padding:6px 10px;
-  font:inherit;
-  font-weight:600;
-  color:#0a0a0a;
-  background:#E4E3E0;
-  border:0;
-  border-radius:2px;
-  cursor:pointer;
-}
-.third-act-term__go:hover,
-.third-act-term__go:focus-visible{
-  background:#fff;
-}
-.third-act-term__out{
-  margin-top:8px;
-  min-height:1.2em;
-  color:color-mix(in srgb, #E4E3E0 90%, #aaa);
-  word-break:break-word;
-}
-.third-act-term__micro{
-  margin-top:6px;
-  font-size:9px;
-  line-height:1.3;
-  opacity:0.55;
-  color:color-mix(in srgb, #E4E3E0 80%, #666);
-}
-.third-act-term__trigger:focus-visible,
-.third-act-term__go:focus-visible{
-  outline:2px solid #E4E3E0;
-  outline-offset:2px;
-}
-@media (max-width:600px){
-  .third-act-term{ bottom:max(62px, env(safe-area-inset-bottom, 0px) + 46px); }
-}
-@media (prefers-reduced-motion: reduce){
-  .third-act-term{ transition-duration:0.1s; }
 }
 #stage .second-hl-particles-wrap.second-hl-particles-wrap--visible ~ .particle-sound-btn--second{
   opacity:1;
@@ -1902,7 +1732,6 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   </div>
   <div class="third-act" id="third-act" aria-hidden="true">
     <div class="third-act-red" id="third-act-red"></div>
-    <canvas class="third-act-fx-canvas" id="third-act-fx-canvas" width="2" height="2" aria-hidden="true"></canvas>
     <div class="third-act-inner third-act-inner--ring">
       <div class="third-act-video-plane">
         <div class="third-act-video-shell" id="third-act-video-shell" aria-hidden="true">
@@ -1932,21 +1761,6 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
         </span>
       </span>
     </button>
-    <div class="third-act-term" id="third-act-term" role="group" aria-label="Third act mood">
-      <button type="button" class="third-act-term__trigger" id="third-act-term-trigger" aria-expanded="false" aria-controls="third-act-term-panel" title="Open prompt">&gt;<!-- --></button>
-      <div class="third-act-term__panel" id="third-act-term-panel" role="dialog" aria-labelledby="third-act-term-hint" hidden>
-        <div class="third-act-term__hint" id="third-act-term-hint">Describe this act</div>
-        <p class="third-act-term__micro">Describe the whole vibe in one line &mdash; color, type, and sound update together. Live mode uses OpenAI (set OPENAI_API_KEY on Cloudflare).</p>
-        <form class="third-act-term__form" id="third-act-term-form" autocomplete="off">
-          <div class="third-act-term__input-wrap">
-            <span class="third-act-term__prompt" aria-hidden="true">&gt;</span>
-            <input type="text" class="third-act-term__input" id="third-act-term-input" name="mood" maxlength="500" placeholder="e.g. sunny, yellow, happy" />
-            <button type="submit" class="third-act-term__go">enter</button>
-          </div>
-        </form>
-        <div class="third-act-term__out" id="third-act-term-out" aria-live="polite"></div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -2060,7 +1874,6 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
 </div>
 
 <script src="assets/red-lullaby.js"></script>
-<script src="assets/third-act-terminal.js" defer></script>
 <script src="assets/second-lullaby.js"></script>
 <script>
 function splitToChars(source, target){
@@ -2372,16 +2185,6 @@ function attachHlCharExitHideAfterTransform(c){
   var thirdExplodeMeter = 0;
   var thirdBurstTimer = null;
   var thirdActUnlockWheelAccum = 0;
-  var TP_FORCE_MUL = 1;
-  var TP_MFORCE_MUL = 1;
-  var TP_DAMP_MUL = 1;
-  window.__ouroThirdActPhysics = {
-    set: function (f, m, d) {
-      TP_FORCE_MUL = typeof f === 'number' && f > 0 ? f : 1;
-      TP_MFORCE_MUL = typeof m === 'number' && m > 0 ? m : 1;
-      TP_DAMP_MUL = typeof d === 'number' && d > 0 ? Math.min(1.1, d) : 1;
-    },
-  };
 
   /** Pointer inside expanded O: center hole + ring + outer buffer (canvas space; not whole screen). */
   function tpPointerInRingAudioZone(){
@@ -2527,18 +2330,15 @@ function attachHlCharExitHideAfterTransform(c){
       var ox = tpCx + Math.cos(p.angle) * rEff;
       var oy = tpCy + Math.sin(p.angle) * rEff;
       if(!tpBlasted){
-        var tpf = SP_FORCE * TP_FORCE_MUL;
-        var tpmf = SP_MFORCE * TP_MFORCE_MUL;
-        var tpd = Math.min(0.999, SP_DAMP * TP_DAMP_MUL);
-        p.vx += (ox - p.x) * tpf;
-        p.vy += (oy - p.y) * tpf;
+        p.vx += (ox - p.x) * SP_FORCE;
+        p.vy += (oy - p.y) * SP_FORCE;
         var mdx = p.x - tpMouse.x, mdy = p.y - tpMouse.y;
         var md = Math.sqrt(mdx * mdx + mdy * mdy);
         var mr = Math.max(0, 1 - md / TP_MRAD);
-        p.vx += md > 0 ? (mdx / md) * mr * mr * tpmf * tpMouse.spd : 0;
-        p.vy += md > 0 ? (mdy / md) * mr * mr * tpmf * tpMouse.spd : 0;
-        p.vx *= tpd;
-        p.vy *= tpd;
+        p.vx += md > 0 ? (mdx / md) * mr * mr * SP_MFORCE * tpMouse.spd : 0;
+        p.vy += md > 0 ? (mdy / md) * mr * mr * SP_MFORCE * tpMouse.spd : 0;
+        p.vx *= SP_DAMP;
+        p.vy *= SP_DAMP;
       } else {
         p.vx *= tpDampOut;
         p.vy *= tpDampOut;
