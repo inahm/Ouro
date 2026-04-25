@@ -2863,12 +2863,18 @@ function attachHlCharExitHideAfterTransform(c){
   /* One .hl-line each — same mask as hero. */
   var THIRD_LINES = [
     'Where play',
+    'meets curiosity',
+    'and craft.'
+  ];
+  /** Small / mobile (≤600px) only — extra rows; large breakpoints use THIRD_LINES. */
+  var THIRD_LINES_MOBILE = [
+    'Where play',
     'meets',
     'curiosity',
     'and craft.'
   ];
   function getThirdHeadlineLines(){
-    return THIRD_LINES;
+    return window.matchMedia('(max-width: 600px)').matches ? THIRD_LINES_MOBILE : THIRD_LINES;
   }
   /** Primary hero: built in JS so mobile can use more .hl-line rows (must stay in sync with templates). */
   var PRIMARY_LINE_SPECS_DESKTOP = [
@@ -3237,7 +3243,7 @@ function attachHlCharExitHideAfterTransform(c){
     var mob = window.matchMedia('(max-width: 600px)').matches;
     var primary = mob ? HERO_PRIMARY_TEMPLATE_LINES_MOBILE : HERO_PRIMARY_TEMPLATE_LINES;
     var second = mob ? HERO_SECOND_TEMPLATE_LINES_MOBILE : HERO_SECOND_TEMPLATE_LINES;
-    var third = THIRD_LINES;
+    var third = mob ? THIRD_LINES_MOBILE : THIRD_LINES;
     return primary.concat(second).concat(third);
   }
 
