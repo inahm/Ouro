@@ -1491,6 +1491,9 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   top:var(--site-meta-fab-top);
   bottom:auto;
   left:var(--site-meta-fab-left);
+  /* Top-align the icon with the first nav line — default 8px padding was optically matching the bottom link. */
+  padding:0 8px 8px 8px;
+  align-items:flex-start;
 }
 .site-meta-btn--footer{
   position:relative;
