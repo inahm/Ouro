@@ -2192,6 +2192,10 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
 
+  function siteMetaPanelMutesParticleAudio(){
+    return document.documentElement.classList.contains('site-meta-open');
+  }
+
   function secondParticleFrame(){
     if(!secondParticleWrap || !secondParticleWrap.classList.contains('second-hl-particles-wrap--visible')){
       spRaf = null;
@@ -2201,7 +2205,7 @@ function attachHlCharExitHideAfterTransform(c){
     spRaf = requestAnimationFrame(secondParticleFrame);
     if(!spCtx || !spParticles || !spParticles.length){
       if(window.OuroSecondLullaby){
-        var inRingEarly = spPointerInRingAudioZone();
+        var inRingEarly = spPointerInRingAudioZone() && !siteMetaPanelMutesParticleAudio();
         window.OuroSecondLullaby.tick({ zone: inRingEarly, mouseSpd: inRingEarly ? spMouse.spd || 0 : 0 });
       }
       return;
@@ -2257,7 +2261,7 @@ function attachHlCharExitHideAfterTransform(c){
     spCtx.restore();
 
     if(window.OuroSecondLullaby){
-      var inRingSp = spPointerInRingAudioZone();
+      var inRingSp = spPointerInRingAudioZone() && !siteMetaPanelMutesParticleAudio();
       window.OuroSecondLullaby.tick({ zone: inRingSp, mouseSpd: inRingSp ? spMouse.spd || 0 : 0 });
     }
   }
@@ -2442,7 +2446,7 @@ function attachHlCharExitHideAfterTransform(c){
     tpRaf = requestAnimationFrame(thirdParticleFrame);
     if(!tpCtx || !tpParticles || !tpParticles.length){
       if(window.OuroRedLullaby){
-        var inRingEarly = tpPointerInRingAudioZone();
+        var inRingEarly = tpPointerInRingAudioZone() && !siteMetaPanelMutesParticleAudio();
         window.OuroRedLullaby.tick({ zone: inRingEarly, mouseSpd: inRingEarly ? tpMouse.spd || 0 : 0 });
       }
       return;
@@ -2503,7 +2507,7 @@ function attachHlCharExitHideAfterTransform(c){
     tpCtx.restore();
 
     if(window.OuroRedLullaby){
-      var inRing = tpPointerInRingAudioZone();
+      var inRing = tpPointerInRingAudioZone() && !siteMetaPanelMutesParticleAudio();
       window.OuroRedLullaby.tick({ zone: inRing, mouseSpd: inRing ? tpMouse.spd || 0 : 0 });
     }
   }
