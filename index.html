@@ -708,7 +708,8 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   align-items:center;
   gap:clamp(12px, 3vw, 64px);
   --wordmark-footer-nav-pad-y:clamp(14px, 2.2vw, 22px);
-  padding:var(--wordmark-footer-nav-pad-y) var(--site-meta-fab-right) calc(var(--wordmark-footer-nav-pad-y) + env(safe-area-inset-bottom, 0px)) var(--site-meta-fab-left);
+  --wordmark-footer-nav-pad-right:calc(var(--site-meta-fab-right) + clamp(10px, 2.4vw, 22px));
+  padding:var(--wordmark-footer-nav-pad-y) var(--wordmark-footer-nav-pad-right) calc(var(--wordmark-footer-nav-pad-y) + env(safe-area-inset-bottom, 0px)) var(--site-meta-fab-left);
   box-sizing:border-box;
   font-family:'Space Grotesk',sans-serif;
   font-size:clamp(12px, 1.45vw, 14px);
@@ -823,6 +824,17 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   .scroll-intro-continuation .hcard-visual-inner--nota{
     width:min(90%,300px,min(68vw,320px));
   }
+  /* Less air between leadership subcopy and footer wordmark (footer min-height + row margins were desktop-sized). */
+  #scroll-intro-below-after-cards{
+    padding-bottom:calc(0.32 * clamp(104px, 18vh, 240px));
+  }
+  .scroll-intro-continuation footer{
+    min-height:clamp(210px, 34vh, 520px);
+    padding-top:calc(0.32 * clamp(72px, 10vh, 160px));
+  }
+  .scroll-intro-continuation .wordmark-row{
+    margin-top:calc(0.32 * clamp(88px, 14vh, 260px));
+  }
 }
 
 body{
@@ -911,9 +923,13 @@ body{
   padding:10px 0 10px 14px;
   border:none;
   background:transparent;
+  appearance:none;
+  -webkit-appearance:none;
   cursor:pointer;
   color:var(--ink);
+  -webkit-text-fill-color:currentColor;
   line-height:0;
+  mix-blend-mode:normal;
   -webkit-tap-highlight-color:transparent;
   transition:opacity 0.42s var(--ease-out-flow), color 0.35s var(--ease-out-flow), outline-color 0.35s var(--ease-out-flow);
 }
@@ -926,23 +942,21 @@ body{
   flex-direction:column;
   align-items:flex-start;
   justify-content:center;
-  gap:3px;
-  width:28px;
-  height:18px;
+  gap:6px;
+  width:22px;
+  height:12px;
   position:relative;
   box-sizing:content-box;
 }
 .scroll-intro-nav-toggle__bar{
   display:block;
+  width:22px;
   height:3px;
   border-radius:999px;
   background:currentColor;
   flex-shrink:0;
-  transition:transform 0.32s var(--ease-out-flow), opacity 0.22s var(--ease-out-flow), width 0.22s var(--ease-out-flow);
+  transition:transform 0.32s var(--ease-out-flow);
 }
-.scroll-intro-nav-toggle__bar--top{width:22px;}
-.scroll-intro-nav-toggle__bar--mid{width:15px;}
-.scroll-intro-nav-toggle__bar--btm{width:7px;}
 .scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__icon{
   gap:0;
 }
@@ -956,10 +970,6 @@ body{
 }
 .scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__bar--top{
   transform:rotate(45deg);
-}
-.scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__bar--mid{
-  opacity:0;
-  width:0;
 }
 .scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__bar--btm{
   transform:rotate(-45deg);
@@ -987,15 +997,21 @@ body{
 }
 /* Top nav: hover / focus tracks nav context (grey vs accent vs red third act). */
 .scroll-intro-nav-link:hover,
-.scroll-intro-nav-link:focus-visible{
+.scroll-intro-nav-link:focus-visible,
+.scroll-intro-nav-toggle:hover,
+.scroll-intro-nav-toggle:focus-visible{
   color:var(--nav-second-hl-accent);
 }
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:hover,
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:focus-visible{
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:focus-visible,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-visible{
   color:var(--ink);
 }
 html.nav-over-third-red .scroll-intro-nav-link:hover,
-html.nav-over-third-red .scroll-intro-nav-link:focus-visible{
+html.nav-over-third-red .scroll-intro-nav-link:focus-visible,
+html.nav-over-third-red .scroll-intro-nav-toggle:hover,
+html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible{
   color:var(--ink);
 }
 /* Logo: same hover / focus color play as Projects */
@@ -1013,55 +1029,46 @@ html.nav-over-third-red .scroll-intro-logo:focus-visible{
 }
 /* Third-act red fills the viewport — light ink on red. */
 html.nav-over-third-red .scroll-intro-logo,
-html.nav-over-third-red .scroll-intro-nav-link{
+html.nav-over-third-red .scroll-intro-nav-link,
+html.nav-over-third-red .scroll-intro-nav-toggle{
   color:var(--bg);
   mix-blend-mode:normal;
 }
 html.nav-over-third-red .scroll-intro-logo:focus-visible,
-html.nav-over-third-red .scroll-intro-nav-link:focus-visible{
+html.nav-over-third-red .scroll-intro-nav-link:focus-visible,
+html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible{
   outline-color:var(--ink);
 }
 /* Second hero headline — warm red/orange nav (normal blend on grey). :not so red-act overlap wins. */
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo,
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link{
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle{
   color:var(--nav-second-hl-accent);
   mix-blend-mode:normal;
 }
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo:focus-visible{
   outline-color:var(--nav-second-hl-accent);
 }
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:focus-visible{
-  outline-color:var(--ink);
-}
-.scroll-intro-nav-toggle:hover,
-.scroll-intro-nav-toggle:focus-visible{
-  color:var(--nav-second-hl-accent);
-}
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:hover,
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-visible{
-  color:var(--ink);
-}
-html.nav-over-third-red .scroll-intro-nav-toggle:hover,
-html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible{
-  color:var(--ink);
-}
-html.nav-over-third-red .scroll-intro-nav-toggle{
-  color:var(--bg);
-}
-html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible{
-  outline-color:var(--ink);
-}
-html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle{
-  color:var(--nav-second-hl-accent);
-}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:focus-visible,
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-visible{
   outline-color:var(--ink);
 }
 @media (max-width:600px){
+  .scroll-intro-header-strip{
+    /* Vertically center orbit, wordmark, and hamburger so tri-circle and menu align in the band. */
+    align-items:center;
+  }
+  .scroll-intro-header-strip .site-meta-btn--fab{
+    align-items:center;
+    /* Match hamburger .scroll-intro-nav-toggle vertical padding (10px 8px). */
+    padding:10px 8px;
+  }
+  /* Match FAB’s horizontal inset: FAB has 8px padding on both sides; toggle had 0 right — looked tighter to the edge. */
   .scroll-intro-nav-toggle{
     display:flex;
     align-items:center;
     justify-content:flex-end;
+    padding:10px 8px 10px 14px;
   }
   .scroll-intro-top-nav{
     align-items:flex-end;
@@ -1074,16 +1081,18 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-
   .scroll-intro-nav-dropdown{
     position:absolute;
     top:100%;
-    right:0;
-    left:auto;
-    width:max-content;
-    margin:clamp(6px, 1.5vw, 10px) 0 0;
+    /* Same horizontal band as the icon/X: flush left of nav column, right inset matches toggle padding-right (8px). */
+    left:0;
+    right:8px;
+    width:auto;
+    align-items:flex-end;
+    margin:clamp(10px, 2.2vw, 16px) 0 0;
     max-height:0;
     opacity:0;
     visibility:hidden;
     overflow:hidden;
     pointer-events:none;
-    gap:clamp(8px, 1.2vw, 12px);
+    gap:clamp(16px, 4vw, 26px);
     padding:0;
     border:0;
     background:transparent;
@@ -1094,7 +1103,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-
     transition:max-height 0.36s var(--ease-out-flow), opacity 0.24s var(--ease-out-flow);
   }
   .scroll-intro-top-nav.scroll-intro-top-nav--open .scroll-intro-nav-dropdown{
-    max-height:6rem;
+    max-height:8.5rem;
     opacity:1;
     visibility:visible;
     overflow:visible;
@@ -1120,6 +1129,20 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-
 html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuation{
   position:relative;
   z-index:7;
+}
+/* Studio block under nav band — hide logo + section nav (all breakpoints; FAB stays). */
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-logo,
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-top-nav{
+  opacity:0;
+  pointer-events:none;
+}
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-top-nav{
+  transition:opacity 0.42s var(--ease-out-flow);
+}
+@media (prefers-reduced-motion: reduce){
+  html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-top-nav{
+    transition-duration:0.05s;
+  }
 }
 
 /* Fixed stage — no page scroll; wheel, touch, and click drive intro motion */
@@ -1288,7 +1311,11 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   }
 }
 @media(max-width:600px){
-  :root{--g:20px;}
+  :root{
+    --g:20px;
+    --scroll-intro-logo-h:clamp(22px, 4.35vw, 28px);
+    --scroll-intro-nav-top:max(12px, calc(env(safe-area-inset-top, 0px) + clamp(8px, 1.5vw, 18px)));
+  }
   .hero-hl{
     font-size:var(--hero-hl-size-mobile);
     letter-spacing:-0.022em;
@@ -1322,7 +1349,11 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   }
 }
 @media(max-width:380px){
-  :root{--g:16px;}
+  :root{
+    --g:16px;
+    --scroll-intro-logo-h:clamp(24px, 5vw, 28px);
+    --scroll-intro-nav-top:max(10px, calc(env(safe-area-inset-top, 0px) + clamp(6px, 1.4vw, 16px)));
+  }
   .hero-hl{font-size:var(--hero-hl-size-xs);}
 }
 @media (hover: none) and (pointer: coarse){
@@ -1742,8 +1773,8 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   padding-left:max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
   margin:0;
   border:0;
-  background:var(--bg);
-  color:var(--ink);
+  background:#0a0a0a;
+  color:var(--text-on-dark-muted);
   text-align:left;
   overflow:auto;
   overscroll-behavior:contain;
@@ -1790,7 +1821,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   letter-spacing:0.08em;
   text-transform:uppercase;
   line-height:1;
-  color:var(--ink);
+  color:var(--text-on-dark-muted);
   background:transparent;
   border:none;
   cursor:pointer;
@@ -1801,7 +1832,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   color:var(--red);
 }
 .site-meta-panel__close:focus-visible{
-  outline:2px solid var(--ink);
+  outline:2px solid var(--text-on-dark-muted);
   outline-offset:3px;
 }
 .site-meta-panel__headline{
@@ -1813,6 +1844,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   text-transform:uppercase;
   margin:0 0 1.75rem;
   max-width:18ch;
+  color:var(--text-on-dark);
 }
 .site-meta-panel__prose{
   font-family:'Inter',sans-serif;
@@ -1940,7 +1972,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
 </svg>
 
 <header class="scroll-intro-header-strip">
-<button type="button" class="site-meta-btn site-meta-btn--fab" id="site-meta-open" aria-expanded="false" aria-controls="site-meta-panel" aria-label="How we made this site">
+<button type="button" class="site-meta-btn site-meta-btn--fab" id="site-meta-open" aria-expanded="false" aria-controls="site-meta-panel" aria-label="How we created this experience">
   <svg class="site-meta-btn__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <g transform="translate(12,12)">
       <g class="site-meta-orbit">
@@ -1961,7 +1993,6 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   <button type="button" class="scroll-intro-nav-toggle" id="scroll-intro-nav-toggle" aria-expanded="false" aria-controls="scroll-intro-nav-dropdown" aria-label="Open menu">
     <span class="scroll-intro-nav-toggle__icon" aria-hidden="true">
       <span class="scroll-intro-nav-toggle__bar scroll-intro-nav-toggle__bar--top"></span>
-      <span class="scroll-intro-nav-toggle__bar scroll-intro-nav-toggle__bar--mid"></span>
       <span class="scroll-intro-nav-toggle__bar scroll-intro-nav-toggle__bar--btm"></span>
     </span>
   </button>
@@ -1975,7 +2006,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
 <div class="site-meta-panel" id="site-meta-panel" role="dialog" aria-modal="true" aria-labelledby="site-meta-heading" aria-hidden="true" inert>
   <button type="button" class="site-meta-panel__close" id="site-meta-close" aria-label="Close">Close</button>
   <div class="site-meta-panel__inner">
-    <h2 class="site-meta-panel__headline" id="site-meta-heading">How we made this site</h2>
+    <h2 class="site-meta-panel__headline" id="site-meta-heading">How we created this experience</h2>
     <div class="site-meta-panel__intro">
       <p class="site-meta-panel__prose">This site started the way most of our creative ideas do: with a feeling, a point of view, and a vision for an experience we wanted people to feel.</p>
       <p class="site-meta-panel__prose">But we didn’t build or iterate the way we used to. From discovery to design to engineering, we shaped it ourselves using the same AI-native workflows Ouro Labs exists to explore.</p>
@@ -2035,11 +2066,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   </button>
   <div class="hero-content">
     <div class="hero-hl-mask" id="hero-hl-mask">
-      <h1 class="hero-hl" id="hero-hl">
-        <span class="hl-line"><span class="hl-inner">Experimenting</span></span>
-        <span class="hl-line"><span class="hl-inner">with new methods</span></span>
-        <span class="hl-line"><span class="hl-inner">of <span class="hero-hl-accent">creation.</span></span></span>
-      </h1>
+      <h1 class="hero-hl" id="hero-hl" aria-label="Ouro Labs"></h1>
     </div>
   </div>
   <div class="third-act" id="third-act" aria-hidden="true">
@@ -2176,7 +2203,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
       <hr class="wordmark-footer-hairline" aria-hidden="true">
       <nav class="wordmark-footer-nav" aria-label="Site links">
         <span class="wordmark-footer-start">
-          <button type="button" class="site-meta-btn site-meta-btn--footer" id="site-meta-open-footer" aria-expanded="false" aria-controls="site-meta-panel" aria-label="How we made this site">
+          <button type="button" class="site-meta-btn site-meta-btn--footer" id="site-meta-open-footer" aria-expanded="false" aria-controls="site-meta-panel" aria-label="How we created this experience">
             <svg class="site-meta-btn__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
                 <g transform="translate(12,12)">
                   <g class="site-meta-orbit">
@@ -2823,11 +2850,12 @@ function attachHlCharExitHideAfterTransform(c){
     'We are an AI-native',
     'product studio.'
   ];
-  /** Narrow viewports: .hero-hl max-width 24ch + .hl-line overflow:hidden clips long nowrap rows. */
+  /** Mobile / small break (≤600px): line breaks match design (short nowrap rows). */
   var SECOND_LINES_MOBILE = [
     'We are an',
     'AI-native',
-    'product studio.'
+    'product',
+    'studio'
   ];
   function getSecondHeadlineLines(){
     return window.matchMedia('(max-width: 600px)').matches ? SECOND_LINES_MOBILE : SECOND_LINES;
@@ -2835,9 +2863,27 @@ function attachHlCharExitHideAfterTransform(c){
   /* One .hl-line each — same mask as hero. */
   var THIRD_LINES = [
     'Where play',
-    'meets curiosity',
+    'meets',
+    'curiosity',
     'and craft.'
   ];
+  function getThirdHeadlineLines(){
+    return THIRD_LINES;
+  }
+  /** Primary hero: built in JS so mobile can use more .hl-line rows (must stay in sync with templates). */
+  var PRIMARY_LINE_SPECS_DESKTOP = [
+    [{ k:'t', v:'Experimenting' }],
+    [{ k:'t', v:'with new methods' }],
+    [{ k:'t', v:'of ' }, { k:'a', v:'creation.' }]
+  ];
+  var PRIMARY_LINE_SPECS_MOBILE = [
+    [{ k:'t', v:'Experimenting' }],
+    [{ k:'t', v:'with new' }],
+    [{ k:'t', v:'methods' }],
+    [{ k:'t', v:'of ' }, { k:'a', v:'creation.' }]
+  ];
+  var primaryHeadlineBpMq = window.matchMedia('(max-width: 600px)');
+  var lastPrimaryHeadlineMobile = primaryHeadlineBpMq.matches;
   /** Phases 2 / 25 / 3 = second headline; 40 = iris handoff (keep accent until red covers nav — avoids difference flash on grey). */
   function syncNavHeroSecondHeadline(){
     document.documentElement.classList.toggle(
@@ -3151,9 +3197,21 @@ function attachHlCharExitHideAfterTransform(c){
     'WITH NEW METHODS',
     'OF CREATION.'
   ];
+  var HERO_PRIMARY_TEMPLATE_LINES_MOBILE = [
+    'EXPERIMENTING',
+    'WITH NEW',
+    'METHODS',
+    'OF CREATION.'
+  ];
   var HERO_SECOND_TEMPLATE_LINES = [
     'WE ARE AN AI-NATIVE',
     'PRODUCT STUDIO.'
+  ];
+  var HERO_SECOND_TEMPLATE_LINES_MOBILE = [
+    'WE ARE AN',
+    'AI-NATIVE',
+    'PRODUCT',
+    'STUDIO'
   ];
 
   function ensureHeroFitMeasureEl(){
@@ -3176,7 +3234,11 @@ function attachHlCharExitHideAfterTransform(c){
     /*
      * Fit to widest nowrap line across hero + second + third act so scaled size never overflows.
      */
-    return HERO_PRIMARY_TEMPLATE_LINES.concat(HERO_SECOND_TEMPLATE_LINES).concat(THIRD_LINES);
+    var mob = window.matchMedia('(max-width: 600px)').matches;
+    var primary = mob ? HERO_PRIMARY_TEMPLATE_LINES_MOBILE : HERO_PRIMARY_TEMPLATE_LINES;
+    var second = mob ? HERO_SECOND_TEMPLATE_LINES_MOBILE : HERO_SECOND_TEMPLATE_LINES;
+    var third = THIRD_LINES;
+    return primary.concat(second).concat(third);
   }
 
   function heroAutoFitNow(){
@@ -3246,12 +3308,64 @@ function attachHlCharExitHideAfterTransform(c){
     return Math.min(2800, maxStaggerMs + maxDurMs + 480);
   }
 
-  heroHl.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
+  function buildPrimaryHeadlineFromSpecs(specs){
+    if(!heroHl) return;
+    specs.forEach(function(segments){
+      var line = document.createElement('span');
+      line.className = 'hl-line';
+      var inner = document.createElement('span');
+      inner.className = 'hl-inner';
+      segments.forEach(function(seg){
+        if(seg.k === 'a'){
+          var ax = document.createElement('span');
+          ax.className = 'hero-hl-accent';
+          ax.textContent = seg.v;
+          inner.appendChild(ax);
+        }else{
+          inner.appendChild(document.createTextNode(seg.v));
+        }
+      });
+      line.appendChild(inner);
+      heroHl.appendChild(line);
+    });
+  }
+  function mountPrimaryHeadlineForBreakpoint(){
+    if(!heroHl || heroHl.classList.contains('hero-hl--second-block')) return;
+    var mob = primaryHeadlineBpMq.matches;
+    lastPrimaryHeadlineMobile = mob;
+    heroHl.innerHTML = '';
+    buildPrimaryHeadlineFromSpecs(mob ? PRIMARY_LINE_SPECS_MOBILE : PRIMARY_LINE_SPECS_DESKTOP);
+    heroHl.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
+  }
+  function maybeRemountPrimaryHeadlineIfBpChanged(){
+    if(!heroHl || heroHl.classList.contains('hero-hl--second-block')) return;
+    if(phase !== 0 && phase !== 1) return;
+    var mob = primaryHeadlineBpMq.matches;
+    if(mob === lastPrimaryHeadlineMobile) return;
+    lastPrimaryHeadlineMobile = mob;
+    var wasRevealed = heroHl.classList.contains('revealed');
+    heroHl.classList.remove('revealed');
+    heroHl.innerHTML = '';
+    buildPrimaryHeadlineFromSpecs(mob ? PRIMARY_LINE_SPECS_MOBILE : PRIMARY_LINE_SPECS_DESKTOP);
+    heroHl.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
+    var ch = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
+    staggerChars(ch);
+    if(wasRevealed || phase === 1) heroHl.classList.add('revealed');
+    scheduleHeroAutoFit();
+  }
+
+  mountPrimaryHeadlineForBreakpoint();
   var allChars = Array.from(heroHl.querySelectorAll('.hl-char:not(.hl-char--space)'));
   staggerChars(allChars);
   scheduleHeroAutoFit();
-  window.addEventListener('resize', scheduleHeroAutoFit, { passive: true });
-  window.addEventListener('orientationchange', scheduleHeroAutoFit, { passive: true });
+  window.addEventListener('resize', function(){
+    maybeRemountPrimaryHeadlineIfBpChanged();
+    scheduleHeroAutoFit();
+  }, { passive: true });
+  window.addEventListener('orientationchange', function(){
+    maybeRemountPrimaryHeadlineIfBpChanged();
+    scheduleHeroAutoFit();
+  }, { passive: true });
   if(document.fonts && document.fonts.ready){
     document.fonts.ready.then(function(){
       scheduleHeroAutoFit();
@@ -3336,7 +3450,7 @@ function attachHlCharExitHideAfterTransform(c){
     if(!thirdActHl) return;
     thirdActHl.classList.remove('revealed');
     thirdActHl.innerHTML = '';
-    THIRD_LINES.forEach(function(lineText){
+    getThirdHeadlineLines().forEach(function(lineText){
       var line = document.createElement('span');
       line.className = 'hl-line';
       var inner = document.createElement('span');
@@ -3371,7 +3485,7 @@ function attachHlCharExitHideAfterTransform(c){
     }
     thirdActHl.classList.remove('revealed');
     thirdActHl.innerHTML = '';
-    THIRD_LINES.forEach(function(lineText){
+    getThirdHeadlineLines().forEach(function(lineText){
       var line = document.createElement('span');
       line.className = 'hl-line';
       var inner = document.createElement('span');
@@ -3973,6 +4087,71 @@ function attachHlCharExitHideAfterTransform(c){
     });
     initKimTeamScrollMotion();
 
+    var subcopyBlockForNav = cont.querySelector('#scroll-intro-below');
+    var scrollIntroLogoNav = document.querySelector('.scroll-intro-logo');
+    var scrollIntroNavLinks = document.querySelectorAll('.scroll-intro-nav-link');
+    var scrollIntroNavToggle = document.getElementById('scroll-intro-nav-toggle');
+    var mqNavSmall = window.matchMedia('(max-width: 600px)');
+    function clearScrollIntroNavInlineOpacity(){
+      if(scrollIntroLogoNav) scrollIntroLogoNav.style.removeProperty('opacity');
+      if(scrollIntroNavLinks && scrollIntroNavLinks.length){
+        scrollIntroNavLinks.forEach(function(a){ a.style.removeProperty('opacity'); });
+      }
+      if(scrollIntroNavToggle) scrollIntroNavToggle.style.removeProperty('opacity');
+    }
+    function collapseMobileTopNavIfNeeded(){
+      var topNavEl = document.getElementById('scroll-intro-top-nav');
+      if(!topNavEl || !mqNavSmall.matches) return;
+      topNavEl.classList.remove('scroll-intro-top-nav--open');
+      var tgl = document.getElementById('scroll-intro-nav-toggle');
+      if(tgl){
+        tgl.setAttribute('aria-expanded', 'false');
+        tgl.setAttribute('aria-label', 'Open menu');
+      }
+      var ddEl = document.getElementById('scroll-intro-nav-dropdown');
+      if(ddEl) ddEl.setAttribute('aria-hidden', 'true');
+    }
+    function updateScrollIntroCardsOverNav(){
+      var root = document.documentElement;
+      if(!root.classList.contains('scroll-intro-scrollable')){
+        root.classList.remove('scroll-intro-cards-over-nav');
+        clearScrollIntroNavInlineOpacity();
+        return;
+      }
+      if(!subcopyBlockForNav){
+        root.classList.remove('scroll-intro-cards-over-nav');
+        clearScrollIntroNavInlineOpacity();
+        return;
+      }
+      var top = subcopyBlockForNav.getBoundingClientRect().top;
+      var liftWhenAbove = 56;
+      var lowerWhenBelow = 76;
+      var lifted = root.classList.contains('scroll-intro-cards-over-nav');
+      if(!lifted && top < liftWhenAbove){
+        root.classList.add('scroll-intro-cards-over-nav');
+        clearScrollIntroNavInlineOpacity();
+        collapseMobileTopNavIfNeeded();
+      } else if(lifted && top > lowerWhenBelow){
+        if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+          root.classList.remove('scroll-intro-cards-over-nav');
+          clearScrollIntroNavInlineOpacity();
+        } else {
+          if(scrollIntroLogoNav) scrollIntroLogoNav.style.opacity = '0';
+          if(scrollIntroNavLinks && scrollIntroNavLinks.length){
+            scrollIntroNavLinks.forEach(function(a){ a.style.opacity = '0'; });
+          }
+          if(scrollIntroNavToggle) scrollIntroNavToggle.style.opacity = '0';
+          root.classList.remove('scroll-intro-cards-over-nav');
+          requestAnimationFrame(function(){
+            requestAnimationFrame(clearScrollIntroNavInlineOpacity);
+          });
+        }
+      }
+    }
+    window.addEventListener('scroll', updateScrollIntroCardsOverNav, {passive: true});
+    window.addEventListener('resize', updateScrollIntroCardsOverNav);
+    requestAnimationFrame(updateScrollIntroCardsOverNav);
+
     if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
       var footRm = cont.querySelector('footer');
       if(footRm) footRm.classList.add('in');
@@ -3998,57 +4177,6 @@ function attachHlCharExitHideAfterTransform(c){
       window.addEventListener('resize', function(){ maybeRunFooterWordmarkAtBottom(footer); }, {passive: true});
       requestAnimationFrame(function(){ maybeRunFooterWordmarkAtBottom(footer); });
     }
-
-    var subcopyBlockForNav = cont.querySelector('#scroll-intro-below');
-    var scrollIntroLogoNav = document.querySelector('.scroll-intro-logo');
-    var scrollIntroNavLinks = document.querySelectorAll('.scroll-intro-nav-link');
-    var scrollIntroNavToggle = document.getElementById('scroll-intro-nav-toggle');
-    function clearScrollIntroNavInlineOpacity(){
-      if(scrollIntroLogoNav) scrollIntroLogoNav.style.removeProperty('opacity');
-      if(scrollIntroNavLinks && scrollIntroNavLinks.length){
-        scrollIntroNavLinks.forEach(function(a){ a.style.removeProperty('opacity'); });
-      }
-      if(scrollIntroNavToggle) scrollIntroNavToggle.style.removeProperty('opacity');
-    }
-    function updateScrollIntroCardsOverNav(){
-      var root = document.documentElement;
-      if(!root.classList.contains('scroll-intro-scrollable')){
-        root.classList.remove('scroll-intro-cards-over-nav');
-        clearScrollIntroNavInlineOpacity();
-        return;
-      }
-      if(!subcopyBlockForNav){
-        root.classList.remove('scroll-intro-cards-over-nav');
-        clearScrollIntroNavInlineOpacity();
-        return;
-      }
-      var top = subcopyBlockForNav.getBoundingClientRect().top;
-      var liftWhenAbove = 56;
-      var lowerWhenBelow = 76;
-      var lifted = root.classList.contains('scroll-intro-cards-over-nav');
-      if(!lifted && top < liftWhenAbove){
-        root.classList.add('scroll-intro-cards-over-nav');
-        clearScrollIntroNavInlineOpacity();
-      } else if(lifted && top > lowerWhenBelow){
-        if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-          root.classList.remove('scroll-intro-cards-over-nav');
-          clearScrollIntroNavInlineOpacity();
-        } else {
-          if(scrollIntroLogoNav) scrollIntroLogoNav.style.opacity = '0';
-          if(scrollIntroNavLinks && scrollIntroNavLinks.length){
-            scrollIntroNavLinks.forEach(function(a){ a.style.opacity = '0'; });
-          }
-          if(scrollIntroNavToggle) scrollIntroNavToggle.style.opacity = '0';
-          root.classList.remove('scroll-intro-cards-over-nav');
-          requestAnimationFrame(function(){
-            requestAnimationFrame(clearScrollIntroNavInlineOpacity);
-          });
-        }
-      }
-    }
-    window.addEventListener('scroll', updateScrollIntroCardsOverNav, {passive: true});
-    window.addEventListener('resize', updateScrollIntroCardsOverNav);
-    requestAnimationFrame(updateScrollIntroCardsOverNav);
   }
   function tryUnlockThirdActIfReady(){
     if(phase !== 5) return;
@@ -4856,6 +4984,8 @@ function attachHlCharExitHideAfterTransform(c){
   }
   if(!getOpenTriggers().length) return;
   var lastFocus = null;
+  var themeMeta = document.querySelector('meta[name="theme-color"]');
+  var themeColorPrev = themeMeta ? themeMeta.getAttribute('content') : null;
   var typeEls = Array.prototype.slice.call(panel.querySelectorAll('[data-typewriter]'));
   var fullTexts = typeEls.map(function(el){ return el.getAttribute('data-typewriter') || ''; });
   function syncTypeMeasures(){
@@ -4944,6 +5074,7 @@ function attachHlCharExitHideAfterTransform(c){
     panel.setAttribute('aria-hidden', 'false');
     setTriggersExpanded('true');
     document.documentElement.classList.add('site-meta-open');
+    if(themeMeta) themeMeta.setAttribute('content', '#0a0a0a');
     closeBtn.focus();
     typeGen++;
     var g = typeGen;
@@ -4968,6 +5099,7 @@ function attachHlCharExitHideAfterTransform(c){
     panel.setAttribute('aria-hidden', 'true');
     setTriggersExpanded('false');
     document.documentElement.classList.remove('site-meta-open');
+    if(themeMeta && themeColorPrev != null) themeMeta.setAttribute('content', themeColorPrev);
     if(lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
     else focusPreferredOpenTrigger();
   }
