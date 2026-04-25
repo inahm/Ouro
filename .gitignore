@@ -3,3 +3,6 @@
 .env
 .env.local
 .cf-pages-staging/
+# Favicon / one-off npm extract (not part of the site)
+to-ico-*.tgz
+package/

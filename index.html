@@ -1469,7 +1469,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   outline:2px solid var(--ink);
   outline-offset:3px;
 }
-/* Build stats: top-left tri-orbit on hero; footer row uses .site-meta-btn--footer inline with copyright */
+/* Site-meta FAB (hero) + footer row variant */
 .site-meta-btn{
   margin:0;
   padding:8px;
@@ -1491,7 +1491,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   top:var(--site-meta-fab-top);
   bottom:auto;
   left:var(--site-meta-fab-left);
-  /* Top-align the icon with the first nav line — default 8px padding was optically matching the bottom link. */
+  /* Icon aligns with first nav line (full 8px padding sat low). */
   padding:0 8px 8px 8px;
   align-items:flex-start;
 }
@@ -2891,7 +2891,6 @@ function attachHlCharExitHideAfterTransform(c){
       var dh = vh * s;
       thirdRingCtx.save();
       thirdRingCtx.globalAlpha = alpha;
-      /* Orb: always use difference (including crossfades) so we never flash source-over vs difference. */
       thirdRingCtx.globalCompositeOperation = 'source-over';
       if(TA_ORB_IDX >= 0 && thirdCycleVids[TA_ORB_IDX] === img){
         thirdRingCtx.globalCompositeOperation = 'difference';
@@ -2907,7 +2906,6 @@ function attachHlCharExitHideAfterTransform(c){
       drawCImg(imgA, 1, kbZoom);
     }
 
-    /* bg.mp4: match second-hero ring (site.js); no iOS downshift — same 0.6 + difference for every cycle clip. */
     if(thirdBgVid.readyState >= 2){
       var vvw = thirdBgVid.videoWidth || imgSize;
       var vvh = thirdBgVid.videoHeight || imgSize;
