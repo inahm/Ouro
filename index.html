@@ -703,10 +703,10 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 .scroll-intro-continuation .wordmark-footer-nav{
   display:flex;
-  flex-wrap:wrap;
-  justify-content:flex-end;
+  flex-wrap:nowrap;
+  justify-content:flex-start;
   align-items:center;
-  gap:clamp(28px, 5vw, 64px);
+  gap:clamp(12px, 3vw, 64px);
   --wordmark-footer-nav-pad-y:clamp(14px, 2.2vw, 22px);
   padding:var(--wordmark-footer-nav-pad-y) var(--site-meta-fab-right) calc(var(--wordmark-footer-nav-pad-y) + env(safe-area-inset-bottom, 0px)) var(--site-meta-fab-left);
   box-sizing:border-box;
@@ -723,10 +723,12 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   display:flex;
   align-items:center;
   gap:clamp(16px, 3vw, 32px);
-  margin-right:auto;
+  flex:1 1 auto;
+  min-width:0;
   flex-wrap:wrap;
 }
 .scroll-intro-continuation .wordmark-footer-copyright{
+  flex-shrink:0;
   margin-right:0;
   font-family:'Space Grotesk',sans-serif;
   font-size:clamp(12px, 1.45vw, 14px);
@@ -2638,6 +2640,15 @@ function attachHlCharExitHideAfterTransform(c){
     'We are an AI-native',
     'product studio.'
   ];
+  /** Narrow viewports: .hero-hl max-width 24ch + .hl-line overflow:hidden clips long nowrap rows. */
+  var SECOND_LINES_MOBILE = [
+    'We are an',
+    'AI-native',
+    'product studio.'
+  ];
+  function getSecondHeadlineLines(){
+    return window.matchMedia('(max-width: 600px)').matches ? SECOND_LINES_MOBILE : SECOND_LINES;
+  }
   /* One .hl-line each — same mask as hero. */
   var THIRD_LINES = [
     'Where play',
@@ -4018,7 +4029,7 @@ function attachHlCharExitHideAfterTransform(c){
     heroHl.classList.remove('revealed');
     heroHl.innerHTML = '';
     heroHl.classList.add('hero-hl--second-block');
-    SECOND_LINES.forEach(function(lineText){
+    getSecondHeadlineLines().forEach(function(lineText){
       var line = document.createElement('span');
       line.className = 'hl-line';
       var inner = document.createElement('span');
@@ -4380,14 +4391,17 @@ function attachHlCharExitHideAfterTransform(c){
       root.classList.remove('nav-over-third-red');
       return;
     }
-    var el = thirdActRed || thirdAct;
-    var r = el.getBoundingClientRect();
-    var navBand = 72;
-    var onRed = r.top < navBand && r.bottom > 20;
+    var r = thirdAct.getBoundingClientRect();
+    var navH = 80;
+    var interNav = Math.max(0, Math.min(r.bottom, navH) - Math.max(r.top, 0));
+    var onRed = interNav > 4;
     root.classList.toggle('nav-over-third-red', onRed);
   }
-  window.addEventListener('scroll', updateNavThirdRedOverlap, { passive: true });
-  window.addEventListener('resize', updateNavThirdRedOverlap);
+  function scheduleNavThirdRedOverlap(){
+    requestAnimationFrame(updateNavThirdRedOverlap);
+  }
+  window.addEventListener('scroll', scheduleNavThirdRedOverlap, { passive: true });
+  window.addEventListener('resize', scheduleNavThirdRedOverlap);
   requestAnimationFrame(updateNavThirdRedOverlap);
 
   var heroScrollWheelOpts = { passive: false };
