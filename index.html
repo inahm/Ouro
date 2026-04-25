@@ -830,15 +830,50 @@ body{
   -webkit-tap-highlight-color:transparent;
 }
 
-/* Fixed nav: ink on grey so color transitions run black → orange (not #fff → orange + blend snap). */
-.scroll-intro-logo{
+/* Fixed header row: tricircle | logo | section links — one band, vertically centered. */
+.scroll-intro-header-strip{
   position:fixed;
   top:var(--scroll-intro-nav-top);
   left:0;
   right:0;
-  margin-inline:auto;
+  z-index:60;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  column-gap:clamp(8px, 2vw, 16px);
+  padding-left:var(--site-meta-fab-left);
+  padding-right:var(--site-meta-fab-right);
+  pointer-events:none;
+  box-sizing:border-box;
+}
+.scroll-intro-header-strip > *{
+  pointer-events:auto;
+}
+.scroll-intro-header-strip .site-meta-btn--fab{
+  position:relative;
+  top:auto;
+  left:auto;
+  bottom:auto;
+  z-index:auto;
+  justify-self:start;
+  grid-column:1;
+  padding:8px;
+  align-items:center;
+}
+.scroll-intro-header-strip .scroll-intro-logo{
+  justify-self:center;
+  grid-column:2;
+}
+.scroll-intro-header-strip .scroll-intro-top-nav{
+  position:relative;
+  top:auto;
+  right:auto;
+  justify-self:end;
+  grid-column:3;
+}
+/* Fixed nav: ink on grey so color transitions run black → orange (not #fff → orange + blend snap). */
+.scroll-intro-logo{
   width:max-content;
-  z-index:6;
   color:var(--ink);
   text-decoration:none;
   display:block;
@@ -856,16 +891,83 @@ body{
   outline-offset:3px;
 }
 .scroll-intro-top-nav{
-  position:fixed;
-  top:var(--scroll-intro-nav-top);
-  right:var(--site-meta-fab-right);
-  z-index:6;
   display:flex;
   flex-direction:column;
   align-items:flex-end;
   gap:clamp(8px, 1.2vw, 12px);
   margin:0;
   padding:0;
+}
+.scroll-intro-nav-dropdown{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:clamp(8px, 1.2vw, 12px);
+}
+/* Mobile: section links behind a staggered hamburger control */
+.scroll-intro-nav-toggle{
+  display:none;
+  margin:0;
+  padding:10px 0 10px 14px;
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  color:var(--ink);
+  line-height:0;
+  -webkit-tap-highlight-color:transparent;
+  transition:opacity 0.42s var(--ease-out-flow), color 0.35s var(--ease-out-flow), outline-color 0.35s var(--ease-out-flow);
+}
+.scroll-intro-nav-toggle:focus-visible{
+  outline:2px solid var(--ink);
+  outline-offset:3px;
+}
+.scroll-intro-nav-toggle__icon{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:3px;
+  width:28px;
+  height:18px;
+  position:relative;
+  box-sizing:content-box;
+}
+.scroll-intro-nav-toggle__bar{
+  display:block;
+  height:3px;
+  border-radius:999px;
+  background:currentColor;
+  flex-shrink:0;
+  transition:transform 0.32s var(--ease-out-flow), opacity 0.22s var(--ease-out-flow), width 0.22s var(--ease-out-flow);
+}
+.scroll-intro-nav-toggle__bar--top{width:22px;}
+.scroll-intro-nav-toggle__bar--mid{width:15px;}
+.scroll-intro-nav-toggle__bar--btm{width:7px;}
+.scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__icon{
+  gap:0;
+}
+.scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__bar--top,
+.scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__bar--btm{
+  position:absolute;
+  top:50%;
+  left:0;
+  width:22px;
+  margin-top:-1.5px;
+}
+.scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__bar--top{
+  transform:rotate(45deg);
+}
+.scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__bar--mid{
+  opacity:0;
+  width:0;
+}
+.scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__bar--btm{
+  transform:rotate(-45deg);
+}
+@media (prefers-reduced-motion: reduce){
+  .scroll-intro-nav-toggle__bar{
+    transition-duration:0.05s;
+  }
 }
 .scroll-intro-nav-link{
   color:var(--ink);
@@ -931,17 +1033,89 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo:focus-visibl
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:focus-visible{
   outline-color:var(--ink);
 }
+.scroll-intro-nav-toggle:hover,
+.scroll-intro-nav-toggle:focus-visible{
+  color:var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-visible{
+  color:var(--ink);
+}
+html.nav-over-third-red .scroll-intro-nav-toggle:hover,
+html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible{
+  color:var(--ink);
+}
+html.nav-over-third-red .scroll-intro-nav-toggle{
+  color:var(--bg);
+}
+html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible{
+  outline-color:var(--ink);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle{
+  color:var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-visible{
+  outline-color:var(--ink);
+}
+@media (max-width:600px){
+  .scroll-intro-nav-toggle{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+  }
+  .scroll-intro-top-nav{
+    align-items:flex-end;
+    gap:0;
+  }
+  .scroll-intro-top-nav.scroll-intro-top-nav--open{
+    z-index:10;
+  }
+  /* Absolutely positioned so opening never grows the header row (no layout jump). */
+  .scroll-intro-nav-dropdown{
+    position:absolute;
+    top:100%;
+    right:0;
+    left:auto;
+    width:max-content;
+    margin:clamp(6px, 1.5vw, 10px) 0 0;
+    max-height:0;
+    opacity:0;
+    visibility:hidden;
+    overflow:hidden;
+    pointer-events:none;
+    gap:clamp(8px, 1.2vw, 12px);
+    padding:0;
+    border:0;
+    background:transparent;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+    box-shadow:none;
+    transform:none;
+    transition:max-height 0.36s var(--ease-out-flow), opacity 0.24s var(--ease-out-flow);
+  }
+  .scroll-intro-top-nav.scroll-intro-top-nav--open .scroll-intro-nav-dropdown{
+    max-height:6rem;
+    opacity:1;
+    visibility:visible;
+    overflow:visible;
+    pointer-events:auto;
+  }
+}
 @media (prefers-reduced-motion: reduce){
+  .scroll-intro-nav-dropdown{
+    transition-duration:0.05s;
+  }
   .scroll-intro-logo,
   .scroll-intro-nav-link,
+  .scroll-intro-nav-toggle,
   .site-meta-btn{
     transition-duration:0.05s;
   }
 }
 /*
- * Fixed nav is z-index 6. Continuation is normally below it, so the logo/links never get covered.
- * When the first subcopy block (#scroll-intro-below) reaches the nav band (see scroll-intro-cards-over-nav on <html>),
- * lift the whole continuation so in-flow paint slides over the fixed nav.
+ * Header strip (.scroll-intro-header-strip) is z-index 60 so orbit + logo + section nav stay above in-flow content.
+ * When the first subcopy block (#scroll-intro-below) reaches the nav band (scroll-intro-cards-over-nav on <html>),
+ * continuation is lifted (z-index 7) for layering with other sections; the header row remains on top.
  */
 html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuation{
   position:relative;
@@ -1493,7 +1667,6 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuat
   top:var(--site-meta-fab-top);
   bottom:auto;
   left:var(--site-meta-fab-left);
-  /* Icon aligns with first nav line (full 8px padding sat low). */
   padding:0 8px 8px 8px;
   align-items:flex-start;
 }
@@ -1766,17 +1939,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   </defs>
 </svg>
 
-<a class="scroll-intro-logo" href="index.html" aria-label="Ouro Labs home">
-  <svg viewBox="0 0 2385 434" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
-    <path d="M165 103C247.368 103 315.637 163.355 328 242.252V111H437.932V268.571H437.839C437.839 298.868 462.461 323.491 492.759 323.491C523.057 323.491 547.68 298.868 547.68 268.571H547.587V111H657.519V268.571C657.519 383.312 574.737 433.33 492.759 433.33C407.841 433.33 337.916 369.063 328.97 286.521C319.765 368.929 249.866 433 165 433C73.873 433 0 359.127 0 268C0 176.873 73.873 103 165 103ZM786 433H675V111H786V433ZM1071 103C1162.13 103 1236 176.873 1236 268C1236 359.127 1162.13 433 1071 433C979.873 433 906 359.127 906 268C906 176.873 979.873 103 1071 103ZM165 212C134.072 212 109 237.072 109 268C109 298.928 134.072 324 165 324C195.928 324 221 298.928 221 268C221 237.072 195.928 212 165 212ZM1071 212C1040.07 212 1015 237.072 1015 268C1015 298.928 1040.07 324 1071 324C1101.93 324 1127 298.928 1127 268C1127 237.072 1101.93 212 1071 212ZM859 111C889.928 111 915 136.072 915 167C915 197.928 889.928 223 859 223C828.072 223 803 197.928 803 167C803 136.072 828.072 111 859 111Z" fill="currentColor"/>
-    <path d="M1458 242.252C1470.36 163.355 1538.63 103 1621 103C1703.37 103 1771.64 163.355 1784 242.252V0H1895V112.041C1911.92 106.184 1930.09 103 1949 103C2020.23 103 2080.91 148.13 2104.02 211.355C2104.02 211.134 2104.01 210.912 2104.01 210.689C2104.01 172.703 2123.56 142.885 2152.13 124.822C2178.56 108.112 2211.18 102 2242.9 102C2308.44 102 2356.49 129.135 2377.96 167.666L2290.6 216.334C2291.06 217.165 2272.04 198.359 2233 196.5C2212 195.5 2205 198 2205 206C2205 214 2218.79 217 2242.9 217.5C2267 218 2305.53 222.004 2332.29 236.623C2362.02 252.869 2384.28 282.013 2384.28 322.198C2384.28 361.024 2363.52 390.973 2335.27 409.058C2308.58 426.144 2275.48 433 2242.9 433C2211 433 2178.73 427.303 2150.93 416.452C2126.36 406.861 2099.14 390.768 2082.49 364.992C2052.5 406.208 2003.88 433 1949 433C1866.63 433 1798.36 372.645 1786 293.747V433H1624.5L1624.51 432.96C1623.35 432.984 1622.17 433 1621 433C1538.63 433 1470.36 372.645 1458 293.747V433H1347V0H1458V242.252ZM2113.36 253.344C2113.78 258.173 2114 263.061 2114 268C2114 298.992 2105.45 327.986 2090.59 352.759L2166.56 310.846C2166.56 310.846 2175 322.32 2211.28 333C2248.94 344.085 2271.5 339 2271.78 328C2272.06 317 2258.78 316.5 2243.78 316C2228.78 315.5 2179.36 312.143 2152.89 296.157C2135.76 285.815 2121.89 271.305 2113.36 253.344ZM1621 212C1590.07 212 1565 237.072 1565 268C1565 298.928 1590.07 324 1621 324C1651.93 324 1677 298.928 1677 268C1677 237.072 1651.93 212 1621 212ZM1949 212C1918.07 212 1893 237.072 1893 268C1893 298.928 1918.07 324 1949 324C1979.93 324 2005 298.928 2005 268C2005 237.072 1979.93 212 1949 212Z" fill="currentColor"/>
-  </svg>
-</a>
-<nav class="scroll-intro-top-nav" aria-label="Page sections">
-  <a class="scroll-intro-nav-link" id="studio-nav-link" href="#scroll-intro-below">Studio</a>
-  <a class="scroll-intro-nav-link" id="projects-nav-link" href="#proj-grid-wrap">Projects</a>
-</nav>
-
+<header class="scroll-intro-header-strip">
 <button type="button" class="site-meta-btn site-meta-btn--fab" id="site-meta-open" aria-expanded="false" aria-controls="site-meta-panel" aria-label="How we made this site">
   <svg class="site-meta-btn__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <g transform="translate(12,12)">
@@ -1788,6 +1951,26 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
     </g>
   </svg>
 </button>
+<a class="scroll-intro-logo" href="index.html" aria-label="Ouro Labs home">
+  <svg viewBox="0 0 2385 434" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <path d="M165 103C247.368 103 315.637 163.355 328 242.252V111H437.932V268.571H437.839C437.839 298.868 462.461 323.491 492.759 323.491C523.057 323.491 547.68 298.868 547.68 268.571H547.587V111H657.519V268.571C657.519 383.312 574.737 433.33 492.759 433.33C407.841 433.33 337.916 369.063 328.97 286.521C319.765 368.929 249.866 433 165 433C73.873 433 0 359.127 0 268C0 176.873 73.873 103 165 103ZM786 433H675V111H786V433ZM1071 103C1162.13 103 1236 176.873 1236 268C1236 359.127 1162.13 433 1071 433C979.873 433 906 359.127 906 268C906 176.873 979.873 103 1071 103ZM165 212C134.072 212 109 237.072 109 268C109 298.928 134.072 324 165 324C195.928 324 221 298.928 221 268C221 237.072 195.928 212 165 212ZM1071 212C1040.07 212 1015 237.072 1015 268C1015 298.928 1040.07 324 1071 324C1101.93 324 1127 298.928 1127 268C1127 237.072 1101.93 212 1071 212ZM859 111C889.928 111 915 136.072 915 167C915 197.928 889.928 223 859 223C828.072 223 803 197.928 803 167C803 136.072 828.072 111 859 111Z" fill="currentColor"/>
+    <path d="M1458 242.252C1470.36 163.355 1538.63 103 1621 103C1703.37 103 1771.64 163.355 1784 242.252V0H1895V112.041C1911.92 106.184 1930.09 103 1949 103C2020.23 103 2080.91 148.13 2104.02 211.355C2104.02 211.134 2104.01 210.912 2104.01 210.689C2104.01 172.703 2123.56 142.885 2152.13 124.822C2178.56 108.112 2211.18 102 2242.9 102C2308.44 102 2356.49 129.135 2377.96 167.666L2290.6 216.334C2291.06 217.165 2272.04 198.359 2233 196.5C2212 195.5 2205 198 2205 206C2205 214 2218.79 217 2242.9 217.5C2267 218 2305.53 222.004 2332.29 236.623C2362.02 252.869 2384.28 282.013 2384.28 322.198C2384.28 361.024 2363.52 390.973 2335.27 409.058C2308.58 426.144 2275.48 433 2242.9 433C2211 433 2178.73 427.303 2150.93 416.452C2126.36 406.861 2099.14 390.768 2082.49 364.992C2052.5 406.208 2003.88 433 1949 433C1866.63 433 1798.36 372.645 1786 293.747V433H1624.5L1624.51 432.96C1623.35 432.984 1622.17 433 1621 433C1538.63 433 1470.36 372.645 1458 293.747V433H1347V0H1458V242.252ZM2113.36 253.344C2113.78 258.173 2114 263.061 2114 268C2114 298.992 2105.45 327.986 2090.59 352.759L2166.56 310.846C2166.56 310.846 2175 322.32 2211.28 333C2248.94 344.085 2271.5 339 2271.78 328C2272.06 317 2258.78 316.5 2243.78 316C2228.78 315.5 2179.36 312.143 2152.89 296.157C2135.76 285.815 2121.89 271.305 2113.36 253.344ZM1621 212C1590.07 212 1565 237.072 1565 268C1565 298.928 1590.07 324 1621 324C1651.93 324 1677 298.928 1677 268C1677 237.072 1651.93 212 1621 212ZM1949 212C1918.07 212 1893 237.072 1893 268C1893 298.928 1918.07 324 1949 324C1979.93 324 2005 298.928 2005 268C2005 237.072 1979.93 212 1949 212Z" fill="currentColor"/>
+  </svg>
+</a>
+<nav class="scroll-intro-top-nav" aria-label="Page sections" id="scroll-intro-top-nav">
+  <button type="button" class="scroll-intro-nav-toggle" id="scroll-intro-nav-toggle" aria-expanded="false" aria-controls="scroll-intro-nav-dropdown" aria-label="Open menu">
+    <span class="scroll-intro-nav-toggle__icon" aria-hidden="true">
+      <span class="scroll-intro-nav-toggle__bar scroll-intro-nav-toggle__bar--top"></span>
+      <span class="scroll-intro-nav-toggle__bar scroll-intro-nav-toggle__bar--mid"></span>
+      <span class="scroll-intro-nav-toggle__bar scroll-intro-nav-toggle__bar--btm"></span>
+    </span>
+  </button>
+  <div class="scroll-intro-nav-dropdown" id="scroll-intro-nav-dropdown">
+    <a class="scroll-intro-nav-link" id="studio-nav-link" href="#scroll-intro-below">Studio</a>
+    <a class="scroll-intro-nav-link" id="projects-nav-link" href="#proj-grid-wrap">Projects</a>
+  </div>
+</nav>
+</header>
 
 <div class="site-meta-panel" id="site-meta-panel" role="dialog" aria-modal="true" aria-labelledby="site-meta-heading" aria-hidden="true" inert>
   <button type="button" class="site-meta-panel__close" id="site-meta-close" aria-label="Close">Close</button>
@@ -3819,11 +4002,13 @@ function attachHlCharExitHideAfterTransform(c){
     var subcopyBlockForNav = cont.querySelector('#scroll-intro-below');
     var scrollIntroLogoNav = document.querySelector('.scroll-intro-logo');
     var scrollIntroNavLinks = document.querySelectorAll('.scroll-intro-nav-link');
+    var scrollIntroNavToggle = document.getElementById('scroll-intro-nav-toggle');
     function clearScrollIntroNavInlineOpacity(){
       if(scrollIntroLogoNav) scrollIntroLogoNav.style.removeProperty('opacity');
       if(scrollIntroNavLinks && scrollIntroNavLinks.length){
         scrollIntroNavLinks.forEach(function(a){ a.style.removeProperty('opacity'); });
       }
+      if(scrollIntroNavToggle) scrollIntroNavToggle.style.removeProperty('opacity');
     }
     function updateScrollIntroCardsOverNav(){
       var root = document.documentElement;
@@ -3853,6 +4038,7 @@ function attachHlCharExitHideAfterTransform(c){
           if(scrollIntroNavLinks && scrollIntroNavLinks.length){
             scrollIntroNavLinks.forEach(function(a){ a.style.opacity = '0'; });
           }
+          if(scrollIntroNavToggle) scrollIntroNavToggle.style.opacity = '0';
           root.classList.remove('scroll-intro-cards-over-nav');
           requestAnimationFrame(function(){
             requestAnimationFrame(clearScrollIntroNavInlineOpacity);
@@ -4423,6 +4609,53 @@ function attachHlCharExitHideAfterTransform(c){
   window.addEventListener('touchend', onTouchEnd, { passive: true });
   window.addEventListener('touchcancel', onTouchCancel, { passive: true });
   window.addEventListener('keydown', onKeyDown);
+})();
+</script>
+<script>
+(function(){
+  var mqMobileNav = window.matchMedia('(max-width: 600px)');
+  var topNav = document.getElementById('scroll-intro-top-nav');
+  var navToggle = document.getElementById('scroll-intro-nav-toggle');
+  var navDropdown = document.getElementById('scroll-intro-nav-dropdown');
+  if(!topNav || !navToggle || !navDropdown) return;
+  function setMobileNavOpen(open){
+    topNav.classList.toggle('scroll-intro-top-nav--open', open);
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    if(mqMobileNav.matches){
+      navDropdown.setAttribute('aria-hidden', open ? 'false' : 'true');
+    }else{
+      navDropdown.removeAttribute('aria-hidden');
+    }
+  }
+  setMobileNavOpen(false);
+  navToggle.addEventListener('click', function(e){
+    e.stopPropagation();
+    setMobileNavOpen(!topNav.classList.contains('scroll-intro-top-nav--open'));
+  });
+  document.addEventListener('click', function(){
+    if(mqMobileNav.matches && topNav.classList.contains('scroll-intro-top-nav--open')){
+      setMobileNavOpen(false);
+    }
+  });
+  document.addEventListener('keydown', function(e){
+    if(
+      e.key === 'Escape' &&
+      mqMobileNav.matches &&
+      topNav.classList.contains('scroll-intro-top-nav--open')
+    ){
+      setMobileNavOpen(false);
+      navToggle.focus();
+    }
+  });
+  navDropdown.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      if(mqMobileNav.matches) setMobileNavOpen(false);
+    });
+  });
+  window.addEventListener('resize', function(){
+    if(!mqMobileNav.matches) setMobileNavOpen(false);
+  });
 })();
 </script>
 
