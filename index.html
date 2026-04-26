@@ -5977,7 +5977,11 @@ function attachHlCharExitHideAfterTransform(c){
           syncTerminalInputViewport();
           return;
         }
-        if(ev === 'blur') return updateTermBlockCursor();
+        if(ev === 'blur'){
+          updateTermBlockCursor();
+          syncTerminalInputViewport();
+          return;
+        }
         scheduleTermCursorUpdate();
         if(ev === 'focus' || ev === 'click' || ev === 'input' || ev === 'keydown' || ev === 'keyup'){
           scheduleTerminalInputViewportSync();
@@ -6006,8 +6010,41 @@ function attachHlCharExitHideAfterTransform(c){
       });
     });
   }
+  function clearTerminalKeyboardLift(){
+    if(!siteMetaWindow) return;
+    siteMetaWindow.style.marginTop = '';
+  }
+  function syncTerminalKeyboardLift(){
+    if(!siteMetaWindow || !panel || !panel.classList.contains('site-meta-panel--open')){
+      clearTerminalKeyboardLift();
+      return;
+    }
+    if(document.activeElement !== terminalInput){
+      clearTerminalKeyboardLift();
+      return;
+    }
+    var vv = window.visualViewport;
+    if(!vv){
+      clearTerminalKeyboardLift();
+      return;
+    }
+    var layoutH = window.innerHeight || document.documentElement.clientHeight || 0;
+    var keyboardH = Math.max(0, layoutH - (vv.height + vv.offsetTop));
+    if(keyboardH < 60){
+      clearTerminalKeyboardLift();
+      return;
+    }
+    var winRect = siteMetaWindow.getBoundingClientRect();
+    var maxLift = Math.max(0, winRect.top - 8);
+    var desiredLift = Math.min(maxLift, keyboardH + 8);
+    siteMetaWindow.style.marginTop = desiredLift > 0 ? (-desiredLift) + 'px' : '';
+  }
   function syncTerminalInputViewport(){
-    if(!panel || !panel.classList.contains('site-meta-panel--open')) return;
+    if(!panel || !panel.classList.contains('site-meta-panel--open')){
+      clearTerminalKeyboardLift();
+      return;
+    }
+    syncTerminalKeyboardLift();
     var sb = getScrollBox();
     if(!sb) return;
     sb.scrollTop = sb.scrollHeight;
@@ -6809,6 +6846,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
   function applyMinimizeState(){
     if(panel.classList.contains('site-meta-panel--minimized')) return;
+    clearTerminalKeyboardLift();
     /* Skip the panel’s default opacity close transition so the dim scrim cannot reappear during class churn. */
     panel.style.transition = 'none';
     panel.style.opacity = '0';
@@ -6907,6 +6945,7 @@ function attachHlCharExitHideAfterTransform(c){
   function closePanel(){
     typeGen++;
     storyBusy = false;
+    clearTerminalKeyboardLift();
     clearSiteMetaPanelMinimizeNoFadeStyles();
     document.documentElement.classList.remove('site-meta-minimized');
     panel.classList.remove('site-meta-panel--minimized');
