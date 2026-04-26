@@ -6032,32 +6032,6 @@ function attachHlCharExitHideAfterTransform(c){
       window.visualViewport.addEventListener('scroll', scheduleTerminalInputViewportSync, { passive: true });
     }
   }
-  function isSiteMetaTextField(el){
-    if(!el || !siteMetaWindow) return false;
-    if(!siteMetaWindow.contains(el)) return false;
-    if(el.isContentEditable) return el.readOnly !== true;
-    var tag = el.nodeName && el.nodeName.toLowerCase();
-    if(tag === 'textarea') return !el.disabled && el.readOnly !== true;
-    if(tag === 'input'){
-      var t = (el.type && String(el.type).toLowerCase()) || 'text';
-      if(t === 'button' || t === 'submit' || t === 'reset' || t === 'hidden' || t === 'checkbox' || t === 'radio' || t === 'file' || t === 'image' || t === 'range' || t === 'color') return false;
-      return !el.disabled && el.readOnly !== true;
-    }
-    if(tag === 'select') return !el.disabled;
-    return false;
-  }
-  if(siteMetaWindow){
-    siteMetaWindow.addEventListener('focusin', function(e){
-      if(!isSiteMetaTextField(e.target)) return;
-      scheduleTerminalInputViewportSync();
-    });
-    siteMetaWindow.addEventListener('focusout', function(e){
-      if(!isSiteMetaTextField(e.target)) return;
-      requestAnimationFrame(function(){
-        requestAnimationFrame(scheduleTerminalInputViewportSync);
-      });
-    });
-  }
   function tryFocusTerminalInput(){
     if(!terminalInput || terminalInput.disabled) return;
     getOpenTriggers().forEach(function(b){
@@ -6092,15 +6066,16 @@ function attachHlCharExitHideAfterTransform(c){
       clearTerminalKeyboardLift();
       return;
     }
-    if(!isSiteMetaTextField(document.activeElement)){
-      clearTerminalKeyboardLift();
-      return;
-    }
     var vv = window.visualViewport;
     if(!vv){
       clearTerminalKeyboardLift();
       return;
     }
+    /* Lift is driven by the visualViewport signal alone, not by activeElement. iOS Safari fires
+       focus → keyboard slide-in → visualViewport.resize on its own schedule, and disabling the input
+       (during a command) followed by re-enabling can leave activeElement state momentarily ambiguous.
+       Treating any keyboard-shaped viewport shrink as "lift the form" makes it work for every
+       command in sequence (log, makers, summon, restart, ...). */
     var layoutH = window.innerHeight || document.documentElement.clientHeight || 0;
     var keyboardH = Math.max(0, Math.round(layoutH - (vv.height + (vv.offsetTop || 0))));
     if(keyboardH < 60){
@@ -6122,14 +6097,11 @@ function attachHlCharExitHideAfterTransform(c){
     var sb = getScrollBox();
     if(!sb) return;
     sb.scrollTop = sb.scrollHeight;
-    var active = document.activeElement;
-    if(!isSiteMetaTextField(active)) return;
-    var elForRect = (active && active.closest && active.closest('.site-meta-panel__terminal-input-wrap')) || active;
-    if(!elForRect) return;
+    if(!terminalInputWrap) return;
     var vv = window.visualViewport;
     var viewportBottom = vv ? (vv.height + vv.offsetTop) : (window.innerHeight || document.documentElement.clientHeight || 0);
     var pad = 12;
-    var wrapRect = elForRect.getBoundingClientRect();
+    var wrapRect = terminalInputWrap.getBoundingClientRect();
     if(wrapRect.bottom > viewportBottom - pad){
       sb.scrollTop += wrapRect.bottom - (viewportBottom - pad);
     }
