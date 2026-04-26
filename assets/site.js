@@ -1556,7 +1556,6 @@ function staggerCharsInSync(groups){
 })();
 
 
-
 // ── Scroll compose: image parallax with preferred-framing lock ───────────────
 // Each .hcard-img-inner pans ±maxPan px as it traverses the viewport,
 // but converges to 0 (preferred crop) when the card is near viewport center.

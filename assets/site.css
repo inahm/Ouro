@@ -1,3 +1,4 @@
+/* Standalone / reference only — the live site is index.html (inline styles). */
 *{margin:0;padding:0;box-sizing:border-box;}
 html{
   scroll-behavior:smooth;

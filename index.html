@@ -21,6 +21,7 @@
 <meta name="twitter:description" content="A design and AI practice built by two design leaders. Play, Precision, Craft.">
 <meta name="twitter:image" content="https://www.ouro-labs.com/footer-bg.png">
 <title>Ouro Labs | AI-Native Product Studio</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <script type="application/ld+json">
 {
@@ -112,6 +113,10 @@
   --ease-out-settle:cubic-bezier(0.33,1,0.68,1);
   /* Headline letter rise-in — softer deceleration than --ease-snap-out */
   --ease-hl-char-in:cubic-bezier(0.17,1,0.32,1);
+  /* Work strip: layout vs content — use instead of --ease-out-flow in scroll-intro-continuation hcards. */
+  --ease-hcard-surface:cubic-bezier(0.2,0.86,0.1,1);
+  --ease-hcard-silk:cubic-bezier(0.14,0.98,0.22,1);
+  --ease-hcard-snapshut:cubic-bezier(0.45,0,0.2,1);
   /* Third act: light → red circular wipe */
   --third-act-red-iris-duration:3.55s;
   /* Long, plush deceleration — stronger ease than --ease-out-flow / --ease-out-settle */
@@ -122,6 +127,13 @@
   /* Extra below logo height for stacked top-nav links (second row) */
   --scroll-intro-nav-stack-extra:clamp(10px, 2.4vw, 18px);
   --scroll-intro-anchor-margin:calc(2 * var(--scroll-intro-nav-top) + var(--scroll-intro-logo-h) + var(--scroll-intro-nav-stack-extra));
+  /* Bottom edge of fixed .scroll-intro-header-strip — hero/third-act are vertically centered, so min padding-top must clear the band (FAB + wordmark + stacked nav). */
+  --scroll-intro-header-clear:max(
+    calc(
+      var(--scroll-intro-nav-top) + var(--scroll-intro-logo-h) + var(--scroll-intro-nav-stack-extra) + clamp(1.75rem, 3.6vh, 2.75rem)
+    ),
+    6.25rem
+  );
   --selection-bg: #eaff00;
   --selection-fg: var(--ink);
   /* Fixed nav accent during second hero headline (AI-native / product studio) */
@@ -136,19 +148,13 @@
   --site-meta-fab-left:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-left, 0px) + 8px));
   --site-meta-fab-right:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-right, 0px) + 8px));
 }
-::selection{
-  background-color: var(--selection-bg);
-  color: var(--selection-fg);
-}
-::-moz-selection{
-  background-color: var(--selection-bg);
-  color: var(--selection-fg);
-}
-/* Same neon on red — black on yellow stays readable */
+/* Selection — including third-act red headline (same neon on red; readable black on yellow) */
+::selection,
 #third-act-hl::selection{
   background-color: var(--selection-bg);
   color: var(--selection-fg);
 }
+::-moz-selection,
 #third-act-hl::-moz-selection{
   background-color: var(--selection-bg);
   color: var(--selection-fg);
@@ -424,8 +430,21 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   padding-bottom:calc(0.5 * clamp(128px, 24vh, 280px));
 }
 
+#scroll-intro-continuation{
+  box-sizing:border-box;
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  overflow-x:clip;
+}
 /* ── Project cards (horizontal) + footer wordmark — same pattern as index ── */
-.scroll-intro-continuation .hscroll-frame{position:relative;z-index:0;}
+.scroll-intro-continuation .hscroll-frame{
+  position:relative;
+  z-index:0;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
 /* Breathing room when jumping to #proj-grid-wrap (nav link, scrollIntoView, :target). */
 #proj-grid-wrap{
   scroll-margin-top:max(64px, var(--scroll-intro-anchor-margin));
@@ -455,14 +474,19 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 /* Aptos-style strip: dark / light panels edge-to-edge in the track. */
 .scroll-intro-continuation .hcard{
   --hcard-ink:var(--text-on-dark-muted);
-  /* 88vw alone ignored track padding and could bleed past the right edge; cap with same gutters as --g. */
-  flex:0 0 clamp(400px,min(88vw,calc(100vw - 2 * var(--g))),760px);
+  --hcard-px:clamp(28px,4vw,40px);
+  /* Room for the pinned .hcard-discover (absolute) + normal edge inset */
+  --hcard-cta-pad:2.4rem;
+  /* Whole card opens details when collapsed (see initHcardDiscoverExpand); keep text cursor when open. */
+  cursor:pointer;
+  /* % flex-basis is vs. the track width — avoids 100vw + vertical-scrollbar overflow gap */
+  flex:0 0 clamp(400px,min(88%,calc(100% - 2 * var(--g))),760px);
   display:flex;
   flex-direction:column;
   justify-content:flex-start;
   align-items:stretch;
   box-sizing:border-box;
-  padding:clamp(28px,4vw,40px);
+  padding:var(--hcard-px) var(--hcard-px) calc(var(--hcard-px) + var(--hcard-cta-pad)) var(--hcard-px);
   scroll-snap-align:start;
   scroll-snap-stop:always;
   position:relative;
@@ -494,6 +518,28 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   margin:clamp(16px,3vw,28px) 0;
   position:relative;
   overflow:hidden;
+  transition:
+    opacity 0.38s var(--ease-hcard-surface),
+    min-height 0.48s var(--ease-hcard-surface),
+    margin 0.48s var(--ease-hcard-surface),
+    flex 0.48s var(--ease-hcard-surface);
+}
+/* Expanded: motif / diagram area gives way to the long write-up */
+.scroll-intro-continuation .hcard--expanded .hcard-visual{
+  flex:0 0 0;
+  min-height:0 !important;
+  max-height:0;
+  margin:0;
+  opacity:0;
+  pointer-events:none;
+}
+/* Re-opening the motif: quick, so the bottom CTA (pinned) doesn’t travel with a slow flex grow. */
+.scroll-intro-continuation .hcard:not(.hcard--expanded) .hcard-visual{
+  transition:
+    opacity 0.2s var(--ease-hcard-snapshut),
+    min-height 0.2s var(--ease-hcard-snapshut),
+    margin 0.2s var(--ease-hcard-snapshut),
+    flex 0.2s var(--ease-hcard-snapshut);
 }
 .scroll-intro-continuation .hcard-visual-inner{
   position:relative;
@@ -548,7 +594,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
     repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(242,241,236,0.06) 11px, rgba(242,241,236,0.06) 12px),
     repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(242,241,236,0.06) 11px, rgba(242,241,236,0.06) 12px);
 }
-/* Latency Atlas + Scaffold: light panel (contrast with first card). */
+/* Light cards (Nota, Health Atlas): contrast with first dark panel. */
 .scroll-intro-continuation .hcard--light{
   --hcard-ink:var(--ink);
   background:#ebe9e4;
@@ -576,13 +622,18 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   color:var(--nav-second-hl-accent);
 }
 .scroll-intro-continuation .hcard-discover{
+  /* Pinned: avoids riding up the flex column when long copy + motif height transitions on close. */
+  position:absolute;
+  left:var(--hcard-px);
+  bottom:var(--hcard-px);
+  z-index:3;
   flex:0 0 auto;
   display:inline-flex;
   flex-direction:row;
   align-items:center;
   gap:0;
   margin:0;
-  margin-top:auto;
+  margin-top:0;
   align-self:flex-start;
   appearance:none;
   -webkit-appearance:none;
@@ -598,7 +649,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   line-height:1;
   text-transform:uppercase;
   padding:4px 0;
-  transition:opacity 0.25s ease,color 0.25s ease;
+  transition:opacity 0.3s var(--ease-hcard-silk), color 0.3s var(--ease-hcard-silk);
 }
 .scroll-intro-continuation .hcard-discover:hover,
 .scroll-intro-continuation .hcard-discover:focus-visible{
@@ -607,6 +658,135 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 .scroll-intro-continuation .hcard-discover:focus-visible{
   outline:2px solid var(--red);
   outline-offset:4px;
+}
+/* Expanded card: wider panel + reveal long copy (grid 0fr → 1fr) */
+.scroll-intro-continuation .hcard{
+  transition:flex-basis 0.55s var(--ease-hcard-surface);
+  z-index:0;
+}
+.scroll-intro-continuation .hcard--expanded{
+  z-index:2;
+  flex-basis:clamp(520px,min(94%,calc(100% - 2 * var(--g))),920px) !important;
+  cursor:auto;
+}
+/* Default: snappy height when a card *closes*; when expanded, modifier below uses a slower ease. */
+.scroll-intro-continuation .hscroll-track{
+  transition:height 0.22s var(--ease-hcard-snapshut);
+}
+.scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{
+  transition:height 0.5s var(--ease-hcard-surface);
+}
+/*
+ * On the default (large) breakpoint, the base track height (clamp(720px, 78vh, 900px))
+ * already comfortably fits the expanded copy — no need to grow it further. Smaller
+ * breakpoints below still bump the height when expanded, where vertical room is tighter.
+ */
+.scroll-intro-continuation .hcard-detail-wrap{
+  display:grid;
+  grid-template-rows:0fr;
+  /* Collapse: keep very short so the CTA (pinned) doesn’t read as a bottom swipe. */
+  transition:
+    grid-template-rows 0.1s var(--ease-hcard-snapshut),
+    margin 0.1s var(--ease-hcard-snapshut);
+  margin:0;
+  padding:0;
+}
+.scroll-intro-continuation .hcard--expanded .hcard-detail-wrap{
+  grid-template-rows:1fr;
+  /* Clear separation between teaser (title + subcopy) and long body. */
+  margin-top:clamp(20px,2.6vw,40px);
+  /* After the card is wide + the display title is red/large, open the long-copy block. */
+  transition:
+    grid-template-rows 0.4s var(--ease-hcard-surface) 1.05s,
+    margin 0.4s var(--ease-hcard-surface) 1.05s;
+}
+.scroll-intro-continuation .hcard-detail-inner{
+  overflow:hidden;
+  min-height:0;
+}
+.scroll-intro-continuation .hcard-detail{
+  font-family:'Inter',sans-serif;
+  font-size:clamp(12px,1.2vw,15px);
+  font-weight:400;
+  line-height:1.5;
+  color:var(--hcard-ink,#F2F1EC);
+  margin:0;
+  padding:0;
+  /* Text column = 75% of card width (25% narrower than full card width). */
+  max-width:75%;
+  opacity:0;
+  transform:translate3d(0,0.5rem,0);
+  filter:blur(2px);
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  /* Collapse: out fast, no long motion so close stays crisp. */
+  transition:
+    opacity 0.2s var(--ease-hcard-snapshut),
+    transform 0.2s var(--ease-hcard-snapshut),
+    filter 0.18s var(--ease-hcard-snapshut);
+}
+.scroll-intro-continuation .hcard--expanded .hcard-detail{
+  opacity:1;
+  transform:translate3d(0,0,0);
+  filter:blur(0);
+  /* After the wrap opens: gentle lift, fade, and de-blur (see delay vs .hcard-detail-wrap). */
+  transition:
+    opacity 0.72s var(--ease-hcard-silk) 1.42s,
+    transform 0.75s var(--ease-hcard-silk) 1.42s,
+    filter 0.55s var(--ease-hcard-silk) 1.42s;
+}
+.scroll-intro-continuation .hcard-detail p{
+  margin:0 0 1em;
+}
+.scroll-intro-continuation .hcard-detail p:last-child{
+  margin-bottom:0;
+}
+.scroll-intro-continuation .hcard-detail-cta-wrap{
+  margin:1.5em 0 0;
+}
+.scroll-intro-continuation .hcard-detail-cta{
+  display:inline-block;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(12px,1.45vw,14px);
+  font-weight:500;
+  letter-spacing:0.06em;
+  line-height:1.2;
+  text-transform:uppercase;
+  text-decoration:none;
+  color:var(--red);
+  border-bottom:1px solid currentColor;
+  padding-bottom:3px;
+  transition:color 0.25s var(--ease-hcard-silk), border-color 0.25s var(--ease-hcard-silk);
+}
+.scroll-intro-continuation .hcard-detail-cta:hover{
+  color:var(--nav-second-hl-accent);
+  border-color:var(--nav-second-hl-accent);
+  outline:none;
+}
+.scroll-intro-continuation .hcard-detail-cta:focus-visible{
+  color:var(--nav-second-hl-accent);
+  border-color:var(--nav-second-hl-accent);
+  outline:2px solid var(--red);
+  outline-offset:4px;
+}
+@media (prefers-reduced-motion:reduce){
+  .scroll-intro-continuation .hcard,
+  .scroll-intro-continuation .hscroll-track,
+  .scroll-intro-continuation .hcard-detail-wrap,
+  .scroll-intro-continuation .hcard-detail,
+  .scroll-intro-continuation .hcard--expanded .hcard-detail,
+  .scroll-intro-continuation .hcard-visual,
+  .scroll-intro-continuation .hcard--expanded .hcard-top,
+  .scroll-intro-continuation .hcard--expanded .pg-name,
+  .scroll-intro-continuation .hcard--expanded .pg-name .hl-char{
+    transition-duration:0.01ms !important;
+    transition-delay:0s !important;
+  }
+  .scroll-intro-continuation .hcard--expanded .hcard-detail,
+  .scroll-intro-continuation .hcard-detail{
+    filter:none !important;
+    transform:none !important;
+  }
 }
 .scroll-intro-continuation .hscroll-end-pad{
   flex:0 0 var(--g);
@@ -690,6 +870,19 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   text-transform:uppercase;
   color:var(--hcard-ink,#F2F1EC);
   margin:0;
+  transition:
+    color 0.4s var(--ease-hcard-silk),
+    font-size 0.5s var(--ease-hcard-silk),
+    line-height 0.5s var(--ease-hcard-silk),
+    letter-spacing 0.5s var(--ease-hcard-silk);
+}
+/* Quick settle when closing a card (no long ease fighting the CTA) */
+.scroll-intro-continuation .hcard:not(.hcard--expanded) .pg-name{
+  transition:
+    color 0.28s var(--ease-hcard-snapshut),
+    font-size 0.32s var(--ease-hcard-snapshut),
+    line-height 0.32s var(--ease-hcard-snapshut),
+    letter-spacing 0.32s var(--ease-hcard-snapshut);
 }
 /* Hero .hl-line uses clip-path + contain:paint to trim the big headline; same rules clip wrapped card titles */
 .scroll-intro-continuation .pg-name .hl-line{
@@ -706,6 +899,42 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   color:var(--hcard-ink,#F2F1EC);
   max-width:36ch;
   margin:0;
+  transition:color 0.35s var(--ease-hcard-silk);
+}
+/*
+ * Stagger: (1) card flex/scroll + layout, (2) big red title, (3) body. Teaser (subcopy) is
+ * not shown in the expanded state — only the display title + long copy.
+ */
+.scroll-intro-continuation .hcard--expanded .hcard-top{
+  gap:clamp(6px,0.8vw,12px);
+  transition:gap 0.5s var(--ease-hcard-silk) 0.55s;
+}
+.scroll-intro-continuation .hcard--expanded .pg-desc{
+  display:none;
+}
+/* Between default 0.18em (too loose at display size) and 0.02em (too tight). */
+.scroll-intro-continuation .hcard--expanded .pg-name .hl-char{
+  padding-bottom:0.07em;
+  transition:padding-bottom 0.5s var(--ease-hcard-silk) 0.55s;
+}
+.scroll-intro-continuation .hcard--expanded .pg-name{
+  color:var(--red);
+  font-size:clamp(48px,11vw,112px);
+  line-height:0.9;
+  letter-spacing:0.02em;
+  transition:
+    color 0.52s var(--ease-hcard-silk) 0.55s,
+    font-size 0.55s var(--ease-hcard-silk) 0.55s,
+    line-height 0.55s var(--ease-hcard-silk) 0.55s,
+    letter-spacing 0.55s var(--ease-hcard-silk) 0.55s;
+}
+@media (max-width:600px){
+  .scroll-intro-continuation .hcard--expanded .hcard-top{
+    gap:clamp(6px,1.4vw,14px);
+  }
+  .scroll-intro-continuation .hcard--expanded .pg-name{
+    font-size:clamp(32px,12.5vw,72px);
+  }
 }
 .scroll-intro-continuation .pg-name.revealed .hl-char{
   transform:translate3d(0,0,0) rotate(0deg);
@@ -881,11 +1110,34 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 @media (max-width:900px){
   .scroll-intro-continuation .hscroll-track{height:clamp(640px,74vh,820px);}
-  .scroll-intro-continuation .hcard{flex:0 0 clamp(360px,min(90vw,calc(100vw - 2 * var(--g))),680px);}
+  .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{height:clamp(720px,80vh,900px);}
+  .scroll-intro-continuation .hcard{flex:0 0 clamp(360px,min(90%,calc(100% - 2 * var(--g))),680px);}
+  .scroll-intro-continuation .hcard--expanded{flex-basis:clamp(400px,min(96%,calc(100% - 2 * var(--g))),760px) !important;}
+  .scroll-intro-continuation .pg-desc{
+    max-width:min(100%, 48ch);
+  }
+  .scroll-intro-continuation .hcard-detail{
+    max-width:90%;
+  }
 }
 @media (max-width:600px){
   .scroll-intro-continuation .hscroll-track{height:clamp(600px,72vh,760px);}
-  .scroll-intro-continuation .hcard{flex:0 0 clamp(260px,min(92vw,560px,calc(100vw - 2 * var(--g))),560px);padding:24px 22px;}
+  .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{height:clamp(680px,78vh,840px);}
+  .scroll-intro-continuation .hcard{
+    flex:0 0 clamp(260px,min(92%,560px,calc(100% - 2 * var(--g))),560px);
+    --hcard-px:20px;
+    padding:24px 20px calc(24px + var(--hcard-cta-pad)) 20px;
+  }
+  .scroll-intro-continuation .hcard--expanded{flex-basis:clamp(280px,min(96%,calc(100% - 2 * var(--g))),600px) !important;}
+  .scroll-intro-continuation .pg-desc{
+    max-width:100%;
+  }
+  .scroll-intro-continuation .hcard-detail{
+    max-width:100%;
+  }
+  .scroll-intro-continuation .hcard-top{
+    padding-right:0;
+  }
   .scroll-intro-continuation .hcard-visual-inner{
     width:min(88%,280px,min(64vw,300px));
   }
@@ -1131,6 +1383,25 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:focus-vi
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-visible{
   outline-color:var(--ink);
 }
+/* Open menu: toggle stays :focus after tap, so :focus-visible color was overriding section nav; keep X in sync. */
+html.nav-over-third-red .scroll-intro-nav-toggle[aria-expanded="true"]{
+  color:var(--bg);
+}
+html.nav-over-third-red .scroll-intro-nav-toggle[aria-expanded="true"]:hover{
+  color:var(--ink);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle[aria-expanded="true"]{
+  color:var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle[aria-expanded="true"]:hover{
+  color:var(--ink);
+}
+html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[aria-expanded="true"]{
+  color:var(--ink);
+}
+html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[aria-expanded="true"]:hover{
+  color:var(--nav-second-hl-accent);
+}
 @media (max-width:600px){
   .scroll-intro-header-strip{
     /* Vertically center site-meta icon, wordmark, and hamburger so they align in the band. */
@@ -1251,7 +1522,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   min-height:0;
   overflow:visible;
   box-sizing:border-box;
-  padding-top:max(28px, env(safe-area-inset-top, 0px) + 16px);
+  padding-top:max(max(28px, env(safe-area-inset-top, 0px) + 16px), var(--scroll-intro-header-clear));
   padding-bottom:max(28px, env(safe-area-inset-bottom, 0px) + 16px);
   padding-left:max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
   padding-right:max(var(--g), calc(env(safe-area-inset-right, 0px) + 12px));
@@ -1373,7 +1644,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
 @media(max-width:900px){
   :root{--g:28px;}
   .hero-content{
-    padding-top:max(24px, env(safe-area-inset-top, 0px) + 14px);
+    padding-top:max(max(24px, env(safe-area-inset-top, 0px) + 14px), var(--scroll-intro-header-clear));
     padding-bottom:max(24px, env(safe-area-inset-bottom, 0px) + 14px);
   }
 }
@@ -1435,7 +1706,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
 }
 @media (hover: none) and (pointer: coarse){
   .hero-content{
-    padding-top:max(26px, env(safe-area-inset-top, 0px) + 16px);
+    padding-top:max(max(26px, env(safe-area-inset-top, 0px) + 16px), var(--scroll-intro-header-clear));
     padding-bottom:max(26px, env(safe-area-inset-bottom, 0px) + 16px);
   }
 }
@@ -1491,7 +1762,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   width:100%;
   box-sizing:border-box;
   text-align:center;
-  padding-top:max(28px, env(safe-area-inset-top, 0px) + 16px);
+  padding-top:max(max(28px, env(safe-area-inset-top, 0px) + 16px), var(--scroll-intro-header-clear));
   padding-bottom:max(28px, env(safe-area-inset-bottom, 0px) + 16px);
   padding-left:max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
   padding-right:max(var(--g), calc(env(safe-area-inset-right, 0px) + 12px));
@@ -1834,18 +2105,15 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   height:var(--site-meta-icon-size);
   overflow:visible;
 }
-.site-meta-btn__icon--filled{
+.site-meta-btn__icon--outline{
   opacity:0;
   visibility:hidden;
   pointer-events:none;
 }
-html.site-meta-minimized .site-meta-btn__icon--outline{
-  opacity:0;
-  visibility:hidden;
-}
-html.site-meta-minimized .site-meta-btn__icon--filled{
+.site-meta-btn__icon--filled{
   opacity:1;
   visibility:visible;
+  pointer-events:none;
 }
 /* Terminal window modal (backdrop + centered “window”) — same content palette as before */
 .site-meta-panel{
@@ -2767,7 +3035,7 @@ button.site-meta-panel__terminal-submit{
           <span class="site-meta-panel__dot site-meta-panel__dot--g" aria-hidden="true"></span>
         </button>
       </div>
-      <span class="site-meta-panel__titlebar-label" id="site-meta-window-title">ouro — origin.log</span>
+      <span class="site-meta-panel__titlebar-label" id="site-meta-window-title">ouro site — origin.log</span>
     </div>
     <div class="site-meta-panel__body" id="site-meta-body">
   <div class="site-meta-panel__inner">
@@ -2856,8 +3124,8 @@ button.site-meta-panel__terminal-submit{
     </div>
   </div>
 </div>
-<button type="button" class="site-meta-dock" id="site-meta-dock" hidden aria-label="Restore origin log window">
-  ouro — origin.log
+<button type="button" class="site-meta-dock" id="site-meta-dock" hidden aria-label="Restore ouro site — origin.log window">
+  ouro site — origin.log
 </button>
 
 <div class="stage" id="stage" role="presentation">
@@ -2931,28 +3199,62 @@ button.site-meta-panel__terminal-submit{
       <article class="hcard hcard--featured">
         <div class="hcard-top">
           <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></h3>
-          <p class="pg-desc">Turn video into a working document with timestamped notes, searchable transcripts, and shareable moments.</p>
+          <p class="pg-desc">An iOS-native app for reviewing footage. Log moments, write notes, find what matters.</p>
         </div>
         <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--nota"><div class="nota-abstract-minimal"></div></div></div>
-        <button type="button" class="hcard-discover"><span class="hcard-discover__label">Discover</span></button>
-      </article>
-
-      <article class="hcard hcard--light">
-        <div class="hcard-top">
-          <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Latency Atlas</span></span></h3>
-          <p class="pg-desc">A map of where AI latency actually matters in real user flows.</p>
+        <div class="hcard-detail-wrap">
+          <div class="hcard-detail-inner">
+            <div class="hcard-detail" id="hcard-detail-nota" aria-hidden="true">
+              <p>The problem is simple: video projects can create hundreds of hours of footage, and the important moments are easy to lose. A quote, a gesture, a pause, a reaction, a scene marker, a detail that matters later. Once it disappears into the timeline, finding it again can take forever.</p>
+              <p>Nota helps anyone working with video footage review with more intention. Users can log time-stamped moments, write notes, organize clips, and keep track of what matters as they watch.</p>
+              <p>We also built Nota to get closer to the native app-making process itself: learning Xcode, understanding iOS patterns, and working through what it takes to design, build, and prepare something for the App Store.</p>
+              <p>It&rsquo;s both a useful tool and a hands-on exploration of how modern product teams can move from idea to native software with more ownership.</p>
+              <p>We expect to launch Nota in the App Store by summer 2026.</p>
+              <p class="hcard-detail-cta-wrap">
+                <a class="hcard-detail-cta" href="mailto:hello@ourolabs.com?subject=Nota%3A%20Request%20early%20access&amp;body=Hi%20Ouro%20team%2C%0D%0A%0D%0AI%27d%20like%20to%20request%20early%20access%20to%20Nota.%0D%0A%0D%0AThanks%2C%0D%0A">Request early access</a>
+              </p>
+            </div>
+          </div>
         </div>
-        <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--atlas"></div></div>
-        <button type="button" class="hcard-discover"><span class="hcard-discover__label">Discover</span></button>
+        <button type="button" class="hcard-discover" aria-expanded="false" aria-controls="hcard-detail-nota"><span class="hcard-discover__label">Learn more</span></button>
       </article>
 
       <article class="hcard hcard--light">
         <div class="hcard-top">
-          <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Scaffold Runner</span></span></h3>
-          <p class="pg-desc">Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.</p>
+          <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Overture DS</span></span></h3>
+          <p class="pg-desc">A design system workflow for shaping, querying, and evolving systems with agents.</p>
         </div>
         <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--scaffold"></div></div>
-        <button type="button" class="hcard-discover"><span class="hcard-discover__label">Discover</span></button>
+        <div class="hcard-detail-wrap">
+          <div class="hcard-detail-inner">
+            <div class="hcard-detail" id="hcard-detail-overture" aria-hidden="true">
+              <p>We&rsquo;re not just building an agentic design system. We&rsquo;re building the workflow around it, so designers like us can still shape it visually when we need to, query it structurally, and extend it across products, tools, and teams through natural language prompts.</p>
+              <p>Today, JSON is the connective layer. It turns our design decisions into something structured enough to adapt across an evolving tooling landscape, precise enough to support implementation, and clear enough for agents to reason over.</p>
+              <p>This is where agents and code editors become integral. Not as a shortcut around design judgment, but as a way to help the system respond and adapt quickly to new contexts, platforms, and brand languages. Agents can read the structure, compose UI from prompts, check for consistency, adapt rules across contexts, and help generate new patterns that still belong.</p>
+              <p>We&rsquo;re still early, but that&rsquo;s the point. The work is not just the design system. It is the way the system gets made, used, and evolved.</p>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="hcard-discover" aria-expanded="false" aria-controls="hcard-detail-overture"><span class="hcard-discover__label">Learn more</span></button>
+      </article>
+
+      <article class="hcard hcard--light">
+        <div class="hcard-top">
+          <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Health Atlas</span></span></h3>
+          <p class="pg-desc">An early personal experiment in more connected care.</p>
+        </div>
+        <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--atlas"></div></div>
+        <div class="hcard-detail-wrap">
+          <div class="hcard-detail-inner">
+            <div class="hcard-detail" id="hcard-detail-health-atlas" aria-hidden="true">
+              <p>This project started as a very personal experiment, born from our own frustration: trying to hold a more holistic, longitudinal view of our health in a system that was never designed to hold the whole story.</p>
+              <p>Especially in women&rsquo;s health, the details matter: random symptoms, labs, cycles, medications, history, lifestyle, and lived experience. But they end up scattered across portals, PDFs, notes, and memory. Too much of the story lives between appointments, and too often, we&rsquo;re the ones piecing it back together.</p>
+              <p>Health Atlas turns the records we already have into a personal health archive we can actually use. AI helps organize the details, surface patterns, notice what has changed, and prepare better questions for the next appointment.</p>
+              <p>The question we&rsquo;re trying to answer is simple, and one many women are already asking: what if a clear picture of our health didn&rsquo;t have to live behind expensive concierge medicine, membership clinics, or fragmented hospital portals?</p>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="hcard-discover" aria-expanded="false" aria-controls="hcard-detail-health-atlas"><span class="hcard-discover__label">Learn more</span></button>
       </article>
 
       <div class="hscroll-end-pad"></div>
@@ -4895,6 +5197,107 @@ function attachHlCharExitHideAfterTransform(c){
       track.addEventListener('touchcancel', resetHScrollTouch, {passive: true});
     }
 
+    /* Discover → expand card + long copy (CSS .hcard--expanded); must run here — index does not load assets/site.js */
+    (function initHcardDiscoverExpand(trackEl){
+      if(!trackEl) return;
+      function pinPageScrollX(){
+        if(!(window.scrollX || window.pageXOffset)) return;
+        window.scrollTo({ left: 0, top: window.scrollY, behavior: 'auto' });
+      }
+      /* scrollIntoView() can nudge the *page* horizontally; only move the horizontal track. */
+      function scrollCardCenterInTrack(card){
+        var cardRect = card.getBoundingClientRect();
+        var trackRect = trackEl.getBoundingClientRect();
+        var delta = (cardRect.left + cardRect.width * 0.5) - (trackRect.left + trackRect.width * 0.5);
+        var target = trackEl.scrollLeft + delta;
+        var maxL = Math.max(0, trackEl.scrollWidth - trackEl.clientWidth);
+        target = Math.max(0, Math.min(maxL, target));
+        try{
+          trackEl.scrollTo({ left: target, behavior: 'smooth' });
+        }catch(err){
+          trackEl.scrollLeft = target;
+        }
+        pinPageScrollX();
+      }
+      function syncDetailA11y(card, expanded){
+        var detail = card.querySelector('.hcard-detail');
+        if(detail) detail.setAttribute('aria-hidden', expanded ? 'false' : 'true');
+        var btn = card.querySelector('.hcard-discover');
+        var lbl = btn && btn.querySelector('.hcard-discover__label');
+        if(btn){
+          btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+          if(lbl) lbl.textContent = expanded ? 'Close' : 'Learn more';
+        }
+      }
+      function syncTrackExpandedClass(){
+        trackEl.classList.toggle('hscroll-track--card-expanded', !!trackEl.querySelector('.hcard--expanded'));
+      }
+      function collapse(card){
+        if(!card || !card.classList.contains('hcard--expanded')) return;
+        card.classList.remove('hcard--expanded');
+        syncDetailA11y(card, false);
+      }
+      function expand(card, allCards){
+        allCards.forEach(function(c){ if(c !== card) collapse(c); });
+        card.classList.add('hcard--expanded');
+        syncDetailA11y(card, true);
+        /*
+         * Single smooth scroll, fired once the flex-basis transition is ~70% complete.
+         * Earlier we issued a scroll on the next frame AND a corrective at 560ms — the
+         * second smooth scroll re-targeted mid-flight off the first, producing a visible
+         * jump (most obvious for the 2nd/3rd cards where the delta is large).
+         */
+        var SCROLL_AT = 360;
+        setTimeout(function(){ scrollCardCenterInTrack(card); }, SCROLL_AT);
+        /* After flex morph + big title (CSS delays ~0.55s+0.5s), snap any residual track scroll. */
+        setTimeout(function(){
+          var cardRect = card.getBoundingClientRect();
+          var trackRect = trackEl.getBoundingClientRect();
+          var delta = (cardRect.left + cardRect.width * 0.5) - (trackRect.left + trackRect.width * 0.5);
+          if(Math.abs(delta) > 1){
+            var maxL = Math.max(0, trackEl.scrollWidth - trackEl.clientWidth);
+            var target = Math.max(0, Math.min(maxL, trackEl.scrollLeft + delta));
+            try{
+              trackEl.scrollTo({ left: target, behavior: 'auto' });
+            }catch(_){
+              trackEl.scrollLeft = target;
+            }
+          }
+          pinPageScrollX();
+        }, 1180);
+        setTimeout(pinPageScrollX, 120);
+      }
+      var cards = Array.prototype.slice.call(trackEl.querySelectorAll('.hcard'));
+      cards.forEach(function(card){
+        var btn = card.querySelector('.hcard-discover');
+        if(!btn) return;
+        btn.addEventListener('click', function(ev){
+          ev.preventDefault();
+          if(card.classList.contains('hcard--expanded')){
+            collapse(card);
+          } else {
+            expand(card, cards);
+          }
+          syncTrackExpandedClass();
+        });
+        card.addEventListener('click', function(ev){
+          if(ev.target.closest('.hcard-discover')) return;
+          if(ev.target.closest('a[href]')) return;
+          if(card.classList.contains('hcard--expanded')) return;
+          expand(card, cards);
+          syncTrackExpandedClass();
+        });
+      });
+      document.addEventListener('keydown', function(ev){
+        if(ev.key !== 'Escape') return;
+        if(document.documentElement.classList.contains('site-meta-open')) return;
+        var open = trackEl.querySelector('.hcard--expanded');
+        if(!open) return;
+        collapse(open);
+        syncTrackExpandedClass();
+      });
+    })(track);
+
     pgNames.forEach(function(pn){
       pn.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
     });
@@ -5944,6 +6347,10 @@ function attachHlCharExitHideAfterTransform(c){
   }
   syncTypeMeasures();
   var typeGen = 0;
+  /* Non-null while a story stream can be paused (close) and resumed (reopen). JSON-serializable. */
+  var storyTypeResume = null;
+  /* While appendStoryAfter runs: merged into tui streamResume so reopen can run spacer+instruction after a paused hash. */
+  var pendingAfterAppend = null;
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var siteMetaWindow = panel.querySelector('.site-meta-panel__window');
   var siteMetaDotClose = document.getElementById('site-meta-dot-close');
@@ -6199,25 +6606,41 @@ function attachHlCharExitHideAfterTransform(c){
   }
   async function appendStoryAfter(afterBlock, g){
     if(!terminalLog || !afterBlock) return;
+    var ab = {
+      hash: afterBlock.hash == null ? '' : String(afterBlock.hash),
+      instruction: afterBlock.instruction == null ? '' : String(afterBlock.instruction)
+    };
     try{
       panel.setAttribute('aria-busy', 'true');
       appendTerminalLogSpacer();
+      pendingAfterAppend = { after: ab, phase: 'beforeHash' };
+      if(panel && panel.classList.contains('site-meta-panel--open'))
+        storyTypeResume = { op: 'appendAfter', g: g, after: ab, stage: 'beforeHash' };
       if(afterBlock.hash){
         if(g !== typeGen) return;
         await wait(90 + Math.random() * 60);
         if(g !== typeGen) return;
+        pendingAfterAppend = { after: ab, phase: 'hash' };
         await typeInTerminalLogLineUI(afterBlock.hash, false, true, g);
         if(g !== typeGen) return;
+        pendingAfterAppend = { after: ab, phase: 'beforeInstruction' };
+        if(panel && panel.classList.contains('site-meta-panel--open'))
+          storyTypeResume = { op: 'appendAfter', g: g, after: ab, stage: 'beforeInstruction' };
         appendTerminalLogSpacer();
       }
       if(afterBlock.instruction){
         if(g !== typeGen) return;
         await wait(90 + Math.random() * 60);
         if(g !== typeGen) return;
+        pendingAfterAppend = { after: ab, phase: 'instruction' };
+        if(panel && panel.classList.contains('site-meta-panel--open'))
+          storyTypeResume = { op: 'appendAfter', g: g, after: ab, stage: 'instruction' };
         await typeInTerminalLogLineUI(afterBlock.instruction, false, false, g);
       }
     }finally{
       if(panel) panel.removeAttribute('aria-busy');
+      pendingAfterAppend = null;
+      if(g === typeGen) storyTypeResume = null;
     }
   }
   function clearTerminalLog(){
@@ -6373,7 +6796,7 @@ function attachHlCharExitHideAfterTransform(c){
       ready.textContent = part2;
     }else{
       var r, step, cyc;
-      for(cyc = 0; cyc < 3; cyc++){
+      for(cyc = 0; cyc < 2; cyc++){
         for(step = 0; step < ELL.length; step++){
           if(g !== typeGen) return;
           dots.textContent = ELL[step];
@@ -6382,7 +6805,7 @@ function attachHlCharExitHideAfterTransform(c){
         if(g !== typeGen) return;
         /* Brief hold on "..." at end of each sweep */
         await wait(85 + Math.random() * 40);
-        if(cyc < 2){
+        if(cyc < 1){
           if(g !== typeGen) return;
           dots.textContent = '';
           await wait(135 + Math.random() * 50);
@@ -6401,11 +6824,39 @@ function attachHlCharExitHideAfterTransform(c){
     }
     scrollTerminalToBottom();
   }
-  async function typeInTerminalLogLineUI(text, isError, isAction, g){
+  function markTuiResume(obj){
+    if(panel && panel.classList.contains('site-meta-panel--open')){
+      if(pendingAfterAppend && pendingAfterAppend.after){
+        obj.appendChase = { after: pendingAfterAppend.after, phase: pendingAfterAppend.phase };
+      }
+      storyTypeResume = obj;
+    }
+  }
+  function wireTuiLineFromDom(b, existing){
+    b.line = existing;
+    if(b.mode === 'hash'){
+      b.restEl = existing.querySelector('.site-meta-panel__terminal-log-action-question');
+    }else if(b.mode === 'typeCmd'){
+      b.preEl = existing.querySelector('.site-meta-panel__terminal-log-instr-pre');
+      b.cmdEl = existing.querySelector('.site-meta-panel__terminal-log-instr-cmd');
+      b.postEl = existing.querySelector('.site-meta-panel__terminal-log-instr-post');
+    }
+  }
+  async function typeInTerminalLogLineUI(text, isError, isAction, g, resume){
     if(!terminalLog) return;
     var b = buildTerminalLogLineContent(text, isError, isAction, false);
+    var fromResume = !!(resume && resume._reuse);
+    if(fromResume){
+      var ex = getLastNonSpacerLogLine();
+      if(!ex) return;
+      wireTuiLineFromDom(b, ex);
+    }else{
+      terminalLog.appendChild(b.line);
+    }
     var line = b.line;
-    terminalLog.appendChild(line);
+    var fromHash = fromResume && resume && resume.mode === 'hash' ? (resume.restR|0) | 0 : 0;
+    var fromPlain = fromResume && resume && resume.mode === 'plain' ? (resume.plainI|0) | 0 : 0;
+    var tc = fromResume && resume && resume.mode === 'typeCmd' && resume.tc ? resume.tc : null;
     if(reduceMotion.matches){
       if(b.mode === 'hash'){
         b.restEl.textContent = b.restText;
@@ -6417,33 +6868,126 @@ function attachHlCharExitHideAfterTransform(c){
         line.textContent = b.text;
       }
     }else if(b.mode === 'hash'){
-      for(var r = 0; r < b.restText.length; r++){
+      for(var r = fromHash; r < b.restText.length; r++){
         if(g !== typeGen) return;
         b.restEl.textContent = b.restText.slice(0, r + 1);
+        markTuiResume({
+          op: 'tui',
+          g: g,
+          mode: 'hash',
+          text: text,
+          isError: !!isError,
+          isAction: !!isAction,
+          restR: r + 1
+        });
         await wait(charDelay());
       }
     }else if(b.mode === 'typeCmd'){
       var pi, ci, qi;
-      for(pi = 0; pi < b.pre.length; pi++){
-        if(g !== typeGen) return;
-        b.preEl.textContent = b.pre.slice(0, pi + 1);
-        await wait(charDelay());
-      }
-      for(ci = 0; ci < b.cmd.length; ci++){
-        if(g !== typeGen) return;
-        b.cmdEl.textContent = b.cmd.slice(0, ci + 1);
-        await wait(charDelay());
-      }
-      for(qi = 0; qi < b.post.length; qi++){
-        if(g !== typeGen) return;
-        b.postEl.textContent = b.post.slice(0, qi + 1);
-        await wait(charDelay());
+      if(!fromResume){
+        for(pi = 0; pi < b.pre.length; pi++){
+          if(g !== typeGen) return;
+          b.preEl.textContent = b.pre.slice(0, pi + 1);
+          markTuiResume({
+            op: 'tui',
+            g: g,
+            mode: 'typeCmd',
+            text: text,
+            isError: !!isError,
+            isAction: !!isAction,
+            tc: { phase: 'pre', pi: pi + 1, ci: 0, qi: 0 }
+          });
+          await wait(charDelay());
+        }
+        for(ci = 0; ci < b.cmd.length; ci++){
+          if(g !== typeGen) return;
+          b.cmdEl.textContent = b.cmd.slice(0, ci + 1);
+          markTuiResume({
+            op: 'tui',
+            g: g,
+            mode: 'typeCmd',
+            text: text,
+            isError: !!isError,
+            isAction: !!isAction,
+            tc: { phase: 'cmd', pi: b.pre.length, ci: ci + 1, qi: 0 }
+          });
+          await wait(charDelay());
+        }
+        for(qi = 0; qi < b.post.length; qi++){
+          if(g !== typeGen) return;
+          b.postEl.textContent = b.post.slice(0, qi + 1);
+          markTuiResume({
+            op: 'tui',
+            g: g,
+            mode: 'typeCmd',
+            text: text,
+            isError: !!isError,
+            isAction: !!isAction,
+            tc: { phase: 'post', pi: b.pre.length, ci: b.cmd.length, qi: qi + 1 }
+          });
+          await wait(charDelay());
+        }
+      }else if(resume && resume.mode === 'typeCmd' && resume.tc){
+        var tcr0 = resume.tc;
+        var ph0 = tcr0.phase || 'pre';
+        if(ph0 === 'pre'){
+          for(pi = (tcr0.pi|0) | 0; pi < b.pre.length; pi++){
+            if(g !== typeGen) return;
+            b.preEl.textContent = b.pre.slice(0, pi + 1);
+            markTuiResume({ op: 'tui', g: g, mode: 'typeCmd', text: text, isError: !!isError, isAction: !!isAction, tc: { phase: 'pre', pi: pi + 1, ci: 0, qi: 0 } });
+            await wait(charDelay());
+          }
+          for(ci = 0; ci < b.cmd.length; ci++){
+            if(g !== typeGen) return;
+            b.cmdEl.textContent = b.cmd.slice(0, ci + 1);
+            markTuiResume({ op: 'tui', g: g, mode: 'typeCmd', text: text, isError: !!isError, isAction: !!isAction, tc: { phase: 'cmd', pi: b.pre.length, ci: ci + 1, qi: 0 } });
+            await wait(charDelay());
+          }
+          for(qi = 0; qi < b.post.length; qi++){
+            if(g !== typeGen) return;
+            b.postEl.textContent = b.post.slice(0, qi + 1);
+            markTuiResume({ op: 'tui', g: g, mode: 'typeCmd', text: text, isError: !!isError, isAction: !!isAction, tc: { phase: 'post', pi: b.pre.length, ci: b.cmd.length, qi: qi + 1 } });
+            await wait(charDelay());
+          }
+        }else if(ph0 === 'cmd'){
+          b.preEl.textContent = b.pre;
+          for(ci = (tcr0.ci|0) | 0; ci < b.cmd.length; ci++){
+            if(g !== typeGen) return;
+            b.cmdEl.textContent = b.cmd.slice(0, ci + 1);
+            markTuiResume({ op: 'tui', g: g, mode: 'typeCmd', text: text, isError: !!isError, isAction: !!isAction, tc: { phase: 'cmd', pi: b.pre.length, ci: ci + 1, qi: 0 } });
+            await wait(charDelay());
+          }
+          for(qi = 0; qi < b.post.length; qi++){
+            if(g !== typeGen) return;
+            b.postEl.textContent = b.post.slice(0, qi + 1);
+            markTuiResume({ op: 'tui', g: g, mode: 'typeCmd', text: text, isError: !!isError, isAction: !!isAction, tc: { phase: 'post', pi: b.pre.length, ci: b.cmd.length, qi: qi + 1 } });
+            await wait(charDelay());
+          }
+        }else if(ph0 === 'post'){
+          b.preEl.textContent = b.pre;
+          b.cmdEl.textContent = b.cmd;
+          for(qi = (tcr0.qi|0) | 0; qi < b.post.length; qi++){
+            if(g !== typeGen) return;
+            b.postEl.textContent = b.post.slice(0, qi + 1);
+            markTuiResume({ op: 'tui', g: g, mode: 'typeCmd', text: text, isError: !!isError, isAction: !!isAction, tc: { phase: 'post', pi: b.pre.length, ci: b.cmd.length, qi: qi + 1 } });
+            await wait(charDelay());
+          }
+        }
       }
     }else{
       var full = b.text;
-      for(var i = 0; i < full.length; i++){
+      for(var i2 = fromPlain; i2 < full.length; i2++){
         if(g !== typeGen) return;
-        line.textContent += full.charAt(i);
+        line.textContent += full.charAt(i2);
+        markTuiResume({
+          op: 'tui',
+          g: g,
+          mode: 'plain',
+          text: text,
+          isError: !!isError,
+          isAction: !!isAction,
+          plainI: i2 + 1
+        });
         await wait(charDelay());
       }
     }
@@ -6467,19 +7011,40 @@ function attachHlCharExitHideAfterTransform(c){
       line.style.lineHeight = 'calc(' + cols + ' / ' + rows + ' * 1ch)';
     }
   }
-  async function typeTerminalLogLine(text, isError, g){
+  function getLastNonSpacerLogLine(){
+    if(!terminalLog) return null;
+    var ch = terminalLog.children;
+    for(var n = ch.length - 1; n >= 0; n--){
+      var le = ch[n];
+      if(le && le.nodeType === 1 && le.classList && !le.classList.contains('site-meta-panel__terminal-log-line--spacer')){
+        return le;
+      }
+    }
+    return null;
+  }
+  async function typeTerminalLogLine(text, isError, g, startFrom, tail){
     if(!terminalLog) return;
-    var line = document.createElement('span');
-    line.className = logLineClassForText(text, isError, false) + FEEDBACK_BDY;
     var full = String(text || '');
-    applyBrailleBlockMetrics(line, full);
-    terminalLog.appendChild(line);
+    var from = (startFrom|0) | 0;
+    var line;
+    if(from > 0){
+      line = getLastNonSpacerLogLine();
+      if(!line) return;
+    }else{
+      line = document.createElement('span');
+      line.className = logLineClassForText(text, isError, false) + FEEDBACK_BDY;
+      applyBrailleBlockMetrics(line, full);
+      terminalLog.appendChild(line);
+    }
     if(reduceMotion.matches){
       line.textContent = full;
     }else{
-      for(var i = 0; i < full.length; i++){
+      for(var i = from; i < full.length; i++){
         if(g !== typeGen) return;
         line.textContent += full.charAt(i);
+        if(panel && panel.classList.contains('site-meta-panel--open')){
+          storyTypeResume = { op: 'line', g: g, text: full, isError: !!isError, i: i + 1, tail: tail || null };
+        }
         scrollTerminalToBottom();
         await wait(charDelay());
       }
@@ -6531,6 +7096,8 @@ function attachHlCharExitHideAfterTransform(c){
           for(var c = 0; c < part.text.length; c++){
             if(g !== typeGen) return;
             appendMakersTextChunk(line, part.text.charAt(c));
+            if(panel && panel.classList.contains('site-meta-panel--open'))
+              storyTypeResume = { op: 'makers', g: g, pi: pi, k: 'tx', c: c + 1 };
             scrollTerminalToBottom();
             await wait(charDelay());
           }
@@ -6544,12 +7111,15 @@ function attachHlCharExitHideAfterTransform(c){
           for(var d = 0; d < part.text.length; d++){
             if(g !== typeGen) return;
             a.textContent = part.text.slice(0, d + 1);
+            if(panel && panel.classList.contains('site-meta-panel--open'))
+              storyTypeResume = { op: 'makers', g: g, pi: pi, k: 'ln', d: d + 1 };
             scrollTerminalToBottom();
             await wait(charDelay());
           }
         }
       }
     }
+    if(g === typeGen) storyTypeResume = null;
     while(terminalLog.childElementCount > 200){
       terminalLog.removeChild(terminalLog.firstElementChild);
     }
@@ -6574,6 +7144,11 @@ function attachHlCharExitHideAfterTransform(c){
     terminalForm.setAttribute('aria-hidden', awaiting ? 'true' : 'false');
   }
   var TERMINAL_STORY_STORAGE_KEY = 'ouro-site-meta-terminal-v1';
+  /* New value on every full navigation / reload — used so localStorage snapshot only applies in this page session. */
+  var terminalPageLoadOrigin =
+    typeof performance !== 'undefined' && typeof performance.timeOrigin === 'number'
+      ? performance.timeOrigin
+      : Date.now();
   function clearTerminalStoryStorage(){
     try{
       localStorage.removeItem(TERMINAL_STORY_STORAGE_KEY);
@@ -6581,10 +7156,18 @@ function attachHlCharExitHideAfterTransform(c){
   }
   function saveTerminalStoryState(){
     if(!panel || !terminalLog) return;
+    var sr = storyTypeResume;
+    /* Mid-stream: still persist (streamResume) so feedback can resume after close; if busy with no trackable stream, clear. */
+    if((storyBusy || panel.getAttribute('aria-busy') === 'true') && !sr){
+      clearTerminalStoryStorage();
+      return;
+    }
     try{
       var sb = getScrollBox();
       var data = {
         v: 1,
+        complete: true,
+        pageLoadOrigin: terminalPageLoadOrigin,
         stepIndex: storyStepIndex|0,
         storyFeedback: panel.classList.contains('site-meta-panel--story-feedback'),
         logHTML: terminalLog.innerHTML,
@@ -6592,19 +7175,28 @@ function attachHlCharExitHideAfterTransform(c){
         innerTerminalOnly: !!(innerEl && innerEl.classList.contains('site-meta-panel__inner--terminal-only')),
         formAwaiting: !!(terminalForm && terminalForm.classList.contains('site-meta-panel__terminal-form--awaiting-ready')),
         input: terminalInput ? String(terminalInput.value || '') : '',
-        bodyScroll: sb ? (sb.scrollTop|0) : 0
+        bodyScroll: sb ? (sb.scrollTop|0) : 0,
+        streamResume: sr ? JSON.parse(JSON.stringify(sr)) : null
       };
       localStorage.setItem(TERMINAL_STORY_STORAGE_KEY, JSON.stringify(data));
     }catch(x){}
   }
   function tryRestoreTerminalFromStorage(){
-    if(!panel || !terminalLog) return false;
+    if(!panel || !terminalLog) return null;
     try{
       var raw = localStorage.getItem(TERMINAL_STORY_STORAGE_KEY);
-      if(!raw) return false;
+      if(!raw) return null;
       var data = JSON.parse(raw);
-      if(data.v !== 1) return false;
-      if(typeof data.stepIndex !== 'number' || data.stepIndex < 0 || data.stepIndex > storySteps.length) return false;
+      if(data.v !== 1) return null;
+      if(data.pageLoadOrigin !== terminalPageLoadOrigin){
+        clearTerminalStoryStorage();
+        return null;
+      }
+      if(data.complete !== true){
+        clearTerminalStoryStorage();
+        return null;
+      }
+      if(typeof data.stepIndex !== 'number' || data.stepIndex < 0 || data.stepIndex > storySteps.length) return null;
       storyStepIndex = data.stepIndex|0;
       if(data.storyFeedback) panel.classList.add('site-meta-panel--story-feedback');
       else panel.classList.remove('site-meta-panel--story-feedback');
@@ -6618,30 +7210,173 @@ function attachHlCharExitHideAfterTransform(c){
       if(terminalInput) terminalInput.value = data.input != null ? data.input : '';
       setTerminalInputEnabled(!data.formAwaiting);
       if(getScrollBox() && data.bodyScroll > 0) getScrollBox().scrollTop = data.bodyScroll|0;
-      return true;
+      return data;
     }catch(x){
-      return false;
+      return null;
+    }
+  }
+  /* Minimize and zoom increment typeGen (cancel) before persisting; resume from the snapshot we just saved. openPanel does this via tryRestore; restoreFromMinimize and zoom did not, so the # / Type CTA after learn could be missing */
+  function playStreamResumeIfSavedInStorage(){
+    if(!panel || !terminalLog) return;
+    if(!panel.classList.contains('site-meta-panel--open')) return;
+    try{
+      var raw = localStorage.getItem(TERMINAL_STORY_STORAGE_KEY);
+      if(!raw) return;
+      var data = JSON.parse(raw);
+      if(data.v !== 1 || !data.streamResume) return;
+      if(data.pageLoadOrigin !== terminalPageLoadOrigin) return;
+      var sr0 = data.streamResume;
+      if(sr0.op === 'tui' || sr0.op === 'line' || sr0.op === 'appendAfter' || sr0.op === 'makers')
+        void resumePausedStoryFromStorage(sr0);
+    }catch(x){}
+  }
+  async function resumePausedStoryFromStorage(sr){
+    if(!sr || !terminalLog) return;
+    if(sr.op === 'tui' && (sr.text == null || !sr.mode)) return;
+    if(sr.op === 'line' && sr.text == null) return;
+    if(sr.op === 'appendAfter' && (!sr.after || !sr.stage)) return;
+    var g = ++typeGen;
+    storyBusy = true;
+    setTerminalInputEnabled(false);
+    if(panel) panel.setAttribute('aria-busy', 'true');
+    try{
+      if(sr.op === 'tui'){
+        var st = Object.assign({ _reuse: true }, sr);
+        if(st.g != null) delete st.g;
+        var wasMode = st.mode;
+        var chase = st.appendChase;
+        await typeInTerminalLogLineUI(st.text, st.isError, st.isAction, g, st);
+        if(g !== typeGen) return;
+        var finishedInstruction = wasMode === 'plain' || wasMode === 'typeCmd';
+        if(chase && chase.after && wasMode === 'hash' && chase.after.instruction){
+          var af0 = chase.after;
+          if(g !== typeGen) return;
+          if(panel && panel.classList.contains('site-meta-panel--open'))
+            storyTypeResume = { op: 'appendAfter', g: g, after: af0, stage: 'beforeInstruction' };
+          appendTerminalLogSpacer();
+          await wait(40 + Math.random() * 35);
+          if(g !== typeGen) return;
+          if(panel && panel.classList.contains('site-meta-panel--open'))
+            storyTypeResume = { op: 'appendAfter', g: g, after: af0, stage: 'instruction' };
+          await typeInTerminalLogLineUI(af0.instruction, false, false, g);
+          if(g !== typeGen) return;
+          finishedInstruction = true;
+        }
+        if(
+          g === typeGen &&
+          finishedInstruction &&
+          storyStepIndex > 0
+        ){
+          var ep = storySteps[storyStepIndex - 1];
+          if(ep && ep.expect === 'summon') setTermPromptFromDisplay('ourolabs@origin:~$');
+        }
+      }else if(sr.op === 'line'){
+        var tail0 = sr.tail || null;
+        await typeTerminalLogLine(String(sr.text), !!sr.isError, g, (sr.i|0) | 0, tail0);
+        if(g !== typeGen) return;
+        if(tail0 && typeof tail0.stepIndex === 'number' && storySteps[tail0.stepIndex] && Array.isArray(storySteps[tail0.stepIndex].lines)){
+          var stp0 = storySteps[tail0.stepIndex];
+          for(var j0 = (tail0.lineIdx|0) + 1; j0 < stp0.lines.length; j0++){
+            if(g !== typeGen) return;
+            var ex0 = panel.classList.contains('site-meta-panel--story-feedback') ? 95 : 0;
+            await wait(85 + ex0 + Math.random() * 90);
+            if(g !== typeGen) return;
+            var nt0 = { stepIndex: tail0.stepIndex, lineIdx: j0, after: tail0.after || null, expect: tail0.expect || '' };
+            if(panel && panel.classList.contains('site-meta-panel--open')){
+              storyTypeResume = { op: 'line', g: g, text: stp0.lines[j0], isError: false, i: 0, tail: nt0 };
+            }
+            await typeTerminalLogLine(stp0.lines[j0], false, g, 0, nt0);
+          }
+          if(g !== typeGen) return;
+          if(storyStepIndex === tail0.stepIndex) storyStepIndex += 1;
+          if(tail0.after){
+            await appendStoryAfter(tail0.after, g);
+            if(g !== typeGen) return;
+          }
+          if(tail0.expect === 'summon') setTermPromptFromDisplay('ourolabs@origin:~$');
+        }
+      }else if(sr.op === 'appendAfter'){
+        var af = sr.after;
+        if(sr.stage === 'beforeHash' && af && af.hash){
+          if(g !== typeGen) return;
+          await wait(50 + Math.random() * 40);
+          if(g !== typeGen) return;
+          await typeInTerminalLogLineUI(af.hash, false, true, g);
+          if(g !== typeGen) return;
+          if(af.instruction){
+            if(panel && panel.classList.contains('site-meta-panel--open'))
+              storyTypeResume = { op: 'appendAfter', g: g, after: af, stage: 'beforeInstruction' };
+            appendTerminalLogSpacer();
+            await wait(50 + Math.random() * 40);
+            if(g !== typeGen) return;
+            if(panel && panel.classList.contains('site-meta-panel--open'))
+              storyTypeResume = { op: 'appendAfter', g: g, after: af, stage: 'instruction' };
+            await typeInTerminalLogLineUI(af.instruction, false, false, g);
+            if(g === typeGen && storyStepIndex > 0){
+              var e1 = storySteps[storyStepIndex - 1];
+              if(e1 && e1.expect === 'summon') setTermPromptFromDisplay('ourolabs@origin:~$');
+            }
+          }
+        }else if(sr.stage === 'beforeInstruction' && af && af.instruction){
+          if(g !== typeGen) return;
+          await wait(50 + Math.random() * 40);
+          if(g !== typeGen) return;
+          if(panel && panel.classList.contains('site-meta-panel--open'))
+            storyTypeResume = { op: 'appendAfter', g: g, after: af, stage: 'instruction' };
+          await typeInTerminalLogLineUI(af.instruction, false, false, g);
+          if(g === typeGen && storyStepIndex > 0){
+            var e2 = storySteps[storyStepIndex - 1];
+            if(e2 && e2.expect === 'summon') setTermPromptFromDisplay('ourolabs@origin:~$');
+          }
+        }
+      }else if(sr.op === 'makers'){
+        var mm = getLastNonSpacerLogLine();
+        if(mm && mm.parentNode === terminalLog) terminalLog.removeChild(mm);
+        await typeMakersLogLineWithLinks(g);
+      }
+    }finally{
+      if(panel) panel.removeAttribute('aria-busy');
+      if(g === typeGen){
+        storyTypeResume = null;
+        storyBusy = false;
+        if(
+          panel &&
+          panel.classList.contains('site-meta-panel--open') &&
+          terminalForm &&
+          !terminalForm.classList.contains('site-meta-panel__terminal-form--awaiting-ready')
+        ){
+          setTerminalInputEnabled(true);
+        }
+        saveTerminalStoryState();
+      }
     }
   }
   async function runStoryStep(step, g){
     await wait(130);
     if(g !== typeGen) return;
     panel.setAttribute('aria-busy', 'true');
-    if(step.typeMakersWithLinks){
-      if(g !== typeGen) return;
-      await typeMakersLogLineWithLinks(g);
-    }else{
-      for(var i = 0; i < step.lines.length; i++){
+    try{
+      if(step.typeMakersWithLinks){
         if(g !== typeGen) return;
-        await typeTerminalLogLine(step.lines[i], false, g);
-        if(i < step.lines.length - 1){
-          var extra = panel.classList.contains('site-meta-panel--story-feedback') ? 95 : 0;
-          await wait(85 + extra + Math.random() * 90);
+        await typeMakersLogLineWithLinks(g);
+      }else{
+        for(var i = 0; i < step.lines.length; i++){
+          if(g !== typeGen) return;
+          var tail = { stepIndex: storyStepIndex, lineIdx: i, after: step.after || null, expect: step.expect || '' };
+          /* Prime resume between lines so a close during the inter-line wait can still finish the section. */
+          if(panel && panel.classList.contains('site-meta-panel--open')){
+            storyTypeResume = { op: 'line', g: g, text: step.lines[i], isError: false, i: 0, tail: tail };
+          }
+          await typeTerminalLogLine(step.lines[i], false, g, 0, tail);
+          if(i < step.lines.length - 1){
+            var extra = panel.classList.contains('site-meta-panel--story-feedback') ? 95 : 0;
+            await wait(85 + extra + Math.random() * 90);
+          }
         }
       }
+    }finally{
+      if(panel) panel.removeAttribute('aria-busy');
     }
-    if(g !== typeGen) return;
-    panel.removeAttribute('aria-busy');
   }
   async function resetInteractiveStory(){
     clearTerminalStoryStorage();
@@ -6845,15 +7580,24 @@ function attachHlCharExitHideAfterTransform(c){
     typeGen++;
     var g = typeGen;
     await runStoryStep(step, g);
-    if(g !== typeGen) return;
+    if(g !== typeGen){
+      storyBusy = false;
+      if(panel && panel.classList.contains('site-meta-panel--open')) setTerminalInputEnabled(true);
+      return;
+    }
     storyStepIndex += 1;
     if(step.after){
       await appendStoryAfter(step.after, g);
-      if(g !== typeGen) return;
+      if(g !== typeGen){
+        storyBusy = false;
+        if(panel && panel.classList.contains('site-meta-panel--open')) setTerminalInputEnabled(true);
+        return;
+      }
     }
     if(step.expect === 'summon'){
-      setTermPromptFromDisplay('ourolabs@story:~$');
+      setTermPromptFromDisplay('ourolabs@origin:~$');
     }
+    storyTypeResume = null;
     storyBusy = false;
     setTerminalInputEnabled(true);
   }
@@ -6964,6 +7708,7 @@ function attachHlCharExitHideAfterTransform(c){
         updateTermBlockCursor();
       }, ms);
     });
+    playStreamResumeIfSavedInStorage();
   }
   var minimizeSettled = true;
   function clearSiteMetaPanelMinimizeNoFadeStyles(){
@@ -6973,7 +7718,11 @@ function attachHlCharExitHideAfterTransform(c){
   }
   function applyMinimizeState(){
     if(panel.classList.contains('site-meta-panel--minimized')) return;
+    typeGen++;
+    storyBusy = false;
+    if(panel) panel.removeAttribute('aria-busy');
     saveTerminalStoryState();
+    storyTypeResume = null;
     clearTerminalKeyboardLift();
     /* Skip the panel’s default opacity close transition so the dim scrim cannot reappear during class churn. */
     panel.style.transition = 'none';
@@ -7039,6 +7788,19 @@ function attachHlCharExitHideAfterTransform(c){
       restoreSiteMetaFromMinimize();
       return;
     }
+    /* A second "open" while already open re-ran tryRestore/reset, wiped the log, and resynced
+       typeGen — aborting the in-flight learn stream after the first paragraph. */
+    if(panel.classList.contains('site-meta-panel--open')){
+      if(typeof requestAnimationFrame === 'function') requestAnimationFrame(function(){
+        tryFocusTerminalInput();
+        updateTermBlockCursor();
+      });
+      else {
+        tryFocusTerminalInput();
+        updateTermBlockCursor();
+      }
+      return;
+    }
     clearSiteMetaPanelMinimizeNoFadeStyles();
     panel.removeAttribute('inert');
     panel.classList.add('site-meta-panel--open');
@@ -7050,7 +7812,8 @@ function attachHlCharExitHideAfterTransform(c){
     siteMetaScrollFreezeGuard();
     if(typeof requestAnimationFrame === 'function') requestAnimationFrame(siteMetaScrollFreezeGuard);
     if(themeMeta) themeMeta.setAttribute('content', '#0a0a0a');
-    if(!tryRestoreTerminalFromStorage()){
+    var restored = tryRestoreTerminalFromStorage();
+    if(!restored){
       scrollPanelToTop();
       void resetInteractiveStory().catch(function(){});
     }else{
@@ -7059,6 +7822,11 @@ function attachHlCharExitHideAfterTransform(c){
           syncTerminalInputViewport();
         });
       });
+      if(restored.streamResume){
+        var sr0 = restored.streamResume;
+        if(sr0.op === 'tui' || sr0.op === 'line' || sr0.op === 'appendAfter' || sr0.op === 'makers')
+          void resumePausedStoryFromStorage(sr0);
+      }
     }
     requestAnimationFrame(function(){
       updateTermBlockCursor();
@@ -7079,9 +7847,12 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
   function closePanel(){
-    saveTerminalStoryState();
+    /* Bump typeGen first so in-flight typewriters coalesce, then quiesce and persist streamResume + log. */
     typeGen++;
     storyBusy = false;
+    if(panel) panel.removeAttribute('aria-busy');
+    saveTerminalStoryState();
+    storyTypeResume = null;
     clearTerminalKeyboardLift();
     clearSiteMetaPanelMinimizeNoFadeStyles();
     document.documentElement.classList.remove('site-meta-minimized');
@@ -7099,7 +7870,6 @@ function attachHlCharExitHideAfterTransform(c){
     setTerminalInputEnabled(false);
     setTerminalFormAwaitingReady(true);
     getScrollBox().scrollTop = 0;
-    panel.removeAttribute('aria-busy');
     removeModalScrollBlockers();
     unlockPageScrollForModal();
     document.documentElement.classList.remove('site-meta-open');
@@ -7138,7 +7908,11 @@ function attachHlCharExitHideAfterTransform(c){
     e.preventDefault();
     e.stopPropagation();
     if(!siteMetaWindow) return;
+    typeGen++;
+    storyBusy = false;
+    if(panel) panel.removeAttribute('aria-busy');
     saveTerminalStoryState();
+    storyTypeResume = null;
     siteMetaWindow.classList.toggle('site-meta-panel__window--max');
     syncSiteMetaZoomButton();
   });
@@ -7171,7 +7945,9 @@ function attachHlCharExitHideAfterTransform(c){
       terminalInput.addEventListener(evName, trySubmitTerminalOnReturn, false);
     });
   }
-  if(backdrop) backdrop.addEventListener('click', closePanel);
+  if(backdrop) backdrop.addEventListener('click', function(){
+    closePanel();
+  });
   document.addEventListener('keydown', function siteMetaKey(e){
     if(e.key !== 'Escape') return;
     if(!panel.classList.contains('site-meta-panel--open')) return;

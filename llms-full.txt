@@ -13,15 +13,15 @@
 **Positioning in one line:** A small design-led practice that builds its own apps, tools, and brands, treating each as a way to sharpen craft at the boundary of design and AI-native workflows.
 
 ## What we do
-- **Product and brand work** for internal experiments and public-facing tools (e.g. video-to-document workflows, latency mapping, and opinionated scaffolds).
+- **Product and brand work** for internal experiments and public-facing tools (e.g. agent-readable design systems, iOS-native video review, and private health archives).
 - **AI-native workflows** — integrating models and tools into how products are designed, built, and iterated, without treating “AI” as a sticker on top of a classic waterfall process.
 - **Design systems and code-adjacent design** — shipping interfaces that sit closely to engineering reality.
 
 ## Public “work” surface (as shown on the site)
 These names appear as featured explorations; details may change as products evolve:
-- **Nota** — Video as a working document: timestamped notes, search, shareable moments.
-- **Latency Atlas** — A map of where AI latency actually matters in real user flows.
-- **Scaffold Runner** — Opinionated scaffolds with CLI, GUI, and AI-assisted setup.
+- **Nota** — An iOS-native app for reviewing footage. Log moments, write notes, find what matters.
+- **Overture DS** — A design system workflow for shaping, querying, and evolving systems with agents.
+- **Health Atlas** — An early personal experiment in more connected care.
 
 Use these as *examples of the kind of work* Ouro pursues, not as guaranteed commercial availability of each product.
 

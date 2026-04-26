@@ -59,18 +59,70 @@ STATEMENT (GREY SECTION BELOW INTRO)
 
 PROJECT STRIP (HORIZONTAL CARDS)
 --------------------------------
-  [Nota]
-  Turn video into a working document with timestamped notes, searchable
-  transcripts, and shareable moments.
-  Button: Discover
+  Learn more toggles an expanded card (wider track + long copy). Label
+  becomes Close when open. Escape closes; opening another card closes the
+  previous.
 
-  [Latency Atlas]
-  A map of where AI latency actually matters in real user flows.
-  Button: Discover
+  [Nota] — featured card
+  An iOS-native app for reviewing footage. Log moments, write notes, find
+  what matters.
+  Button: Learn more / Close
+  Expanded: #hcard-detail-nota
+    (Body) The problem is simple: video projects can create hundreds of hours
+    of footage, and the important moments are easy to lose. A quote, a
+    gesture, a pause, a reaction, a scene marker, a detail that matters later.
+    Once it disappears into the timeline, finding it again can take forever.
+    Nota helps anyone working with video footage review with more intention.
+    Users can log time-stamped moments, write notes, organize clips, and keep
+    track of what matters as they watch.
+    We also built Nota to get closer to the native app-making process itself:
+    learning Xcode, understanding iOS patterns, and working through what it
+    takes to design, build, and prepare something for the App Store.
+    It’s both a useful tool and a hands-on exploration of how modern product
+    teams can move from idea to native software with more ownership.
+    We expect to launch Nota in the App Store by summer 2026.
+    CTA (link): “Request early access” →
+      mailto:hello@ourolabs.com?subject=Nota%3A%20Request%20early%20access&body=Hi%20Ouro%20team%2C%0D%0A%0D%0AI%27d%20like%20to%20request%20early%20access%20to%20Nota.%0D%0A%0D%0AThanks%2C%0D%0A
 
-  [Scaffold Runner]
-  Opinionated project scaffolds with a CLI, GUI, and AI-assisted setup.
-  Button: Discover
+  [Overture DS]
+  A design system workflow for shaping, querying, and evolving systems with
+  agents.
+  Expanded: #hcard-detail-overture
+    (Body) We’re not just building an agentic design system. We’re building the
+    workflow around it, so designers like us can still shape it visually when
+    we need to, query it structurally, and extend it across products, tools,
+    and teams through natural language prompts.
+    Today, JSON is the connective layer. It turns our design decisions into
+    something structured enough to adapt across an evolving tooling
+    landscape, precise enough to support implementation, and clear enough for
+    agents to reason over.
+    This is where agents and code editors become integral. Not as a shortcut
+    around design judgment, but as a way to help the system respond and adapt
+    quickly to new contexts, platforms, and brand languages. Agents can read
+    the structure, compose UI from prompts, check for consistency, adapt
+    rules across contexts, and help generate new patterns that still belong.
+    We’re still early, but that’s the point. The work is not just the design
+    system. It is the way the system gets made, used, and evolved.
+
+  [Health Atlas]
+  An early personal experiment in more connected care.
+  Expanded: #hcard-detail-health-atlas
+    (Body) This project started as a very personal experiment, born from our
+    own frustration: trying to hold a more holistic, longitudinal view of our
+    health in a system that was never designed to hold the whole story.
+    Especially in women’s health, the details matter: random symptoms, labs,
+    cycles, medications, history, lifestyle, and lived experience. But they end
+    up scattered across portals, PDFs, notes, and memory. Too much of the
+    story lives between appointments, and too often, we’re the ones piecing it
+    back together.
+    Health Atlas turns the records we already have into a personal health
+    archive we can actually use. AI helps organize the details, surface
+    patterns, notice what has changed, and prepare better questions for the
+    next appointment.
+    The question we’re trying to answer is simple, and one many women are
+    already asking: what if a clear picture of our health didn’t have to live
+    behind expensive concierge medicine, membership clinics, or fragmented
+    hospital portals?
 
 
 FOOTER
