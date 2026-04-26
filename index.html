@@ -6781,8 +6781,14 @@ function attachHlCharExitHideAfterTransform(c){
       if(teTimeout) clearTimeout(teTimeout);
       w.classList.remove('site-meta-panel__window--minimize-out');
       w.style.willChange = '';
-      panel.classList.remove('site-meta-panel--minimize-anim');
+      panel.style.transition = 'none';
+      panel.style.opacity = '0';
       applyMinimizeState();
+      panel.classList.remove('site-meta-panel--minimize-anim');
+      requestAnimationFrame(function(){
+        panel.style.transition = '';
+        panel.style.opacity = '';
+      });
     }
     function onTE(e){
       if(e.target !== w) return;
