@@ -6714,6 +6714,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
   function restoreSiteMetaFromMinimize(){
     if(!panel.classList.contains('site-meta-panel--minimized')) return;
+    clearSiteMetaPanelMinimizeNoFadeStyles();
     document.documentElement.classList.remove('site-meta-minimized');
     panel.classList.remove('site-meta-panel--minimized');
     panel.classList.add('site-meta-panel--open');
@@ -6746,8 +6747,16 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
   var minimizeSettled = true;
+  function clearSiteMetaPanelMinimizeNoFadeStyles(){
+    if(!panel) return;
+    panel.style.transition = '';
+    panel.style.removeProperty('opacity');
+  }
   function applyMinimizeState(){
     if(panel.classList.contains('site-meta-panel--minimized')) return;
+    /* Skip the panel’s default opacity close transition so the dim scrim cannot reappear during class churn. */
+    panel.style.transition = 'none';
+    panel.style.opacity = '0';
     if(siteMetaWindow) siteMetaWindow.classList.remove('site-meta-panel__window--max');
     syncSiteMetaZoomButton();
     panel.classList.add('site-meta-panel--minimized');
@@ -6781,14 +6790,8 @@ function attachHlCharExitHideAfterTransform(c){
       if(teTimeout) clearTimeout(teTimeout);
       w.classList.remove('site-meta-panel__window--minimize-out');
       w.style.willChange = '';
-      panel.style.transition = 'none';
-      panel.style.opacity = '0';
       applyMinimizeState();
       panel.classList.remove('site-meta-panel--minimize-anim');
-      requestAnimationFrame(function(){
-        panel.style.transition = '';
-        panel.style.opacity = '';
-      });
     }
     function onTE(e){
       if(e.target !== w) return;
@@ -6815,6 +6818,7 @@ function attachHlCharExitHideAfterTransform(c){
       restoreSiteMetaFromMinimize();
       return;
     }
+    clearSiteMetaPanelMinimizeNoFadeStyles();
     panel.removeAttribute('inert');
     panel.classList.add('site-meta-panel--open');
     panel.setAttribute('aria-hidden', 'false');
@@ -6848,6 +6852,7 @@ function attachHlCharExitHideAfterTransform(c){
   function closePanel(){
     typeGen++;
     storyBusy = false;
+    clearSiteMetaPanelMinimizeNoFadeStyles();
     document.documentElement.classList.remove('site-meta-minimized');
     panel.classList.remove('site-meta-panel--minimized');
     if(siteMetaDock) siteMetaDock.setAttribute('hidden', '');
