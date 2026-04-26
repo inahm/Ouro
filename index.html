@@ -5804,6 +5804,7 @@ function attachHlCharExitHideAfterTransform(c){
   var fullTexts = typeEls.map(function(el){ return el.getAttribute('data-typewriter') || ''; });
   var terminalForm = document.getElementById('site-meta-terminal-form');
   var terminalInput = document.getElementById('site-meta-terminal-input');
+  var terminalInputWrap = document.getElementById('site-meta-terminal-input-wrap');
   var termMirror = document.getElementById('site-meta-terminal-mirror');
   var termCursor = document.getElementById('site-meta-terminal-cursor');
   var terminalLog = document.getElementById('site-meta-terminal-log');
@@ -5971,14 +5972,26 @@ function attachHlCharExitHideAfterTransform(c){
     }
     ['input', 'keydown', 'keyup', 'click', 'focus', 'blur', 'select', 'scroll'].forEach(function(ev){
       terminalInput.addEventListener(ev, function(){
-        if(ev === 'scroll') return updateTermBlockCursor();
+        if(ev === 'scroll'){
+          updateTermBlockCursor();
+          syncTerminalInputViewport();
+          return;
+        }
         if(ev === 'blur') return updateTermBlockCursor();
-        return scheduleTermCursorUpdate();
+        scheduleTermCursorUpdate();
+        if(ev === 'focus' || ev === 'click' || ev === 'input' || ev === 'keydown' || ev === 'keyup'){
+          scheduleTerminalInputViewportSync();
+        }
       });
     });
     window.addEventListener('resize', function(){
       updateTermBlockCursor();
+      scheduleTerminalInputViewportSync();
     }, { passive: true });
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize', scheduleTerminalInputViewportSync, { passive: true });
+      window.visualViewport.addEventListener('scroll', scheduleTerminalInputViewportSync, { passive: true });
+    }
   }
   function tryFocusTerminalInput(){
     if(!terminalInput || terminalInput.disabled) return;
@@ -5988,8 +6001,28 @@ function attachHlCharExitHideAfterTransform(c){
     terminalInput.focus({ preventScroll: true });
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
+        syncTerminalInputViewport();
         updateTermBlockCursor();
       });
+    });
+  }
+  function syncTerminalInputViewport(){
+    if(!panel || !panel.classList.contains('site-meta-panel--open')) return;
+    var sb = getScrollBox();
+    if(!sb) return;
+    sb.scrollTop = sb.scrollHeight;
+    if(!terminalInputWrap) return;
+    var vv = window.visualViewport;
+    var viewportBottom = vv ? (vv.height + vv.offsetTop) : (window.innerHeight || document.documentElement.clientHeight || 0);
+    var pad = 12;
+    var wrapRect = terminalInputWrap.getBoundingClientRect();
+    if(wrapRect.bottom > viewportBottom - pad){
+      sb.scrollTop += wrapRect.bottom - (viewportBottom - pad);
+    }
+  }
+  function scheduleTerminalInputViewportSync(){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(syncTerminalInputViewport);
     });
   }
   function siteMetaTypeThroughKeydown(e){
@@ -6416,6 +6449,7 @@ function attachHlCharExitHideAfterTransform(c){
       terminalInput.focus({ preventScroll: true });
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){
+          syncTerminalInputViewport();
           updateTermBlockCursor();
         });
       });
