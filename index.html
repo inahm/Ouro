@@ -2385,6 +2385,21 @@ html.site-meta-minimized .site-meta-btn__icon--filled{
 .site-meta-panel__terminal-form.site-meta-panel__terminal-form--awaiting-ready{
   display:none;
 }
+/* Coarse pointer: keep input focusable in the same tap gesture so the OS keyboard can open (not display:none). */
+html.site-meta-open.site-meta-kb-prime .site-meta-panel__terminal-form.site-meta-panel__terminal-form--awaiting-ready{
+  display:flex;
+  position:fixed;
+  left:0;
+  top:0;
+  width:1px;
+  height:1px;
+  margin:0;
+  border:0;
+  padding:0;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+}
 .site-meta-panel__terminal-input-wrap{
   position:relative;
   flex:1 1 auto;
@@ -5171,15 +5186,25 @@ function attachHlCharExitHideAfterTransform(c){
   var introTouchActive = false;
   /** After intro touch gestures, ignore the synthetic click so we don’t advance twice. */
   var introStageClickTouchGuardUntil = 0;
+  /** Set only when touchmove actually advances intro — otherwise tap’s synthetic click is blocked. */
+  var introTouchDidAdvance = false;
   var mobilePhase5FastUnlockDone = false;
+  function introStageClickTargetIsInteractive(t){
+    if(!t || !t.closest) return false;
+    return !!t.closest(
+      'a[href], button, input, textarea, select, [role="button"], label[for], summary'
+    );
+  }
   function onTouchStart(e){
     if(document.documentElement.classList.contains('site-meta-open')) return;
     if(phase === 6) return;
     if(phase === 40) return;
     if(e.touches.length !== 1) return;
+    if(introStageClickTargetIsInteractive(e.target)) return;
     if(phase === 1 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 3 && (exitInProgress || !heroHl.classList.contains('revealed'))) return;
     if(phase === 0) return;
+    introTouchDidAdvance = false;
     touchY = e.touches[0].clientY;
     introTouchActive = true;
   }
@@ -5200,14 +5225,19 @@ function attachHlCharExitHideAfterTransform(c){
     if(phase === 5){
       if(isMobileIntent() && !mobilePhase5FastUnlockDone){
         mobilePhase5FastUnlockDone = true;
+        introTouchDidAdvance = true;
         /* Scroll after continuation inits (same frame chain as unlock) to avoid layout jump. */
         unlockThirdActPageScroll(scrollIntroBelowAfterThirdActUnlock);
         return;
       }
       thirdActUnlockWheelAccum += amt;
       tryUnlockThirdActIfReady();
-      if(phase === 6) return;
+      if(phase === 6){
+        introTouchDidAdvance = true;
+        return;
+      }
     }
+    introTouchDidAdvance = true;
     e.preventDefault();
     if(phase === 1) bumpPrimaryExit(amt);
     else if(phase === 2) bumpSecondIntro(amt);
@@ -5225,22 +5255,18 @@ function attachHlCharExitHideAfterTransform(c){
     }
   }
   function onTouchEnd(){
-    if(introTouchActive) introStageClickTouchGuardUntil = performance.now() + 380;
+    if(introTouchActive && introTouchDidAdvance) introStageClickTouchGuardUntil = performance.now() + 380;
     introTouchActive = false;
+    introTouchDidAdvance = false;
     touchY = null;
   }
   function onTouchCancel(){
-    if(introTouchActive) introStageClickTouchGuardUntil = performance.now() + 380;
+    if(introTouchActive && introTouchDidAdvance) introStageClickTouchGuardUntil = performance.now() + 380;
     introTouchActive = false;
+    introTouchDidAdvance = false;
     touchY = null;
   }
 
-  function introStageClickTargetIsInteractive(t){
-    if(!t || !t.closest) return false;
-    return !!t.closest(
-      'a[href], button, input, textarea, select, [role="button"], label[for], summary'
-    );
-  }
   function onStageClick(e){
     if(document.documentElement.classList.contains('site-meta-open')) return;
     if(e.button !== 0) return;
@@ -5495,23 +5521,26 @@ function attachHlCharExitHideAfterTransform(c){
   requestAnimationFrame(scheduleNavThirdRedOverlap);
 
   var heroScrollWheelOpts = { passive: false };
-  var heroScrollTouchMoveOpts = { passive: false };
+  var heroScrollTouchStartOpts = { passive: true, capture: true };
+  var heroScrollTouchMoveOpts = { passive: false, capture: true };
+  var heroScrollTouchEndOpts = { passive: true, capture: true };
   function detachHeroScrollLocks(){
     window.removeEventListener('wheel', onWheel, heroScrollWheelOpts);
-    window.removeEventListener('touchstart', onTouchStart, { passive: true });
-    window.removeEventListener('touchmove', onTouchMove, heroScrollTouchMoveOpts);
-    window.removeEventListener('touchend', onTouchEnd, { passive: true });
-    window.removeEventListener('touchcancel', onTouchCancel, { passive: true });
+    document.removeEventListener('touchstart', onTouchStart, heroScrollTouchStartOpts);
+    document.removeEventListener('touchmove', onTouchMove, heroScrollTouchMoveOpts);
+    document.removeEventListener('touchend', onTouchEnd, heroScrollTouchEndOpts);
+    document.removeEventListener('touchcancel', onTouchCancel, heroScrollTouchEndOpts);
     window.removeEventListener('keydown', onKeyDown);
     stage.removeEventListener('click', onStageClick);
   }
 
   stage.addEventListener('click', onStageClick);
   window.addEventListener('wheel', onWheel, heroScrollWheelOpts);
-  window.addEventListener('touchstart', onTouchStart, { passive: true });
-  window.addEventListener('touchmove', onTouchMove, heroScrollTouchMoveOpts);
-  window.addEventListener('touchend', onTouchEnd, { passive: true });
-  window.addEventListener('touchcancel', onTouchCancel, { passive: true });
+  /* document + capture: iOS / Chrome deliver touchmove reliably; window often misses for intro swipe. */
+  document.addEventListener('touchstart', onTouchStart, heroScrollTouchStartOpts);
+  document.addEventListener('touchmove', onTouchMove, heroScrollTouchMoveOpts);
+  document.addEventListener('touchend', onTouchEnd, heroScrollTouchEndOpts);
+  document.addEventListener('touchcancel', onTouchCancel, heroScrollTouchEndOpts);
   window.addEventListener('keydown', onKeyDown);
 })();
 </script>
@@ -5783,6 +5812,9 @@ function attachHlCharExitHideAfterTransform(c){
   var fullTexts = typeEls.map(function(el){ return el.getAttribute('data-typewriter') || ''; });
   var terminalForm = document.getElementById('site-meta-terminal-form');
   var terminalInput = document.getElementById('site-meta-terminal-input');
+  function isCoarsePointer(){
+    return window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  }
   var termMirror = document.getElementById('site-meta-terminal-mirror');
   var termCursor = document.getElementById('site-meta-terminal-cursor');
   var terminalLog = document.getElementById('site-meta-terminal-log');
@@ -5975,7 +6007,7 @@ function attachHlCharExitHideAfterTransform(c){
     if(e.key === 'Escape') return;
     if(!document.documentElement.classList.contains('site-meta-open')) return;
     if(!panel || !panel.classList.contains('site-meta-panel--open')) return;
-    if(!terminalInput || terminalInput.disabled || storyBusy) return;
+    if(!terminalInput || terminalInput.disabled || terminalInput.readOnly || storyBusy) return;
     if(e.defaultPrevented) return;
     if(document.activeElement === terminalInput) return;
     if(e.key.length !== 1) return;
@@ -6391,6 +6423,7 @@ function attachHlCharExitHideAfterTransform(c){
   function setTerminalInputEnabled(on){
     if(!terminalInput) return;
     terminalInput.disabled = !on;
+    terminalInput.readOnly = false;
     if(on){
       terminalInput.focus({ preventScroll: true });
       requestAnimationFrame(function(){
@@ -6404,6 +6437,11 @@ function attachHlCharExitHideAfterTransform(c){
     if(!terminalForm) return;
     terminalForm.classList.toggle('site-meta-panel__terminal-form--awaiting-ready', !!awaiting);
     terminalForm.setAttribute('aria-hidden', awaiting ? 'true' : 'false');
+    if(!awaiting){
+      document.documentElement.classList.remove('site-meta-kb-prime');
+      if(terminalInput) terminalInput.readOnly = false;
+      tryFocusTerminalInput();
+    }
   }
   async function runStoryStep(step, g){
     await wait(130);
@@ -6434,8 +6472,17 @@ function attachHlCharExitHideAfterTransform(c){
     resetTypewriter();
     setStoryRowsVisible(false);
     setTermPromptFromDisplay('ourolabs@learn:~$');
-    setTerminalInputEnabled(false);
+    if(isCoarsePointer()){
+      document.documentElement.classList.add('site-meta-kb-prime');
+      if(terminalInput){
+        terminalInput.disabled = false;
+        terminalInput.readOnly = true;
+      }
+    }else{
+      setTerminalInputEnabled(false);
+    }
     setTerminalFormAwaitingReady(true);
+    if(isCoarsePointer()) tryFocusTerminalInput();
     clearTerminalLog();
     try{
       await wait(130);
@@ -6580,7 +6627,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
   async function onTerminalSubmit(e){
     e.preventDefault();
-    if(storyBusy || !terminalInput) return;
+    if(storyBusy || !terminalInput || terminalInput.readOnly) return;
     var raw = terminalInput.value.trim();
     if(!raw) return;
     var cmd = raw.toLowerCase();
@@ -6731,6 +6778,9 @@ function attachHlCharExitHideAfterTransform(c){
     requestAnimationFrame(function(){
       updateTermBlockCursor();
     });
+    if(isCoarsePointer() && document.documentElement.classList.contains('site-meta-kb-prime')){
+      tryFocusTerminalInput();
+    }
     if(typeof requestAnimationFrame === 'function'){
       requestAnimationFrame(function(){
         tryFocusTerminalInput();
@@ -6767,6 +6817,7 @@ function attachHlCharExitHideAfterTransform(c){
     removeModalScrollBlockers();
     unlockPageScrollForModal();
     document.documentElement.classList.remove('site-meta-open');
+    document.documentElement.classList.remove('site-meta-kb-prime');
     document.documentElement.classList.add('site-meta-minimized');
     if(themeColorPrev != null && themeMeta) themeMeta.setAttribute('content', themeColorPrev);
     if(siteMetaDock) siteMetaDock.setAttribute('hidden', '');
@@ -6853,6 +6904,7 @@ function attachHlCharExitHideAfterTransform(c){
     typeGen++;
     storyBusy = false;
     clearSiteMetaPanelMinimizeNoFadeStyles();
+    document.documentElement.classList.remove('site-meta-kb-prime');
     document.documentElement.classList.remove('site-meta-minimized');
     panel.classList.remove('site-meta-panel--minimized');
     if(siteMetaDock) siteMetaDock.setAttribute('hidden', '');
