@@ -6060,68 +6060,43 @@ function attachHlCharExitHideAfterTransform(c){
       siteMetaWindow.style.maxHeight = '';
       siteMetaWindow.style.paddingBottom = '';
     }
-    if(terminalForm){
-      terminalForm.style.position = '';
-      terminalForm.style.left = '';
-      terminalForm.style.right = '';
-      terminalForm.style.bottom = '';
-      terminalForm.style.zIndex = '';
-      terminalForm.style.background = '';
-      terminalForm.style.padding = '';
-      terminalForm.style.borderTop = '';
-    }
-    if(bodyEl){
-      bodyEl.style.paddingBottom = '';
-    }
-    updateKbDebugOverlay(0);
   }
-  /* Optional on-screen diagnostic overlay. Enable by visiting the site with `?kbdbg` in URL.
-     Stays in localStorage so reloads keep it on. Useful for triaging keyboard-lift issues on iPhone
-     where remote DevTools aren't always practical. */
-  var KB_DBG_KEY = 'ouro-kbdbg';
-  try{
-    if(/[?&]kbdbg(=1)?(&|$)/.test(window.location.search)) localStorage.setItem(KB_DBG_KEY, '1');
-    if(/[?&]kbdbg=0(&|$)/.test(window.location.search)) localStorage.removeItem(KB_DBG_KEY);
-  }catch(_){ /* ignore */ }
-  var kbDebugOn = false;
-  try{ kbDebugOn = localStorage.getItem(KB_DBG_KEY) === '1'; }catch(_){ kbDebugOn = false; }
+  var KB_DEBUG = (function(){
+    try{
+      var s = (window.location && (window.location.hash || '')) + ' ' + (window.location.search || '');
+      return /[#&?]kbdebug(\b|=)/.test(s);
+    }catch(_){ return false; }
+  })();
   var kbDebugEl = null;
-  function ensureKbDebugOverlay(){
-    if(!kbDebugOn) return null;
+  function ensureKbDebugEl(){
+    if(!KB_DEBUG) return null;
     if(kbDebugEl && kbDebugEl.isConnected) return kbDebugEl;
     kbDebugEl = document.createElement('div');
-    kbDebugEl.id = 'ouro-kb-debug';
-    kbDebugEl.style.cssText = 'position:fixed;top:env(safe-area-inset-top,0);left:0;right:0;z-index:2147483647;background:rgba(0,0,0,0.78);color:#0f0;font:11px/1.25 ui-monospace,Menlo,Monaco,monospace;padding:6px 8px;pointer-events:none;white-space:pre-wrap;border-bottom:1px solid #0a0;';
+    kbDebugEl.id = 'kb-debug-overlay';
+    kbDebugEl.style.cssText = [
+      'position:fixed','left:6px','top:6px','z-index:2147483647',
+      'font:10px/1.25 ui-monospace,Menlo,monospace','color:#ffe66d',
+      'background:rgba(0,0,0,0.78)','padding:5px 7px','border-radius:4px',
+      'pointer-events:none','white-space:pre','max-width:62vw','letter-spacing:0.01em'
+    ].join(';');
     document.body.appendChild(kbDebugEl);
     return kbDebugEl;
   }
-  function updateKbDebugOverlay(keyboardH){
-    if(!kbDebugOn) return;
-    var el = ensureKbDebugOverlay();
+  function writeKbDebug(info){
+    var el = ensureKbDebugEl();
     if(!el) return;
-    var vv = window.visualViewport;
-    var ae = document.activeElement;
-    var formRect = terminalForm ? terminalForm.getBoundingClientRect() : null;
-    var sbEl = bodyEl;
-    var lines = [
-      'kb=' + (keyboardH|0) + 'px  pb=' + (siteMetaWindow ? (siteMetaWindow.style.paddingBottom || '0') : '-'),
-      'innerH=' + window.innerHeight + ' clientH=' + document.documentElement.clientHeight,
-      'vv.h=' + (vv ? Math.round(vv.height) : '-') + ' vv.oTop=' + (vv ? Math.round(vv.offsetTop || 0) : '-') + ' vv.pTop=' + (vv ? Math.round(vv.pageTop || 0) : '-'),
-      'panelOpen=' + (panel && panel.classList.contains('site-meta-panel--open') ? '1' : '0') + ' busy=' + (storyBusy ? '1' : '0') + ' inputDisabled=' + (terminalInput ? terminalInput.disabled : '-'),
-      'ae=' + (ae ? ((ae.id || ae.tagName) + (ae === terminalInput ? '*' : '')) : 'none'),
-      'formY=' + (formRect ? Math.round(formRect.top) + '-' + Math.round(formRect.bottom) : '-'),
-      'sb.scrollT=' + (sbEl ? sbEl.scrollTop : '-') + ' sb.cliH=' + (sbEl ? sbEl.clientHeight : '-') + ' sb.scrH=' + (sbEl ? sbEl.scrollHeight : '-')
-    ];
-    el.textContent = lines.join('\n');
+    el.textContent = info;
   }
   function syncTerminalKeyboardLift(){
     if(!siteMetaWindow || !panel || !panel.classList.contains('site-meta-panel--open')){
       clearTerminalKeyboardLift();
+      if(KB_DEBUG) writeKbDebug('panel closed');
       return;
     }
     var vv = window.visualViewport;
     if(!vv){
       clearTerminalKeyboardLift();
+      if(KB_DEBUG) writeKbDebug('no visualViewport');
       return;
     }
     /* Lift is driven by the visualViewport signal alone, not by activeElement. iOS Safari fires
@@ -6133,37 +6108,39 @@ function attachHlCharExitHideAfterTransform(c){
     var keyboardH = Math.max(0, Math.round(layoutH - (vv.height + (vv.offsetTop || 0))));
     if(keyboardH < 60){
       clearTerminalKeyboardLift();
+      if(KB_DEBUG){
+        var ae0 = document.activeElement;
+        writeKbDebug(
+          'kb=' + keyboardH + ' (cleared)' +
+          '\nlayoutH=' + layoutH + ' vvH=' + Math.round(vv.height) + ' vvT=' + Math.round(vv.offsetTop || 0) +
+          '\nae=' + (ae0 ? (ae0.id || ae0.tagName) : 'null') +
+          '\nstep=' + (typeof storyStepIndex !== 'undefined' ? storyStepIndex : '?') +
+          ' busy=' + (typeof storyBusy !== 'undefined' ? !!storyBusy : '?')
+        );
+      }
       return;
     }
-    /* Pin the input form itself to position:fixed at the bottom of the visible viewport. This is
-       the most reliable strategy across the whole command sequence: it doesn't depend on body
-       clientHeight recomputing, doesn't depend on scrollTop=scrollHeight clamping correctly with
-       long content, and doesn't depend on the form being the bottom-most child of the scrollable
-       body. The form is GUARANTEED to be just above the keyboard.
-
-       Body gets matching padding-bottom so the log content can scroll the input area into view but
-       won't render behind the now-fixed form. */
-    if(terminalForm){
-      var formBg = getComputedStyle(siteMetaWindow).backgroundColor || '#000';
-      terminalForm.style.position = 'fixed';
-      terminalForm.style.left = '0';
-      terminalForm.style.right = '0';
-      terminalForm.style.bottom = keyboardH + 'px';
-      terminalForm.style.zIndex = '5';
-      terminalForm.style.background = formBg;
-      terminalForm.style.padding = '0.55rem 18px calc(0.55rem + env(safe-area-inset-bottom, 0px))';
-      terminalForm.style.borderTop = '1px solid rgba(255,255,255,0.06)';
+    /* Window is `display:flex; flex-direction:column; height:100dvh; box-sizing:border-box`, with the
+       scrollable body as `flex:1`. Adding padding-bottom = keyboardH shrinks the body's usable area
+       so the terminal form (last child inside body) anchors right above the keyboard. Padding is not
+       in the window's transition list, so the lift is instant — no animated lag, no layout fight. */
+    siteMetaWindow.style.paddingBottom = keyboardH + 'px';
+    if(KB_DEBUG){
+      var sb = bodyEl;
+      var wr = terminalInputWrap ? terminalInputWrap.getBoundingClientRect() : null;
+      var vBot = vv.height + (vv.offsetTop || 0);
+      var ae = document.activeElement;
+      writeKbDebug(
+        'kb=' + keyboardH + 'px (applied)' +
+        '\nlayoutH=' + layoutH + ' vvH=' + Math.round(vv.height) + ' vvT=' + Math.round(vv.offsetTop || 0) +
+        '\nwinPB=' + siteMetaWindow.style.paddingBottom +
+        '\nbody scroll=' + (sb ? sb.scrollTop : '?') + '/' + (sb ? sb.scrollHeight : '?') + ' ch=' + (sb ? sb.clientHeight : '?') +
+        '\nwrapBot=' + (wr ? Math.round(wr.bottom) : '?') + ' vBot=' + Math.round(vBot) + ' diff=' + (wr ? Math.round(wr.bottom - vBot) : '?') +
+        '\nae=' + (ae ? (ae.id || ae.tagName) : 'null') +
+        '\nstep=' + (typeof storyStepIndex !== 'undefined' ? storyStepIndex : '?') +
+        ' busy=' + (typeof storyBusy !== 'undefined' ? !!storyBusy : '?')
+      );
     }
-    if(bodyEl){
-      var formH = terminalForm ? Math.ceil(terminalForm.getBoundingClientRect().height) : 0;
-      bodyEl.style.paddingBottom = (formH + 8) + 'px';
-    }
-    /* Belt-and-suspenders: also keep the body scrolled to the bottom so the latest log line is
-       visible just above the now-pinned form. */
-    if(bodyEl){
-      bodyEl.scrollTop = bodyEl.scrollHeight;
-    }
-    updateKbDebugOverlay(keyboardH);
   }
   function syncTerminalInputViewport(){
     if(!panel || !panel.classList.contains('site-meta-panel--open')){
