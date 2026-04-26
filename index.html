@@ -194,16 +194,6 @@ html,body{
   html.site-meta-open.custom-cursor--active .site-meta-panel__terminal-ui a.site-meta-panel__terminal-log-link{
     cursor:pointer !important;
   }
-  /* Horizontal project cards: red pointer (higher specificity than cursor:none on *; .custom-cursor--hcard hides the JS dot) */
-  .scroll-intro-continuation .hcard,
-  .scroll-intro-continuation .hcard *{
-    cursor:url('hcard-cursor.svg') 0 0, pointer !important;
-  }
-}
-html.custom-cursor--hcard .custom-cursor{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none;
 }
 html.site-meta-open .custom-cursor{
   opacity:0 !important;
@@ -253,6 +243,27 @@ html.site-meta-open .custom-cursor{
   margin-left:0;
   margin-top:0;
   background:#fff;
+}
+/* Project cards: brand red dot — must turn off .custom-cursor’s difference blend here; otherwise red inverts to cyan/blue on light panels */
+html.custom-cursor--hcard .custom-cursor{
+  mix-blend-mode:normal;
+}
+html.custom-cursor--hcard .custom-cursor__dot{
+  background:var(--red);
+}
+/* White ring on light .hcard--light: keep particles visible with normal compositing */
+html.custom-cursor--hcard .custom-cursor--hover .custom-cursor__ring{
+  filter:drop-shadow(0 0 0.5px rgba(0,0,0,0.35));
+}
+/* Links / buttons on cards: restore difference + white dot (reads dark on light panels) */
+html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor{
+  mix-blend-mode:difference;
+}
+html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor__dot{
+  background:#fff;
+}
+html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor--hover .custom-cursor__ring{
+  filter:none;
 }
 /* After third act: native vertical scroll + continuation (see unlockThirdActPageScroll)
    Single scroll root on <html> — iOS Safari often “sticks” when both html and body are overflow-y:auto. */
@@ -953,6 +964,16 @@ body{
   mix-blend-mode:normal;
   transition:opacity 0.42s var(--ease-out-flow), color 0.35s var(--ease-out-flow), outline-color 0.35s var(--ease-out-flow);
 }
+/* Scrollable logo: translateY tracks #third-act (no transform transition); past-third-act hides until red is on screen again */
+html.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-logo{
+  transition:color 0.35s var(--ease-out-flow), outline-color 0.35s var(--ease-out-flow);
+}
+html.scroll-intro-scrollable.scroll-intro-logo-past-third-act .scroll-intro-header-strip .scroll-intro-logo{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  transition:none !important;
+}
 .scroll-intro-logo svg{
   display:block;
   height:var(--scroll-intro-logo-h);
@@ -1181,27 +1202,26 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:focus-
     transition-duration:0.05s;
   }
 }
-/*
- * Header strip (.scroll-intro-header-strip) is z-index 60 so site-meta control + logo + section nav stay above in-flow content.
- * When the first subcopy block (#scroll-intro-below) reaches the nav band (scroll-intro-cards-over-nav on <html>),
- * continuation is lifted (z-index 7) for layering with other sections; the header row remains on top.
- */
+/* Header strip z-index 60. subcopy/cards-over-nav: continuation z-index 7; hide nav + header terminal (sharp) on cards always, on subcopy when ≤960px. */
+html.scroll-intro-subcopy-under-nav.scroll-intro-scrollable #scroll-intro-continuation,
 html.scroll-intro-cards-over-nav.scroll-intro-scrollable #scroll-intro-continuation{
   position:relative;
   z-index:7;
 }
-/* Studio block under nav band — hide logo + section nav (all breakpoints; FAB stays). */
-html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-logo,
-html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-top-nav{
-  opacity:0;
-  pointer-events:none;
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-top-nav,
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-meta-btn--fab{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  transition:none !important;
 }
-html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-top-nav{
-  transition:opacity 0.42s var(--ease-out-flow);
-}
-@media (prefers-reduced-motion: reduce){
-  html.scroll-intro-cards-over-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-top-nav{
-    transition-duration:0.05s;
+@media (max-width: 960px){
+  html.scroll-intro-subcopy-under-nav.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-top-nav,
+  html.scroll-intro-subcopy-under-nav.scroll-intro-scrollable #site-meta-open.site-meta-btn--fab{
+    opacity:0 !important;
+    visibility:hidden !important;
+    pointer-events:none !important;
+    transition:none !important;
   }
 }
 
@@ -4820,6 +4840,7 @@ function attachHlCharExitHideAfterTransform(c){
     initKimTeamScrollMotion();
 
     var subcopyBlockForNav = cont.querySelector('#scroll-intro-below');
+    var cardsBlockForNav = cont.querySelector('#proj-grid-wrap');
     var scrollIntroLogoNav = document.querySelector('.scroll-intro-logo');
     var scrollIntroNavLinks = document.querySelectorAll('.scroll-intro-nav-link');
     var scrollIntroNavToggle = document.getElementById('scroll-intro-nav-toggle');
@@ -4846,39 +4867,30 @@ function attachHlCharExitHideAfterTransform(c){
     function updateScrollIntroCardsOverNav(){
       var root = document.documentElement;
       if(!root.classList.contains('scroll-intro-scrollable')){
-        root.classList.remove('scroll-intro-cards-over-nav');
+        root.classList.remove('scroll-intro-cards-over-nav', 'scroll-intro-subcopy-under-nav');
         clearScrollIntroNavInlineOpacity();
         return;
       }
-      if(!subcopyBlockForNav){
-        root.classList.remove('scroll-intro-cards-over-nav');
-        clearScrollIntroNavInlineOpacity();
-        return;
-      }
-      var top = subcopyBlockForNav.getBoundingClientRect().top;
       var liftWhenAbove = 56;
       var lowerWhenBelow = 76;
-      var lifted = root.classList.contains('scroll-intro-cards-over-nav');
-      if(!lifted && top < liftWhenAbove){
-        root.classList.add('scroll-intro-cards-over-nav');
-        clearScrollIntroNavInlineOpacity();
-        collapseMobileTopNavIfNeeded();
-      } else if(lifted && top > lowerWhenBelow){
-        if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-          root.classList.remove('scroll-intro-cards-over-nav');
+      function syncScrollIntroLiftedBand(cls, el){
+        if(!el){
+          root.classList.remove(cls);
+          return;
+        }
+        var top = el.getBoundingClientRect().top;
+        var lifted = root.classList.contains(cls);
+        if(!lifted && top < liftWhenAbove){
+          root.classList.add(cls);
           clearScrollIntroNavInlineOpacity();
-        } else {
-          if(scrollIntroLogoNav) scrollIntroLogoNav.style.opacity = '0';
-          if(scrollIntroNavLinks && scrollIntroNavLinks.length){
-            scrollIntroNavLinks.forEach(function(a){ a.style.opacity = '0'; });
-          }
-          if(scrollIntroNavToggle) scrollIntroNavToggle.style.opacity = '0';
-          root.classList.remove('scroll-intro-cards-over-nav');
-          requestAnimationFrame(function(){
-            requestAnimationFrame(clearScrollIntroNavInlineOpacity);
-          });
+          collapseMobileTopNavIfNeeded();
+        }else if(lifted && top > lowerWhenBelow){
+          root.classList.remove(cls);
+          clearScrollIntroNavInlineOpacity();
         }
       }
+      syncScrollIntroLiftedBand('scroll-intro-subcopy-under-nav', subcopyBlockForNav);
+      syncScrollIntroLiftedBand('scroll-intro-cards-over-nav', cardsBlockForNav);
     }
     window.addEventListener('scroll', updateScrollIntroCardsOverNav, {passive: true});
     window.addEventListener('resize', updateScrollIntroCardsOverNav);
@@ -4935,6 +4947,7 @@ function attachHlCharExitHideAfterTransform(c){
         if(w && w.clientWidth >= 12 && w.clientHeight >= 12) thirdParticleSetup();
         initScrollIntroContinuation();
         updateNavThirdRedOverlap();
+        updateScrollIntroLogoScrollWithThirdAct();
         if(typeof onDone === 'function') onDone();
       });
     });
@@ -5366,6 +5379,7 @@ function attachHlCharExitHideAfterTransform(c){
           thirdParticlesStart();
           initScrollIntroContinuation();
           updateNavThirdRedOverlap();
+          updateScrollIntroLogoScrollWithThirdAct();
           jumpToStudio();
         });
       });
@@ -5413,6 +5427,7 @@ function attachHlCharExitHideAfterTransform(c){
           thirdParticlesStart();
           initScrollIntroContinuation();
           updateNavThirdRedOverlap();
+          updateScrollIntroLogoScrollWithThirdAct();
           jumpToProjects();
         });
       });
@@ -5448,12 +5463,36 @@ function attachHlCharExitHideAfterTransform(c){
     var onRed = interNav > 4;
     root.classList.toggle('nav-over-third-red', onRed);
   }
+  function updateScrollIntroLogoScrollWithThirdAct(){
+    var root = document.documentElement;
+    var logo = document.querySelector('.scroll-intro-header-strip .scroll-intro-logo');
+    if(!logo || !thirdAct){
+      return;
+    }
+    if(!root.classList.contains('scroll-intro-scrollable') || !thirdAct.classList.contains('third-act--in-flow')){
+      root.classList.remove('scroll-intro-logo-past-third-act');
+      logo.style.removeProperty('transform');
+      return;
+    }
+    var r = thirdAct.getBoundingClientRect();
+    if(r.bottom <= 0){
+      root.classList.add('scroll-intro-logo-past-third-act');
+      logo.style.removeProperty('transform');
+      return;
+    }
+    root.classList.remove('scroll-intro-logo-past-third-act');
+    var y = Math.min(0, r.top);
+    logo.style.transform = 'translateY(' + y + 'px)';
+  }
   function scheduleNavThirdRedOverlap(){
-    requestAnimationFrame(updateNavThirdRedOverlap);
+    requestAnimationFrame(function(){
+      updateNavThirdRedOverlap();
+      updateScrollIntroLogoScrollWithThirdAct();
+    });
   }
   window.addEventListener('scroll', scheduleNavThirdRedOverlap, { passive: true });
   window.addEventListener('resize', scheduleNavThirdRedOverlap);
-  requestAnimationFrame(updateNavThirdRedOverlap);
+  requestAnimationFrame(scheduleNavThirdRedOverlap);
 
   var heroScrollWheelOpts = { passive: false };
   var heroScrollTouchMoveOpts = { passive: false };
@@ -5663,6 +5702,10 @@ function attachHlCharExitHideAfterTransform(c){
     var el = document.elementFromPoint(mx, my);
     var onH = !!(el && el.closest && el.closest('.scroll-intro-continuation .hcard'));
     document.documentElement.classList.toggle('custom-cursor--hcard', onH);
+    document.documentElement.classList.toggle(
+      'custom-cursor--hcard-interactive',
+      onH && hitIsInteractive(mx, my)
+    );
   }
 
   function tick(){
@@ -5705,7 +5748,7 @@ function attachHlCharExitHideAfterTransform(c){
   window.addEventListener('scroll', onScroll, { passive: true, capture: true });
   document.documentElement.addEventListener('mouseleave', function(){
     root.classList.remove('custom-cursor--visible', 'custom-cursor--hover');
-    document.documentElement.classList.remove('custom-cursor--hcard');
+    document.documentElement.classList.remove('custom-cursor--hcard', 'custom-cursor--hcard-interactive');
     visible = false;
     lastHover = false;
     stopRingAnim();
