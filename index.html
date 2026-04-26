@@ -6060,6 +6060,19 @@ function attachHlCharExitHideAfterTransform(c){
       siteMetaWindow.style.maxHeight = '';
       siteMetaWindow.style.paddingBottom = '';
     }
+    if(terminalForm){
+      terminalForm.style.position = '';
+      terminalForm.style.left = '';
+      terminalForm.style.right = '';
+      terminalForm.style.bottom = '';
+      terminalForm.style.zIndex = '';
+      terminalForm.style.background = '';
+      terminalForm.style.padding = '';
+      terminalForm.style.borderTop = '';
+    }
+    if(bodyEl){
+      bodyEl.style.paddingBottom = '';
+    }
     updateKbDebugOverlay(0);
   }
   /* Optional on-screen diagnostic overlay. Enable by visiting the site with `?kbdbg` in URL.
@@ -6122,11 +6135,34 @@ function attachHlCharExitHideAfterTransform(c){
       clearTerminalKeyboardLift();
       return;
     }
-    /* Window is `display:flex; flex-direction:column; height:100dvh; box-sizing:border-box`, with the
-       scrollable body as `flex:1`. Adding padding-bottom = keyboardH shrinks the body's usable area
-       so the terminal form (last child inside body) anchors right above the keyboard. Padding is not
-       in the window's transition list, so the lift is instant — no animated lag, no layout fight. */
-    siteMetaWindow.style.paddingBottom = keyboardH + 'px';
+    /* Pin the input form itself to position:fixed at the bottom of the visible viewport. This is
+       the most reliable strategy across the whole command sequence: it doesn't depend on body
+       clientHeight recomputing, doesn't depend on scrollTop=scrollHeight clamping correctly with
+       long content, and doesn't depend on the form being the bottom-most child of the scrollable
+       body. The form is GUARANTEED to be just above the keyboard.
+
+       Body gets matching padding-bottom so the log content can scroll the input area into view but
+       won't render behind the now-fixed form. */
+    if(terminalForm){
+      var formBg = getComputedStyle(siteMetaWindow).backgroundColor || '#000';
+      terminalForm.style.position = 'fixed';
+      terminalForm.style.left = '0';
+      terminalForm.style.right = '0';
+      terminalForm.style.bottom = keyboardH + 'px';
+      terminalForm.style.zIndex = '5';
+      terminalForm.style.background = formBg;
+      terminalForm.style.padding = '0.55rem 18px calc(0.55rem + env(safe-area-inset-bottom, 0px))';
+      terminalForm.style.borderTop = '1px solid rgba(255,255,255,0.06)';
+    }
+    if(bodyEl){
+      var formH = terminalForm ? Math.ceil(terminalForm.getBoundingClientRect().height) : 0;
+      bodyEl.style.paddingBottom = (formH + 8) + 'px';
+    }
+    /* Belt-and-suspenders: also keep the body scrolled to the bottom so the latest log line is
+       visible just above the now-pinned form. */
+    if(bodyEl){
+      bodyEl.scrollTop = bodyEl.scrollHeight;
+    }
     updateKbDebugOverlay(keyboardH);
   }
   function syncTerminalInputViewport(){
