@@ -1771,7 +1771,12 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   border-radius:0;
   cursor:pointer;
   mix-blend-mode:normal;
+  -webkit-tap-highlight-color:transparent;
   transition:opacity 0.42s var(--ease-out-flow), color 0.35s var(--ease-out-flow), outline-color 0.35s var(--ease-out-flow);
+}
+/* Drop the UA’s default :focus box on tap/click; keep the explicit ring for :focus-visible (keyboard, switch, VoiceOver). */
+.site-meta-btn:focus{
+  outline:none;
 }
 .site-meta-btn--fab{
   position:fixed;
@@ -2011,10 +2016,12 @@ html.site-meta-open .site-meta-panel.site-meta-panel--open{
 @media (max-width: 768px){
   .site-meta-panel__titlebar{
     border-radius:0;
+    /* Taller chrome on phone: more room for title + easier tap on streetlights */
+    min-height:52px;
     padding:
       max(10px, env(safe-area-inset-top, 0px))
       max(18px, calc(8px + env(safe-area-inset-right, 0px)))
-      0
+      12px
       max(18px, calc(8px + env(safe-area-inset-left, 0px)));
   }
 }
@@ -2412,9 +2419,26 @@ html.site-meta-minimized .site-meta-btn__icon--filled{
   color:var(--site-meta-stream-fg);
 }
 .site-meta-panel__terminal-form{
+  position:relative;
   display:flex;
   align-items:baseline;
   gap:0.45rem;
+}
+/* iOS Safari: a real submit control in the form (not display:none) helps the Return / “Go” key
+   fire the submit event. Visually hidden, not `display:none` (which breaks that wiring in WebKit). */
+button.site-meta-panel__terminal-submit{
+  position:absolute;
+  left:0;
+  top:0;
+  width:1px;
+  height:1px;
+  margin:0;
+  padding:0;
+  border:0;
+  overflow:hidden;
+  clip:rect(0, 0, 0, 0);
+  white-space:nowrap;
+  pointer-events:none;
 }
 /* Hidden until Ouro status line has finished typing “Ready” (set by JS on each panel reset) */
 .site-meta-panel__terminal-form.site-meta-panel__terminal-form--awaiting-ready{
@@ -2510,11 +2534,12 @@ html.site-meta-minimized .site-meta-btn__icon--filled{
 .site-meta-panel__terminal-input::placeholder{
   color:color-mix(in srgb, var(--site-meta-stream-status) 72%, #444);
 }
-/* iOS Safari: font-size < 16px on a focused input forces page zoom; sync prompt + wrap (mirror uses font:inherit). */
+/* iOS / coarse touch: min 16px on focused inputs avoids page zoom. Scope the same
+   --site-meta-txt under .terminal-ui so the log, ourolabs@learn prompt, and input row
+   all match (previously only the form used max(16px, …) and the log looked smaller). */
 @media (hover: none) and (pointer: coarse){
-  .site-meta-panel__terminal-prompt,
-  .site-meta-panel__terminal-input-wrap{
-    font-size:max(16px, var(--site-meta-txt));
+  .site-meta-panel__terminal-ui{
+    --site-meta-txt:max(16px, clamp(0.74rem, 1.02vw, 0.84rem));
   }
 }
 /* --story-feedback: typed .terminal-log-line--feedback = white always; CTA/echo = active until dim; prior chrome = --dim */
@@ -2808,7 +2833,8 @@ html.site-meta-minimized .site-meta-btn__icon--filled{
     </ul>
     <div class="site-meta-panel__terminal-ui">
       <div class="site-meta-panel__terminal-log" id="site-meta-terminal-log" aria-live="polite"></div>
-      <form class="site-meta-panel__terminal-form site-meta-panel__terminal-form--awaiting-ready" id="site-meta-terminal-form" autocomplete="off" aria-hidden="true">
+      <form class="site-meta-panel__terminal-form site-meta-panel__terminal-form--awaiting-ready" id="site-meta-terminal-form" action="#" method="get" autocomplete="off" aria-hidden="true">
+        <button type="submit" class="site-meta-panel__terminal-submit" tabindex="-1" aria-hidden="true" title="Run command">Run</button>
         <span class="site-meta-panel__terminal-prompt">ourolabs@learn:~$</span>
         <div class="site-meta-panel__terminal-input-wrap" id="site-meta-terminal-input-wrap">
           <span class="site-meta-panel__terminal-mirror" id="site-meta-terminal-mirror" aria-hidden="true"></span>
@@ -2820,6 +2846,7 @@ html.site-meta-minimized .site-meta-btn__icon--filled{
             autocapitalize="off"
             autocomplete="off"
             inputmode="text"
+            enterkeyhint="go"
             dir="ltr"
             placeholder="type a command"
             aria-label="Story command input"
@@ -7047,6 +7074,34 @@ function attachHlCharExitHideAfterTransform(c){
     syncSiteMetaZoomButton();
   });
   if(terminalForm) terminalForm.addEventListener('submit', onTerminalSubmit);
+  /* iOS WebKit: implicit submit is flaky without a real submit in the form; the hidden button
+     + action help. If Return / “Go” / accessory still doesn’t fire submit, handle Enter in JS. */
+  if(terminalInput){
+    var termReturnAt = 0;
+    function trySubmitTerminalOnReturn(e){
+      if(!panel || !panel.classList.contains('site-meta-panel--open')) return;
+      if(terminalInput.disabled || storyBusy) return;
+      if(e.isComposing) return;
+      if(e.key !== 'Enter' && e.keyCode !== 13) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var t = performance.now();
+      if(t - termReturnAt < 320) return;
+      termReturnAt = t;
+      if(terminalForm && typeof terminalForm.requestSubmit === 'function'){
+        try{
+          terminalForm.requestSubmit();
+        }catch(x){
+          onTerminalSubmit(e);
+        }
+      }else if(terminalForm){
+        onTerminalSubmit(e);
+      }
+    }
+    ['keydown', 'keyup'].forEach(function(evName){
+      terminalInput.addEventListener(evName, trySubmitTerminalOnReturn, false);
+    });
+  }
   if(backdrop) backdrop.addEventListener('click', closePanel);
   document.addEventListener('keydown', function siteMetaKey(e){
     if(e.key !== 'Escape') return;
