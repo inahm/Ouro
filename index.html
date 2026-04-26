@@ -6046,12 +6046,20 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
   function clearTerminalKeyboardLift(){
-    if(!siteMetaWindow) return;
-    siteMetaWindow.style.marginTop = '';
-    siteMetaWindow.style.height = '';
-    siteMetaWindow.style.minHeight = '';
-    siteMetaWindow.style.maxHeight = '';
-    if(panel) panel.style.bottom = '';
+    if(panel){
+      panel.style.top = '';
+      panel.style.bottom = '';
+      panel.style.height = '';
+      panel.style.minHeight = '';
+      panel.style.maxHeight = '';
+    }
+    if(siteMetaWindow){
+      siteMetaWindow.style.marginTop = '';
+      siteMetaWindow.style.height = '';
+      siteMetaWindow.style.minHeight = '';
+      siteMetaWindow.style.maxHeight = '';
+      siteMetaWindow.style.paddingBottom = '';
+    }
   }
   function syncTerminalKeyboardLift(){
     if(!siteMetaWindow || !panel || !panel.classList.contains('site-meta-panel--open')){
@@ -6068,19 +6076,16 @@ function attachHlCharExitHideAfterTransform(c){
       return;
     }
     var layoutH = window.innerHeight || document.documentElement.clientHeight || 0;
-    var keyboardH = Math.max(0, layoutH - (vv.height + vv.offsetTop));
+    var keyboardH = Math.max(0, Math.round(layoutH - (vv.height + (vv.offsetTop || 0))));
     if(keyboardH < 60){
       clearTerminalKeyboardLift();
       return;
     }
-    /* Anchor the panel + window above the keyboard. inset:0 fills the layout viewport;
-       adjusting bottom collapses it to the visualViewport area, so the input line stays in view. */
-    panel.style.bottom = keyboardH + 'px';
-    var h = Math.max(180, Math.floor(vv.height));
-    siteMetaWindow.style.height = h + 'px';
-    siteMetaWindow.style.minHeight = h + 'px';
-    siteMetaWindow.style.maxHeight = h + 'px';
-    siteMetaWindow.style.marginTop = '';
+    /* Window is `display:flex; flex-direction:column; height:100dvh; box-sizing:border-box`, with the
+       scrollable body as `flex:1`. Adding padding-bottom = keyboardH shrinks the body's usable area
+       so the terminal form (last child inside body) anchors right above the keyboard. Padding is not
+       in the window's transition list, so the lift is instant — no animated lag, no layout fight. */
+    siteMetaWindow.style.paddingBottom = keyboardH + 'px';
   }
   function syncTerminalInputViewport(){
     if(!panel || !panel.classList.contains('site-meta-panel--open')){
