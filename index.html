@@ -7110,6 +7110,12 @@ function attachHlCharExitHideAfterTransform(c){
     if(themeMeta && themeColorPrev != null) themeMeta.setAttribute('content', themeColorPrev);
     if(lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
     else focusPreferredOpenTrigger();
+    /* Re-focusing the FAB / footer open trigger is correct for a11y, but with Escape/keyboard
+       :focus-visible stays on the icon and reads as a “stuck” black ring. Blur the trigger. */
+    requestAnimationFrame(function(){
+      var a = document.activeElement;
+      if(a && a.classList && a.classList.contains('site-meta-btn')) a.blur();
+    });
   }
   getOpenTriggers().forEach(function(btn){
     btn.addEventListener('click', openPanel);
