@@ -3802,6 +3802,10 @@ function attachHlCharExitHideAfterTransform(c){
   var taCyclePrevTs = null;
   var _taVidHide =
     'position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;';
+  var _mqNoBgInThirdRing = window.matchMedia('(max-width: 768px)');
+  function thirdRingDrawBgMp4Layer(){
+    return !_mqNoBgInThirdRing.matches;
+  }
 
   /** Start bg.mp4 decode/buffer early so footer wordmark clip has frames ready. */
   function ensureBgVidWarm(){
@@ -3971,7 +3975,7 @@ function attachHlCharExitHideAfterTransform(c){
       drawCImg(imgA, 1, kbZoom);
     }
 
-    if(thirdBgVid.readyState >= 2){
+    if(thirdRingDrawBgMp4Layer() && thirdBgVid.readyState >= 2){
       var vvw = thirdBgVid.videoWidth || imgSize;
       var vvh = thirdBgVid.videoHeight || imgSize;
       var diam2 = clipR * 2;
@@ -6572,6 +6576,56 @@ function attachHlCharExitHideAfterTransform(c){
     terminalForm.classList.toggle('site-meta-panel__terminal-form--awaiting-ready', !!awaiting);
     terminalForm.setAttribute('aria-hidden', awaiting ? 'true' : 'false');
   }
+  var TERMINAL_STORY_STORAGE_KEY = 'ouro-site-meta-terminal-v1';
+  function clearTerminalStoryStorage(){
+    try{
+      localStorage.removeItem(TERMINAL_STORY_STORAGE_KEY);
+    }catch(x){}
+  }
+  function saveTerminalStoryState(){
+    if(!panel || !terminalLog) return;
+    try{
+      var sb = getScrollBox();
+      var data = {
+        v: 1,
+        stepIndex: storyStepIndex|0,
+        storyFeedback: panel.classList.contains('site-meta-panel--story-feedback'),
+        logHTML: terminalLog.innerHTML,
+        termPrompt: termPromptEl ? String(termPromptEl.textContent || '') : 'ourolabs@learn:~$',
+        innerTerminalOnly: !!(innerEl && innerEl.classList.contains('site-meta-panel__inner--terminal-only')),
+        formAwaiting: !!(terminalForm && terminalForm.classList.contains('site-meta-panel__terminal-form--awaiting-ready')),
+        input: terminalInput ? String(terminalInput.value || '') : '',
+        bodyScroll: sb ? (sb.scrollTop|0) : 0
+      };
+      localStorage.setItem(TERMINAL_STORY_STORAGE_KEY, JSON.stringify(data));
+    }catch(x){}
+  }
+  function tryRestoreTerminalFromStorage(){
+    if(!panel || !terminalLog) return false;
+    try{
+      var raw = localStorage.getItem(TERMINAL_STORY_STORAGE_KEY);
+      if(!raw) return false;
+      var data = JSON.parse(raw);
+      if(data.v !== 1) return false;
+      if(typeof data.stepIndex !== 'number' || data.stepIndex < 0 || data.stepIndex > storySteps.length) return false;
+      storyStepIndex = data.stepIndex|0;
+      if(data.storyFeedback) panel.classList.add('site-meta-panel--story-feedback');
+      else panel.classList.remove('site-meta-panel--story-feedback');
+      terminalLog.innerHTML = data.logHTML == null ? '' : String(data.logHTML);
+      setTermPromptFromDisplay(data.termPrompt || 'ourolabs@learn:~$');
+      if(data.innerTerminalOnly === false) setStoryRowsVisible(true);
+      else setStoryRowsVisible(false);
+      setTerminalFormAwaitingReady(!!data.formAwaiting);
+      storyBusy = false;
+      typeGen = (typeGen|0) + 1000;
+      if(terminalInput) terminalInput.value = data.input != null ? data.input : '';
+      setTerminalInputEnabled(!data.formAwaiting);
+      if(getScrollBox() && data.bodyScroll > 0) getScrollBox().scrollTop = data.bodyScroll|0;
+      return true;
+    }catch(x){
+      return false;
+    }
+  }
   async function runStoryStep(step, g){
     await wait(130);
     if(g !== typeGen) return;
@@ -6593,6 +6647,7 @@ function attachHlCharExitHideAfterTransform(c){
     panel.removeAttribute('aria-busy');
   }
   async function resetInteractiveStory(){
+    clearTerminalStoryStorage();
     typeGen++;
     var g = typeGen;
     storyStepIndex = 0;
@@ -6921,6 +6976,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
   function applyMinimizeState(){
     if(panel.classList.contains('site-meta-panel--minimized')) return;
+    saveTerminalStoryState();
     clearTerminalKeyboardLift();
     /* Skip the panel’s default opacity close transition so the dim scrim cannot reappear during class churn. */
     panel.style.transition = 'none';
@@ -6997,8 +7053,16 @@ function attachHlCharExitHideAfterTransform(c){
     siteMetaScrollFreezeGuard();
     if(typeof requestAnimationFrame === 'function') requestAnimationFrame(siteMetaScrollFreezeGuard);
     if(themeMeta) themeMeta.setAttribute('content', '#0a0a0a');
-    scrollPanelToTop();
-    void resetInteractiveStory().catch(function(){});
+    if(!tryRestoreTerminalFromStorage()){
+      scrollPanelToTop();
+      void resetInteractiveStory().catch(function(){});
+    }else{
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          syncTerminalInputViewport();
+        });
+      });
+    }
     requestAnimationFrame(function(){
       updateTermBlockCursor();
     });
@@ -7018,6 +7082,7 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
   function closePanel(){
+    saveTerminalStoryState();
     typeGen++;
     storyBusy = false;
     clearTerminalKeyboardLift();
@@ -7070,6 +7135,7 @@ function attachHlCharExitHideAfterTransform(c){
     e.preventDefault();
     e.stopPropagation();
     if(!siteMetaWindow) return;
+    saveTerminalStoryState();
     siteMetaWindow.classList.toggle('site-meta-panel__window--max');
     syncSiteMetaZoomButton();
   });
