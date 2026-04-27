@@ -473,8 +473,8 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   /* Top rule on wrapper (not .hscroll-track): WebKit often drops 1px top borders on overflow-x scrollers on small viewports. */
   border-top:1px solid var(--ink);
 }
-/* Breathing room when jumping to #proj-grid-wrap (nav link, scrollIntoView, :target). */
-#proj-grid-wrap{
+/* Breathing room when jumping to #projects (nav link, scrollIntoView, :target). */
+#projects{
   scroll-margin-top:max(64px, var(--scroll-intro-anchor-margin));
 }
 .scroll-intro-continuation .hscroll-track{
@@ -593,21 +593,6 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   width:min(54%,170px,min(32vw,196px));
   display:grid;
   place-items:center;
-}
-.scroll-intro-continuation .hcard-visual-inner--nota .nota-abstract-minimal{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-  border-radius:2px;
-  background:transparent;
-}
-.scroll-intro-continuation .hcard-visual-inner--nota .nota-card-visual-img{
-  display:block;
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  object-position:center;
-  vertical-align:top;
 }
 .scroll-intro-continuation .hcard-visual-inner--nota .nota-morph-svg{
   width:100%;
@@ -3149,8 +3134,12 @@ button.site-meta-panel__terminal-submit{
 </style>
 <script>
 (function () {
-  if (location.hash === '#scroll-intro-below' && history.replaceState) {
+  if (!history.replaceState) return;
+  var h = location.hash;
+  if (h === '#scroll-intro-below') {
     history.replaceState(null, '', location.pathname + location.search + '#studio');
+  } else if (h === '#proj-grid-wrap') {
+    history.replaceState(null, '', location.pathname + location.search + '#projects');
   }
 })();
 </script>
@@ -3198,7 +3187,7 @@ button.site-meta-panel__terminal-submit{
   </button>
   <div class="scroll-intro-nav-dropdown" id="scroll-intro-nav-dropdown">
     <a class="scroll-intro-nav-link" id="studio-nav-link" href="#studio">Studio</a>
-    <a class="scroll-intro-nav-link" id="projects-nav-link" href="#proj-grid-wrap">Projects</a>
+    <a class="scroll-intro-nav-link" id="projects-nav-link" href="#projects">Projects</a>
   </div>
 </nav>
 </header>
@@ -3376,7 +3365,7 @@ button.site-meta-panel__terminal-submit{
     </div>
   </section>
 
-  <div class="hscroll-frame" id="proj-grid-wrap" aria-labelledby="projects-heading">
+  <div class="hscroll-frame" id="projects" aria-labelledby="projects-heading">
     <h2 class="sr-only" id="projects-heading">Work and experiments</h2>
     <div class="hscroll-track">
 
@@ -3575,7 +3564,7 @@ button.site-meta-panel__terminal-submit{
             </span>
           </button>
           <a href="#studio">Studio</a>
-          <a href="#proj-grid-wrap">Projects</a>
+          <a href="#projects">Projects</a>
           <a href="mailto:hello@ourolabs.com">Contact</a>
           <a href="https://www.linkedin.com/company/ouro-labs/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </span>
@@ -5560,7 +5549,7 @@ function attachHlCharExitHideAfterTransform(c){
       track.addEventListener('touchcancel', resetHScrollTouch, {passive: true});
     }
 
-    /* Discover → expand card + long copy (CSS .hcard--expanded); must run here — index does not load assets/site.js */
+    /* Discover → expand card + long copy (CSS .hcard--expanded). */
     (function initHcardDiscoverExpand(trackEl){
       if(!trackEl) return;
       function pinPageScrollX(){
@@ -5738,7 +5727,7 @@ function attachHlCharExitHideAfterTransform(c){
     initKimTeamScrollMotion();
 
     var subcopyBlockForNav = cont.querySelector('#studio');
-    var cardsBlockForNav = cont.querySelector('#proj-grid-wrap');
+    var cardsBlockForNav = cont.querySelector('#projects');
     var scrollIntroLogoNav = document.querySelector('.scroll-intro-logo');
     var scrollIntroNavLinks = document.querySelectorAll('.scroll-intro-nav-link');
     var scrollIntroNavToggle = document.getElementById('scroll-intro-nav-toggle');
@@ -5859,7 +5848,7 @@ function attachHlCharExitHideAfterTransform(c){
     void document.documentElement.offsetHeight;
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var nextSection =
-      document.getElementById('studio') || document.getElementById('proj-grid-wrap');
+      document.getElementById('studio') || document.getElementById('projects');
     var scrollBehavior = reduceMotion ? 'auto' : 'smooth';
     if(nextSection){
       nextSection.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
@@ -6228,7 +6217,7 @@ function attachHlCharExitHideAfterTransform(c){
 
   /** Instant scroll — smooth scroll animates through the full-viewport red third act and reads as a flash. */
   function jumpToProjects(){
-    var projectsSection = document.getElementById('proj-grid-wrap');
+    var projectsSection = document.getElementById('projects');
     if(!projectsSection) return;
     projectsSection.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
@@ -6355,12 +6344,12 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
 
-  document.querySelectorAll('a[href="#proj-grid-wrap"]').forEach(function(link){
+  document.querySelectorAll('a[href="#projects"]').forEach(function(link){
     if(link.id === 'projects-nav-link') return;
     link.addEventListener('click', function(e){
       e.preventDefault();
       scheduleJumpToProjects();
-      if(history.replaceState) history.replaceState(null, '', '#proj-grid-wrap');
+      if(history.replaceState) history.replaceState(null, '', '#projects');
     });
   });
   document.querySelectorAll('a[href="#studio"]').forEach(function(link){
@@ -7229,7 +7218,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function hcardOpenElsewhereInStrip(){
-    return !!document.querySelector('#proj-grid-wrap .hcard--expanded');
+    return !!document.querySelector('#projects .hcard--expanded');
   }
 
   function syncHcardCursorClass(isInteractive){
@@ -7241,9 +7230,9 @@ function attachHlCharExitHideAfterTransform(c){
     var showArrow = onH && !expanded && !isInteractive && hcardOpenElsewhereInStrip();
     hcardArrowRotDeg = 0;
     if(showArrow && card){
-      var open = document.querySelector('#proj-grid-wrap .hcard--expanded');
+      var open = document.querySelector('#projects .hcard--expanded');
       if(open && open !== card){
-        var list = document.querySelectorAll('#proj-grid-wrap .hcard');
+        var list = document.querySelectorAll('#projects .hcard');
         var iH = -1, iE = -1, i;
         for(i = 0; i < list.length; i++){
           if(list[i] === card) iH = i;
