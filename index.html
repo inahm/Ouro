@@ -247,26 +247,19 @@ html.site-meta-open .custom-cursor{
   margin-top:0;
   background:#fff;
 }
-/* Project cards: brand red dot — must turn off .custom-cursor’s difference blend here; otherwise red inverts to cyan/blue on light panels */
+/* Cards: keep blend behavior, but tint cursor dot red. */
 html.custom-cursor--hcard .custom-cursor{
   mix-blend-mode:normal;
 }
 html.custom-cursor--hcard .custom-cursor__dot{
   background:var(--red);
 }
-/* White ring on light .hcard--light: keep particles visible with normal compositing */
-html.custom-cursor--hcard .custom-cursor--hover .custom-cursor__ring{
-  filter:drop-shadow(0 0 0.5px rgba(0,0,0,0.35));
-}
-/* Links / buttons on cards: restore difference + white dot (reads dark on light panels) */
+/* On card links/buttons, return to default cursor dot behavior. */
 html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor{
   mix-blend-mode:difference;
 }
 html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor__dot{
   background:#fff;
-}
-html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor--hover .custom-cursor__ring{
-  filter:none;
 }
 /* After third act: native vertical scroll + continuation (see unlockThirdActPageScroll)
    Single scroll root on <html> — iOS Safari often “sticks” when both html and body are overflow-y:auto. */
@@ -360,8 +353,12 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow{
 html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .third-act-particles-vp-wrap{
   position:absolute;
   inset:0;
-  width:auto;
-  height:auto;
+  width:100%;
+  min-width:0;
+  min-height:0;
+  max-width:100%;
+  height:100%;
+  box-sizing:border-box;
 }
 .scroll-intro-below{
   position:relative;
@@ -1819,22 +1816,30 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   -webkit-clip-path:url(#third-act-o-clip);
   clip-path:url(#third-act-o-clip);
 }
-/* Third-act particles: full viewport (like .second-hl-particles-wrap), black torus → scroll to explode */
+/* Third-act particles: match .third-act-inner padding so ring center = torus/headline (same as video plane grid). */
 @keyframes third-act-particles-scale-in{
-  from{
-    transform:translate3d(-50%, -50%, 0) scale(0.14);
-  }
-  to{
-    transform:translate3d(-50%, -50%, 0) scale(1);
-  }
+  from{ transform:scale(0.14); }
+  to{ transform:scale(1); }
 }
 .third-act-particles-vp-wrap{
   position:fixed;
   inset:0;
   z-index:2;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  min-height:0;
   width:100%;
+  max-width:100%;
   height:100vh;
   height:100dvh;
+  /* Must mirror .third-act-inner: full-bleed center ≠ padded content center (nav clears top) */
+  padding-top:max(max(28px, env(safe-area-inset-top, 0px) + 16px), var(--scroll-intro-header-clear));
+  padding-bottom:max(28px, env(safe-area-inset-bottom, 0px) + 16px);
+  padding-left:max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
+  padding-right:max(var(--g), calc(env(safe-area-inset-right, 0px) + 12px));
   pointer-events:none;
   opacity:0;
   transition:opacity 0.42s ease;
@@ -1843,12 +1848,11 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   opacity:1;
 }
 .third-act-particles-vp-wrap canvas{
-  position:absolute;
-  left:50%;
-  top:50%;
+  position:relative;
   display:block;
+  flex:0 0 auto;
   border-radius:0;
-  transform:translate3d(-50%, -50%, 0) scale(0.14);
+  transform:scale(0.14);
   transform-origin:center center;
   backface-visibility:hidden;
 }
@@ -1914,7 +1918,11 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   pointer-events:none;
   transition:opacity 0.22s ease, color 0.35s var(--ease-out-flow);
 }
+/* Pinned to #third-act bottom-right (follows red block when in-flow); base .particle-sound-btn is viewport fixed for --second only */
 .particle-sound-btn--third{
+  position:absolute;
+  left:auto;
+  top:auto;
   color:var(--bg);
 }
 .particle-sound-btn--second{
@@ -2008,11 +2016,13 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   transform:scaleY(0.3);
   opacity:0.85;
 }
-.third-act.third-act--active.third-act--torus-in .particle-sound-btn--third{
+/* Optional: add .third-act--hide-sound-control on #third-act or ?thirdactnosound=1 to keep red without this UI */
+.third-act.third-act--active.third-act--torus-in:not(.third-act--hide-sound-control) .particle-sound-btn--third{
   opacity:1;
   pointer-events:auto;
 }
-#stage .second-hl-particles-wrap.second-hl-particles-wrap--visible ~ .particle-sound-btn--second{
+/* Second-act sound UI only in locked intro stage (never once scroll-intro is in-flow). */
+html:not(.scroll-intro-scrollable) #stage .second-hl-particles-wrap.second-hl-particles-wrap--visible ~ .particle-sound-btn--second{
   opacity:1;
   pointer-events:auto;
 }
@@ -3148,6 +3158,7 @@ button.site-meta-panel__terminal-submit{
       <h1 class="hero-hl" id="hero-hl" aria-label="Ouro Labs"></h1>
     </div>
   </div>
+  <!-- Optional class third-act--hide-sound-control: red / torus normal, sound control hidden. URL: ?thirdactnosound=1 -->
   <div class="third-act" id="third-act" aria-hidden="true">
     <div class="third-act-red" id="third-act-red"></div>
     <div class="third-act-inner third-act-inner--ring">
@@ -3159,7 +3170,7 @@ button.site-meta-panel__terminal-submit{
         </div>
       </div>
     </div>
-    <!-- Full-bleed sibling of ring (not padded grid) keeps torus aligned with canvas; z-index between ring and headline -->
+    <!-- Padded + flex-centered like .third-act-inner--ring so particle ring concentric with O torus; z-index between ring and headline -->
     <div class="third-act-particles-vp-wrap" id="third-act-particles-vp-wrap" aria-hidden="true">
       <canvas id="third-act-particles-canvas" class="third-act-particles-canvas" width="300" height="300" aria-hidden="true"></canvas>
     </div>
@@ -3672,8 +3683,9 @@ function attachHlCharExitHideAfterTransform(c){
     var c = document.getElementById('third-act-particles-canvas');
     if(!wrap || !c) return;
     tpDpr = Math.min(window.devicePixelRatio || 1, 2);
-    var rw = wrap.clientWidth || window.innerWidth;
-    var rh = wrap.clientHeight || window.innerHeight;
+    /* Use layout viewport, not the padded flex box — matches --particle-o-core: min(100vw, 100dvh) with torus. */
+    var rw = window.innerWidth;
+    var rh = window.innerHeight;
     if(rw < 12 || rh < 12) return;
     var core = Math.min(rw, rh);
     var pad = Math.max(64, Math.min(120, Math.round(core * 0.14)));
@@ -4016,6 +4028,14 @@ function attachHlCharExitHideAfterTransform(c){
   var thirdActHl = document.getElementById('third-act-hl');
   var thirdActVideoShell = document.getElementById('third-act-video-shell');
   var thirdActSoundBtn = document.getElementById('third-act-sound-btn');
+  try{
+    if(new URLSearchParams(window.location.search).get('thirdactnosound') === '1' && thirdAct){
+      thirdAct.classList.add('third-act--hide-sound-control');
+    }
+  }catch(_){}
+  if(thirdActSoundBtn && thirdAct && thirdAct.classList.contains('third-act--hide-sound-control')){
+    thirdActSoundBtn.setAttribute('aria-hidden', 'true');
+  }
 
   function syncThirdActTorusInFromShell(){
     if(!thirdAct || !thirdActVideoShell) return;
@@ -6185,14 +6205,11 @@ function attachHlCharExitHideAfterTransform(c){
     return false;
   }
 
-  function syncHcardCursorClass(){
+  function syncHcardCursorClass(isInteractive){
     var el = document.elementFromPoint(mx, my);
     var onH = !!(el && el.closest && el.closest('.scroll-intro-continuation .hcard'));
     document.documentElement.classList.toggle('custom-cursor--hcard', onH);
-    document.documentElement.classList.toggle(
-      'custom-cursor--hcard-interactive',
-      onH && hitIsInteractive(mx, my)
-    );
+    document.documentElement.classList.toggle('custom-cursor--hcard-interactive', onH && !!isInteractive);
   }
 
   function tick(){
@@ -6200,7 +6217,7 @@ function attachHlCharExitHideAfterTransform(c){
     dy += (my - dy) * posEase;
     var hover = hitIsInteractive(mx, my);
     setTransforms(hover);
-    syncHcardCursorClass();
+    syncHcardCursorClass(hover);
     var moving = Math.abs(mx - dx) > 0.04 || Math.abs(my - dy) > 0.04;
     if(moving){
       requestAnimationFrame(tick);
@@ -6212,7 +6229,7 @@ function attachHlCharExitHideAfterTransform(c){
   function onMove(e){
     mx = e.clientX;
     my = e.clientY;
-    syncHcardCursorClass();
+    syncHcardCursorClass(hitIsInteractive(mx, my));
     if(!visible){
       visible = true;
       root.classList.add('custom-cursor--visible');
@@ -6224,7 +6241,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function onScroll(){
-    syncHcardCursorClass();
+    syncHcardCursorClass(hitIsInteractive(mx, my));
     if(!ticking){
       ticking = true;
       requestAnimationFrame(tick);
