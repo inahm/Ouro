@@ -140,9 +140,9 @@
   --nav-second-hl-accent:color-mix(in srgb, var(--red) 72%, #ff8f4a);
   /* System stack — typical UI / editor code without extra font request */
   --font-code:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  /* Horizontal project cards (.pg-desc, .hcard-detail) + site-meta intro — shared body size */
-  --card-body-font-size:clamp(15px, 1.65vw, 18px);
-  --card-body-line-height:1.6;
+  /* Horizontal project cards (.pg-desc, .hcard-detail); cap matches pre-2026 desktop — larger phones override below. */
+  --card-body-font-size:clamp(13px, 1.35vw, 15px);
+  --card-body-line-height:1.55;
   /* Orbit trigger + panel close — top-left, aligned with fixed nav band */
   --site-meta-fab-top:var(--scroll-intro-nav-top);
   --site-meta-fab-left:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-left, 0px) + 8px));
@@ -775,12 +775,10 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{
   transition:height 0.5s var(--ease-hcard-surface);
+  /* Grow with expanded copy — no in-card scrollbar; page scroll handles overflow. */
+  height:auto;
+  min-height:clamp(720px,78vh,900px);
 }
-/*
- * On the default (large) breakpoint, the base track height (clamp(720px, 78vh, 900px))
- * already comfortably fits the expanded copy — no need to grow it further. Smaller
- * breakpoints below still bump the height when expanded, where vertical room is tighter.
- */
 .scroll-intro-continuation .hcard-detail-wrap{
   display:grid;
   grid-template-rows:0fr;
@@ -793,9 +791,8 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 .scroll-intro-continuation .hcard--expanded .hcard-detail-wrap{
   grid-template-rows:1fr;
-  /* Fill space below the title so long copy + scrollport sit above the pinned CTA. */
-  flex:1 1 auto;
-  min-height:0;
+  flex:0 0 auto;
+  min-height:auto;
   /* Clear separation between teaser (title + subcopy) and long body. */
   margin-top:clamp(20px,2.6vw,40px);
   /* After the card is wide + the display title is red/large, open the long-copy block. */
@@ -807,13 +804,10 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   overflow:hidden;
   min-height:0;
 }
-/* Expanded: scroll long copy inside the card — avoids clipping and keeps it clear of .hcard-discover. */
 .scroll-intro-continuation .hcard--expanded .hcard-detail-inner{
   overflow-x:hidden;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
-  touch-action:pan-y;
+  overflow-y:visible;
+  min-height:0;
 }
 .scroll-intro-continuation .hcard-detail{
   font-family:'Inter',sans-serif;
@@ -1225,7 +1219,10 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 @media (max-width:900px){
   .scroll-intro-continuation .hscroll-track{height:clamp(640px,74vh,820px);}
-  .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{height:clamp(720px,80vh,900px);}
+  .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{
+    height:auto;
+    min-height:clamp(720px,80vh,900px);
+  }
   .scroll-intro-continuation .hcard{flex:0 0 clamp(360px,min(90%,calc(100% - 2 * var(--g))),680px);}
   .scroll-intro-continuation .hcard--expanded{flex-basis:clamp(400px,min(96%,calc(100% - 2 * var(--g))),760px) !important;}
   .scroll-intro-continuation .pg-desc{
@@ -1236,8 +1233,15 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   }
 }
 @media (max-width:600px){
+  :root{
+    --card-body-font-size:clamp(15px, 1.55vw, 17px);
+    --card-body-line-height:1.6;
+  }
   .scroll-intro-continuation .hscroll-track{height:clamp(600px,72vh,760px);}
-  .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{height:clamp(680px,78vh,840px);}
+  .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{
+    height:auto;
+    min-height:clamp(680px,78vh,840px);
+  }
   .scroll-intro-continuation .hcard{
     flex:0 0 clamp(260px,min(92%,560px,calc(100% - 2 * var(--g))),560px);
     --hcard-px:20px;
@@ -5599,21 +5603,16 @@ function attachHlCharExitHideAfterTransform(c){
         notaFigVarsPinBeforeExpand(card);
         card.classList.add('hcard--expanded');
         syncDetailA11y(card, true);
-        requestAnimationFrame(function(){
-          ensureCardVerticallyInView(card, 'smooth');
-        });
         /*
-         * Single smooth scroll, fired once the flex-basis transition is ~70% complete.
-         * Earlier we issued a scroll on the next frame AND a corrective at 560ms — the
-         * second smooth scroll re-targeted mid-flight off the first, producing a visible
-         * jump (most obvious for the 2nd/3rd cards where the delta is large).
+         * Horizontal: one smooth centering after flex ~70% (avoid stacking two smooth horizontals).
+         * Vertical: do not run in parallel — height:auto on the track reflows through ~1s; multiple
+         * window.scrollBy(smooth) calls + a late scrollTo(auto) read as “jumpy”. Nudge Y once after
+         * horizontal snap + next paint so rects match final layout.
          */
         var SCROLL_AT = 360;
         setTimeout(function(){
           scrollCardCenterInTrack(card);
-          ensureCardVerticallyInView(card, 'smooth');
         }, SCROLL_AT);
-        /* After flex morph + big title (CSS delays ~0.55s+0.5s), snap any residual track scroll. */
         setTimeout(function(){
           var cardRect = card.getBoundingClientRect();
           var trackRect = trackEl.getBoundingClientRect();
@@ -5628,7 +5627,11 @@ function attachHlCharExitHideAfterTransform(c){
             }
           }
           pinPageScrollX();
-          ensureCardVerticallyInView(card, 'auto');
+          requestAnimationFrame(function(){
+            requestAnimationFrame(function(){
+              ensureCardVerticallyInView(card, 'smooth');
+            });
+          });
         }, 1180);
         setTimeout(pinPageScrollX, 120);
       }
@@ -6386,8 +6389,14 @@ function attachHlCharExitHideAfterTransform(c){
     if(!cardEl) return false;
     var r = cardEl.getBoundingClientRect();
     var vh = w.innerHeight || document.documentElement.clientHeight || 0;
-    var overlap = Math.min(r.bottom, vh) - Math.max(r.top, 0);
-    return overlap > Math.min(80, r.height * 0.12);
+    var vw = w.innerWidth || document.documentElement.clientWidth || 0;
+    var vOverlap = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+    var hOverlap = Math.min(r.right, vw) - Math.max(r.left, 0);
+    if(vOverlap <= 0 || hOverlap <= 0) return false;
+    return (
+      vOverlap > Math.min(80, r.height * 0.12) &&
+      hOverlap > Math.min(48, r.width * 0.1)
+    );
   };
 })(window);
 </script>
@@ -6422,7 +6431,7 @@ function attachHlCharExitHideAfterTransform(c){
   var morphFinishedOnce = false;
   var ioWasIntersecting = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
-  /* Whole article vs SVG — strip scroll won’t flicker “out” while the card is still on screen. */
+  /* Observe the full card so horizontal strip scroll matches real viewport visibility. */
   var ioTarget = cardEl || svg.closest('.hcard-visual-inner--atlas') || svg;
 
   function clamp01(value){
@@ -6632,7 +6641,8 @@ function attachHlCharExitHideAfterTransform(c){
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
-      if(entry.isIntersecting){
+      var eligible = entry.isIntersecting && window.OuroSite.cardMostlyVisible(cardEl);
+      if(eligible){
         isInView = true;
         if(!ioWasIntersecting && !morphFinishedOnce) play();
         ioWasIntersecting = true;
@@ -6641,7 +6651,7 @@ function attachHlCharExitHideAfterTransform(c){
         ioWasIntersecting = false;
         clearTimersAndFrame();
       }
-    }, { root: null, threshold: [0, 0.08, 0.2], rootMargin: '12% 0px 8% 0px' });
+    }, { root: null, threshold: [0, 0.08, 0.2] });
 
     observer.observe(ioTarget);
   }
@@ -6686,7 +6696,7 @@ function attachHlCharExitHideAfterTransform(c){
   var morphFinishedOnce = false;
   var ioWasIntersecting = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
-  var ioTarget = svg.closest('.hcard-visual-inner--nota') || svg;
+  var ioTarget = cardEl || svg.closest('.hcard-visual-inner--nota') || svg;
 
   function clamp01(value){
     return Math.min(1, Math.max(0, value));
@@ -6842,7 +6852,8 @@ function attachHlCharExitHideAfterTransform(c){
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
-      if(entry.isIntersecting){
+      var eligible = entry.isIntersecting && window.OuroSite.cardMostlyVisible(cardEl);
+      if(eligible){
         isInView = true;
         if(!ioWasIntersecting && !morphFinishedOnce) play();
         ioWasIntersecting = true;
@@ -6851,7 +6862,7 @@ function attachHlCharExitHideAfterTransform(c){
         ioWasIntersecting = false;
         clearTimersAndFrame();
       }
-    }, { root: null, threshold: [0, 0.08, 0.2], rootMargin: '12% 0px 8% 0px' });
+    }, { root: null, threshold: [0, 0.08, 0.2] });
     observer.observe(ioTarget);
   }
 
@@ -6913,10 +6924,14 @@ function attachHlCharExitHideAfterTransform(c){
     isInView = true;
     if(!rippleFinishedOnce) playOnce();
   }else{
+    var ioTarget = cardEl || svg;
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
-      if(entry.isIntersecting){
+      var eligible =
+        entry.isIntersecting &&
+        (!cardEl || window.OuroSite.cardMostlyVisible(cardEl));
+      if(eligible){
         isInView = true;
         if(!ioWasIntersecting && !rippleFinishedOnce) playOnce();
         ioWasIntersecting = true;
@@ -6925,8 +6940,8 @@ function attachHlCharExitHideAfterTransform(c){
         ioWasIntersecting = false;
         resetIdleState();
       }
-    }, { root: null, threshold: 0.35 });
-    observer.observe(svg);
+    }, { root: null, threshold: [0, 0.15, 0.35] });
+    observer.observe(ioTarget);
   }
 
   if(cardEl && typeof MutationObserver !== 'undefined'){
