@@ -64,7 +64,7 @@ PROJECT STRIP (HORIZONTAL CARDS)
   previous.
 
   [Nota] — featured card
-  An iOS-native app for reviewing footage. Log moments, write notes, find
+  An OS-native app for reviewing video footage, logging moments, and finding
   what matters.
   Button: Learn more / Close
   Expanded: #hcard-detail-nota
@@ -85,8 +85,8 @@ PROJECT STRIP (HORIZONTAL CARDS)
       mailto:hello@ourolabs.com?subject=Nota%3A%20Request%20early%20access&body=Hi%20Ouro%20team%2C%0D%0A%0D%0AI%27d%20like%20to%20request%20early%20access%20to%20Nota.%0D%0A%0D%0AThanks%2C%0D%0A
 
   [Overture DS]
-  A design system workflow for shaping, querying, and evolving systems with
-  agents.
+  We're building a workflow for designers to shape, query, and evolve design
+  systems alongside agents.
   Expanded: #hcard-detail-overture
     (Body) We’re not just building an agentic design system. We’re building the
     workflow around it, so designers like us can still shape it visually when
@@ -105,7 +105,8 @@ PROJECT STRIP (HORIZONTAL CARDS)
     system. It is the way the system gets made, used, and evolved.
 
   [Health Atlas]
-  An early personal experiment in more connected care.
+  A personal experiment for understanding your health with more context and
+  continuity.
   Expanded: #hcard-detail-health-atlas
     (Body) This project started as a very personal experiment, born from our
     own frustration trying to hold a more holistic, longitudinal view of our
