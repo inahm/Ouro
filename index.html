@@ -4339,6 +4339,8 @@ function attachHlCharExitHideAfterTransform(c){
   var thirdRingDpr = 1;
   var thirdRingCw = 0;
   var thirdRingCh = 0;
+  /* iOS WebKit: difference + drawImage(video) often fails; blit video to bitmap first. */
+  var orbBlendScratch = null;
   var thirdCycleVids = null;
   var thirdBgVid = null;
   var TA_CYCLE_HOLD = 4200;
@@ -4430,6 +4432,40 @@ function attachHlCharExitHideAfterTransform(c){
     thirdRingCanvas.style.width = cw + 'px';
     thirdRingCanvas.style.height = ch + 'px';
     thirdRingCtx = thirdRingCanvas.getContext('2d');
+  }
+
+  function taIsLikelyIOSWebKitVideoBlendBug(){
+    if(window.__ouroTaIOSVideoBlend != null) return window.__ouroTaIOSVideoBlend;
+    var ua = navigator.userAgent || '';
+    var iOSDevice = /iP(ad|hone|od)/.test(ua);
+    var iPadDesktop = typeof navigator !== 'undefined' && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    window.__ouroTaIOSVideoBlend = !!(iOSDevice || iPadDesktop);
+    return window.__ouroTaIOSVideoBlend;
+  }
+  /**
+   * WebKit (esp. iOS): compositing from HTMLVideoElement with mode "difference" can draw blank/wrong.
+   * Rasterize the frame to a bitmap canvas, then difference-composite that — matches desktop output.
+   */
+  function thirdRingDrawVideoDifference(ctx, vid, dx, dy, dw, dh){
+    if(!taIsLikelyIOSWebKitVideoBlendBug()){
+      ctx.globalCompositeOperation = 'difference';
+      ctx.drawImage(vid, dx, dy, dw, dh);
+      return;
+    }
+    var sw = Math.max(1, Math.round(dw * thirdRingDpr));
+    var sh = Math.max(1, Math.round(dh * thirdRingDpr));
+    if(!orbBlendScratch || orbBlendScratch.width !== sw || orbBlendScratch.height !== sh){
+      orbBlendScratch = document.createElement('canvas');
+      orbBlendScratch.width = sw;
+      orbBlendScratch.height = sh;
+    }
+    var os = orbBlendScratch.getContext('2d');
+    os.setTransform(1, 0, 0, 1, 0, 0);
+    os.globalCompositeOperation = 'source-over';
+    os.clearRect(0, 0, sw, sh);
+    os.drawImage(vid, 0, 0, sw, sh);
+    ctx.globalCompositeOperation = 'difference';
+    ctx.drawImage(orbBlendScratch, dx, dy, dw, dh);
   }
 
   function thirdRingStop(){
@@ -4525,11 +4561,12 @@ function attachHlCharExitHideAfterTransform(c){
       }
       thirdRingCtx.save();
       thirdRingCtx.globalAlpha = alpha;
-      thirdRingCtx.globalCompositeOperation = 'source-over';
       if(TA_ORB_IDX >= 0 && thirdCycleVids[TA_ORB_IDX] === img){
-        thirdRingCtx.globalCompositeOperation = 'difference';
+        thirdRingDrawVideoDifference(thirdRingCtx, img, dx, dy, dw, dh);
+      } else {
+        thirdRingCtx.globalCompositeOperation = 'source-over';
+        thirdRingCtx.drawImage(img, dx, dy, dw, dh);
       }
-      thirdRingCtx.drawImage(img, dx, dy, dw, dh);
       thirdRingCtx.restore();
     }
 
@@ -4548,8 +4585,7 @@ function attachHlCharExitHideAfterTransform(c){
       var vdw = vvw * vs;
       var vdh = vvh * vs;
       thirdRingCtx.globalAlpha = 0.6;
-      thirdRingCtx.globalCompositeOperation = 'difference';
-      thirdRingCtx.drawImage(thirdBgVid, cx - vdw / 2, cy - vdh / 2, vdw, vdh);
+      thirdRingDrawVideoDifference(thirdRingCtx, thirdBgVid, cx - vdw / 2, cy - vdh / 2, vdw, vdh);
       thirdRingCtx.globalAlpha = 1;
       thirdRingCtx.globalCompositeOperation = 'source-over';
     }
@@ -6386,6 +6422,8 @@ function attachHlCharExitHideAfterTransform(c){
   var morphFinishedOnce = false;
   var ioWasIntersecting = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
+  /* Whole article vs SVG — strip scroll won’t flicker “out” while the card is still on screen. */
+  var ioTarget = cardEl || svg.closest('.hcard-visual-inner--atlas') || svg;
 
   function clamp01(value){
     return Math.min(1, Math.max(0, value));
@@ -6603,9 +6641,9 @@ function attachHlCharExitHideAfterTransform(c){
         ioWasIntersecting = false;
         clearTimersAndFrame();
       }
-    }, { root: null, threshold: 0.35 });
+    }, { root: null, threshold: [0, 0.08, 0.2], rootMargin: '12% 0px 8% 0px' });
 
-    observer.observe(svg);
+    observer.observe(ioTarget);
   }
   if(cardEl && typeof MutationObserver !== 'undefined'){
     var classObs = new MutationObserver(function(){
