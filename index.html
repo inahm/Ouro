@@ -793,6 +793,9 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 .scroll-intro-continuation .hcard--expanded .hcard-detail-wrap{
   grid-template-rows:1fr;
+  /* Fill space below the title so long copy + scrollport sit above the pinned CTA. */
+  flex:1 1 auto;
+  min-height:0;
   /* Clear separation between teaser (title + subcopy) and long body. */
   margin-top:clamp(20px,2.6vw,40px);
   /* After the card is wide + the display title is red/large, open the long-copy block. */
@@ -803,6 +806,14 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 .scroll-intro-continuation .hcard-detail-inner{
   overflow:hidden;
   min-height:0;
+}
+/* Expanded: scroll long copy inside the card — avoids clipping and keeps it clear of .hcard-discover. */
+.scroll-intro-continuation .hcard--expanded .hcard-detail-inner{
+  overflow-x:hidden;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
 }
 .scroll-intro-continuation .hcard-detail{
   font-family:'Inter',sans-serif;
@@ -829,6 +840,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   opacity:1;
   transform:translate3d(0,0,0);
   filter:blur(0);
+  padding-bottom:0.5rem;
   /* After the wrap opens: gentle lift, fade, and de-blur (see delay vs .hcard-detail-wrap). */
   transition:
     opacity 0.72s var(--ease-hcard-silk) 1.42s,
@@ -1229,6 +1241,8 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   .scroll-intro-continuation .hcard{
     flex:0 0 clamp(260px,min(92%,560px,calc(100% - 2 * var(--g))),560px);
     --hcard-px:20px;
+    /* Pinned .hcard-discover is ~48px tall + needs gap above copy; 2.4rem was too tight on phone. */
+    --hcard-cta-pad:calc(48px + 1.1rem);
     padding:24px 20px calc(24px + var(--hcard-cta-pad)) 20px;
   }
   .scroll-intro-continuation .hcard--expanded{flex-basis:clamp(280px,min(96%,calc(100% - 2 * var(--g))),600px) !important;}
@@ -1519,10 +1533,10 @@ html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[
   }
   .scroll-intro-header-strip .site-meta-btn--fab{
     align-items:center;
-    /* Match hamburger tap target (~48px) */
-    min-width:48px;
-    min-height:48px;
-    padding:12px 10px;
+    /* ~44px min tap target; slightly smaller than 48px band for visual balance */
+    min-width:44px;
+    min-height:44px;
+    padding:10px 8px;
     box-sizing:border-box;
   }
   /* Match FAB’s horizontal inset: FAB has 8px padding on both sides; toggle had 0 right — looked tighter to the edge. */
@@ -1530,17 +1544,16 @@ html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[
     display:flex;
     align-items:center;
     justify-content:flex-end;
-    /* ~48px min touch target (WCAG / mobile HIG) */
-    min-width:48px;
-    min-height:48px;
-    padding:12px 10px 12px 16px;
+    min-width:44px;
+    min-height:44px;
+    padding:10px 8px 10px 14px;
     box-sizing:border-box;
   }
   .scroll-intro-nav-link{
-    font-size:clamp(15px, 4.25vw, 18px);
-    letter-spacing:0.055em;
-    min-height:48px;
-    padding:12px 10px;
+    font-size:clamp(13.5px, 3.35vw, 16px);
+    letter-spacing:0.05em;
+    min-height:44px;
+    padding:10px 10px;
     box-sizing:border-box;
     display:inline-flex;
     align-items:center;
@@ -1568,7 +1581,7 @@ html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[
     visibility:hidden;
     overflow:hidden;
     pointer-events:none;
-    gap:clamp(10px, 3vw, 18px);
+    gap:clamp(4px, 1.15vw, 9px);
     padding:0;
     border:0;
     background:transparent;
@@ -1579,7 +1592,7 @@ html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[
     transition:max-height 0.36s var(--ease-out-flow), opacity 0.24s var(--ease-out-flow);
   }
   .scroll-intro-top-nav.scroll-intro-top-nav--open .scroll-intro-nav-dropdown{
-    max-height:14rem;
+    max-height:11rem;
     opacity:1;
     visibility:visible;
     overflow:visible;
