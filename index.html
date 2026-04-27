@@ -3761,6 +3761,41 @@ function attachHlCharExitHideAfterTransform(c){
     return document.documentElement.classList.contains('site-meta-open');
   }
 
+  /** After page unlocks, third-act may scroll off-screen while the particle RAF + shell--in stay active — gate audio on real visibility. */
+  function thirdActParticleAudioAudible(){
+    var el = document.getElementById('third-act');
+    if(!el) return true;
+    if(!document.documentElement.classList.contains('scroll-intro-scrollable')) return true;
+    var vis = window.OuroSite && typeof window.OuroSite.cardMostlyVisible === 'function'
+      ? window.OuroSite.cardMostlyVisible
+      : null;
+    if(vis) return vis(el);
+    var r = el.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    var vOver = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+    var hOver = Math.min(r.right, vw) - Math.max(r.left, 0);
+    if(vOver <= 0 || hOver <= 0) return false;
+    return vOver > Math.min(80, r.height * 0.12) && hOver > Math.min(48, r.width * 0.1);
+  }
+
+  /** Second-headline ring: only while intro layout (no native scroll) and wrap is meaningfully on screen. */
+  function secondActParticleAudioAudible(){
+    if(document.documentElement.classList.contains('scroll-intro-scrollable')) return false;
+    if(!secondParticleWrap) return true;
+    var vis = window.OuroSite && typeof window.OuroSite.cardMostlyVisible === 'function'
+      ? window.OuroSite.cardMostlyVisible
+      : null;
+    if(vis) return vis(secondParticleWrap);
+    var r = secondParticleWrap.getBoundingClientRect();
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+    var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+    var vOver = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+    var hOver = Math.min(r.right, vw) - Math.max(r.left, 0);
+    if(vOver <= 0 || hOver <= 0) return false;
+    return vOver > Math.min(80, r.height * 0.12) && hOver > Math.min(48, r.width * 0.1);
+  }
+
   function secondParticleFrame(){
     if(!secondParticleWrap || !secondParticleWrap.classList.contains('second-hl-particles-wrap--visible')){
       spRaf = null;
@@ -3776,7 +3811,10 @@ function attachHlCharExitHideAfterTransform(c){
     spRaf = requestAnimationFrame(secondParticleFrame);
     if(!spCtx || !spParticles || !spParticles.length){
       if(window.OuroSecondLullaby){
-        var inRingEarly = spPointerInRingAudioZone() && !siteMetaPanelMutesParticleAudio();
+        var inRingEarly =
+          spPointerInRingAudioZone() &&
+          !siteMetaPanelMutesParticleAudio() &&
+          secondActParticleAudioAudible();
         window.OuroSecondLullaby.tick({ zone: inRingEarly, mouseSpd: inRingEarly ? spMouse.spd || 0 : 0 });
       }
       return;
@@ -3832,7 +3870,10 @@ function attachHlCharExitHideAfterTransform(c){
     spCtx.restore();
 
     if(window.OuroSecondLullaby){
-      var inRingSp = spPointerInRingAudioZone() && !siteMetaPanelMutesParticleAudio();
+      var inRingSp =
+        spPointerInRingAudioZone() &&
+        !siteMetaPanelMutesParticleAudio() &&
+        secondActParticleAudioAudible();
       window.OuroSecondLullaby.tick({ zone: inRingSp, mouseSpd: inRingSp ? spMouse.spd || 0 : 0 });
     }
   }
@@ -4021,7 +4062,10 @@ function attachHlCharExitHideAfterTransform(c){
     tpRaf = requestAnimationFrame(thirdParticleFrame);
     if(!tpCtx || !tpParticles || !tpParticles.length){
       if(window.OuroRedLullaby){
-        var inRingEarly = tpPointerInRingAudioZone() && !siteMetaPanelMutesParticleAudio();
+        var inRingEarly =
+          tpPointerInRingAudioZone() &&
+          !siteMetaPanelMutesParticleAudio() &&
+          thirdActParticleAudioAudible();
         window.OuroRedLullaby.tick({ zone: inRingEarly, mouseSpd: inRingEarly ? tpMouse.spd || 0 : 0 });
       }
       return;
@@ -4082,7 +4126,10 @@ function attachHlCharExitHideAfterTransform(c){
     tpCtx.restore();
 
     if(window.OuroRedLullaby){
-      var inRing = tpPointerInRingAudioZone() && !siteMetaPanelMutesParticleAudio();
+      var inRing =
+        tpPointerInRingAudioZone() &&
+        !siteMetaPanelMutesParticleAudio() &&
+        thirdActParticleAudioAudible();
       window.OuroRedLullaby.tick({ zone: inRing, mouseSpd: inRing ? tpMouse.spd || 0 : 0 });
     }
   }
