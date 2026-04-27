@@ -262,9 +262,9 @@ html.site-meta-open .custom-cursor{
   transition:opacity 0.15s ease, visibility 0.15s ease;
   z-index:3;
 }
-/* Cards: keep blend behavior, but tint cursor dot red. */
+/* Cards: red dot with same difference blend as default cursor (content shows through). */
 html.custom-cursor--hcard .custom-cursor{
-  mix-blend-mode:normal;
+  mix-blend-mode:difference;
 }
 html.custom-cursor--hcard .custom-cursor__dot{
   background:var(--red);
@@ -467,6 +467,8 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   width:100%;
   max-width:100%;
   min-width:0;
+  /* Top rule on wrapper (not .hscroll-track): WebKit often drops 1px top borders on overflow-x scrollers on small viewports. */
+  border-top:1px solid var(--ink);
 }
 /* Breathing room when jumping to #proj-grid-wrap (nav link, scrollIntoView, :target). */
 #proj-grid-wrap{
@@ -490,7 +492,6 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   padding-left:var(--g);
   height:clamp(720px,78vh,900px);
   background:var(--bg);
-  border-top:1px solid var(--ink);
   border-bottom:1px solid var(--ink);
 }
 .scroll-intro-continuation .hscroll-track::-webkit-scrollbar{display:none;}
@@ -541,11 +542,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   margin:clamp(16px,3vw,28px) 0;
   position:relative;
   overflow:hidden;
-  transition:
-    opacity 0.38s var(--ease-hcard-surface),
-    min-height 0.48s var(--ease-hcard-surface),
-    margin 0.48s var(--ease-hcard-surface),
-    flex 0.48s var(--ease-hcard-surface);
+  transition:opacity 0.38s var(--ease-hcard-surface);
 }
 /* Expanded: motif / diagram area gives way to the long write-up */
 .scroll-intro-continuation .hcard--expanded .hcard-visual{
@@ -575,11 +572,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 /* Re-opening the motif: quick, so the bottom CTA (pinned) doesn’t travel with a slow flex grow. */
 .scroll-intro-continuation .hcard:not(.hcard--expanded) .hcard-visual{
-  transition:
-    opacity 0.2s var(--ease-hcard-snapshut),
-    min-height 0.2s var(--ease-hcard-snapshut),
-    margin 0.2s var(--ease-hcard-snapshut),
-    flex 0.2s var(--ease-hcard-snapshut);
+  transition:opacity 0.2s var(--ease-hcard-snapshut);
 }
 .scroll-intro-continuation .hcard-visual-inner{
   position:relative;
@@ -594,7 +587,9 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 /* Nota: small illustration (keeps type as the focus) */
 .scroll-intro-continuation .hcard-visual-inner--nota{
-  width:min(40%,120px,min(24vw,140px));
+  width:min(54%,170px,min(32vw,196px));
+  display:grid;
+  place-items:center;
 }
 .scroll-intro-continuation .hcard-visual-inner--nota .nota-abstract-minimal{
   position:absolute;
@@ -611,16 +606,44 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   object-position:center;
   vertical-align:top;
 }
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-morph-svg{
+  width:100%;
+  max-width:100%;
+  height:auto;
+  overflow:visible;
+}
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-morph-start path{
+  transform-box:fill-box;
+  transform-origin:center;
+  will-change:d;
+}
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-morph-target{
+  visibility:hidden;
+  pointer-events:none;
+}
 .scroll-intro-continuation .hcard-visual-inner--atlas{
-  background:
-    linear-gradient(115deg, transparent 48.5%, rgba(242,241,236,0.16) 49%, rgba(242,241,236,0.16) 51%, transparent 51.5%),
-    linear-gradient(-25deg, transparent 48.5%, rgba(242,241,236,0.11) 49%, rgba(242,241,236,0.11) 51%, transparent 51.5%),
-    linear-gradient(rgba(242,241,236,0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(242,241,236,0.07) 1px, transparent 1px);
-  background-size:100% 100%,100% 100%,24px 24px,24px 24px;
-  background-position:center,center,0 0,0 0;
-  mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 35%,transparent 75%);
-  -webkit-mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,#000 35%,transparent 75%);
+  position:relative;
+  display:grid;
+  place-items:center;
+  background:none;
+  mask-image:none;
+  -webkit-mask-image:none;
+}
+.scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-svg{
+  width:min(84%,252px);
+  max-width:100%;
+  height:auto;
+  overflow:visible;
+  filter:none;
+}
+.scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-apart path{
+  transform-box:fill-box;
+  transform-origin:center;
+  will-change:d;
+}
+.scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-target{
+  visibility:hidden;
+  pointer-events:none;
 }
 .scroll-intro-continuation .hcard-visual-inner--scaffold{
   border:1px solid rgba(242,241,236,0.14);
@@ -637,13 +660,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   background:color-mix(in srgb,var(--bg) 78%,#fff 22%);
 }
 .scroll-intro-continuation .hcard--light .hcard-visual-inner--atlas{
-  background:
-    linear-gradient(115deg, transparent 48.5%, rgba(0,0,0,0.11) 49%, rgba(0,0,0,0.11) 51%, transparent 51.5%),
-    linear-gradient(-25deg, transparent 48.5%, rgba(0,0,0,0.08) 49%, rgba(0,0,0,0.08) 51%, transparent 51.5%),
-    linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
-  background-size:100% 100%,100% 100%,24px 24px,24px 24px;
-  background-position:center,center,0 0,0 0;
+  background:none;
 }
 .scroll-intro-continuation .hcard--light .hcard-visual-inner--scaffold{
   border-color:rgba(0,0,0,0.12);
@@ -652,6 +669,53 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
     linear-gradient(90deg, transparent 44%, rgba(0,0,0,0.06) 44.5%, transparent 45%),
     repeating-linear-gradient(0deg, transparent, transparent 11px, rgba(0,0,0,0.045) 11px, rgba(0,0,0,0.045) 12px),
     repeating-linear-gradient(90deg, transparent, transparent 11px, rgba(0,0,0,0.045) 11px, rgba(0,0,0,0.045) 12px);
+}
+.scroll-intro-continuation .hcard-visual-inner--overture{
+  display:grid;
+  place-items:center;
+  border:0;
+  background:none;
+}
+.scroll-intro-continuation .hcard--light .hcard-visual-inner--overture{
+  border:0;
+  background:none;
+}
+.scroll-intro-continuation .hcard-visual-inner--overture .overture-ripple-svg{
+  width:min(67%,173px);
+  max-width:100%;
+  height:auto;
+  overflow:visible;
+  /* Shared reference so nested <g> scales from viewBox center, not each layer’s bbox */
+  transform-box:view-box;
+}
+.scroll-intro-continuation .hcard-visual-inner--overture .overture-ripple-layer{
+  transform-origin:104.5px 104.5px;
+  transform-box:view-box;
+  opacity:1;
+}
+/* Same wall clock as Nota: 180ms hold + morph through last stagger ≈ 1588ms */
+.scroll-intro-continuation .hcard-visual-inner--overture .overture-ripple-svg.is-playing .overture-ripple-layer--core{
+  animation:overture-ripple-core 700ms cubic-bezier(0.37,0,0.63,1) 180ms both;
+}
+.scroll-intro-continuation .hcard-visual-inner--overture .overture-ripple-svg.is-playing .overture-ripple-layer--mid{
+  animation:overture-ripple-wave 880ms cubic-bezier(0.37,0,0.63,1) 420ms both;
+}
+.scroll-intro-continuation .hcard-visual-inner--overture .overture-ripple-svg.is-playing .overture-ripple-layer--outer{
+  animation:overture-ripple-wave 908ms cubic-bezier(0.37,0,0.63,1) 680ms both;
+}
+@keyframes overture-ripple-core{
+  0%{opacity:1;transform:scale(0.62);animation-timing-function:cubic-bezier(0.33,0,0.2,1);}
+  28%{opacity:1;transform:scale(0.74);animation-timing-function:cubic-bezier(0.33,0,0.25,1);}
+  55%{opacity:1;transform:scale(0.91);animation-timing-function:cubic-bezier(0.25,0,0.4,1);}
+  88%{opacity:1;transform:scale(1);}
+  100%{opacity:1;transform:scale(1);}
+}
+@keyframes overture-ripple-wave{
+  0%{opacity:1;transform:scale(0.48);animation-timing-function:cubic-bezier(0.33,0,0.2,1);}
+  30%{opacity:1;transform:scale(0.64);animation-timing-function:cubic-bezier(0.33,0,0.25,1);}
+  58%{opacity:1;transform:scale(0.86);animation-timing-function:cubic-bezier(0.25,0,0.4,1);}
+  90%{opacity:1;transform:scale(1);}
+  100%{opacity:1;transform:scale(1);}
 }
 .scroll-intro-continuation .hcard--light .hcard-discover:hover,
 .scroll-intro-continuation .hcard--light .hcard-discover:focus-visible{
@@ -2259,7 +2323,12 @@ html.site-meta-open .site-meta-panel.site-meta-panel--open{
   color:inherit;
   border:none;
   border-radius:10px;
-  box-shadow:0 22px 60px rgba(0,0,0,0.45);
+  /* macOS-style window chrome: outer hairline + soft inset edge (reads on dark scrim) */
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.10),
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    inset 0 1px 0 rgba(255,255,255,0.09),
+    0 22px 60px rgba(0,0,0,0.45);
   box-sizing:border-box;
   transform:translate3d(0,8px,0) scale(0.985);
   opacity:0;
@@ -2852,7 +2921,7 @@ button.site-meta-panel__terminal-submit{
   color:color-mix(in srgb, var(--site-meta-stream-status) 72%, #444);
 }
 /* iOS / coarse touch: min 16px on focused inputs avoids page zoom. Scope the same
-   --site-meta-txt under .terminal-ui so the log, ourolabs@learn prompt, and input row
+   --site-meta-txt under .terminal-ui so the log, ourolabs@origin prompt, and input row
    all match (previously only the form used max(16px, …) and the log looked smaller). */
 @media (hover: none) and (pointer: coarse){
   .site-meta-panel__terminal-ui{
@@ -3155,7 +3224,7 @@ button.site-meta-panel__terminal-submit{
       <div class="site-meta-panel__terminal-log" id="site-meta-terminal-log" aria-live="polite"></div>
       <form class="site-meta-panel__terminal-form site-meta-panel__terminal-form--awaiting-ready" id="site-meta-terminal-form" action="#" method="get" autocomplete="off" aria-hidden="true">
         <button type="submit" class="site-meta-panel__terminal-submit" tabindex="-1" aria-hidden="true" title="Run command">Run</button>
-        <span class="site-meta-panel__terminal-prompt">ourolabs@learn:~$</span>
+        <span class="site-meta-panel__terminal-prompt">ourolabs@origin:~$</span>
         <div class="site-meta-panel__terminal-input-wrap" id="site-meta-terminal-input-wrap">
           <span class="site-meta-panel__terminal-mirror" id="site-meta-terminal-mirror" aria-hidden="true"></span>
           <input
@@ -3257,7 +3326,32 @@ button.site-meta-panel__terminal-submit{
           <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></h3>
           <p class="pg-desc">An iOS-native app for reviewing footage. Log moments, write notes, find what matters.</p>
         </div>
-        <div class="hcard-visual hcard-visual--nota" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--nota"><div class="nota-abstract-minimal"><img class="nota-card-visual-img" src="assets/nota-card-visual.png" width="368" height="380" alt="" decoding="async" loading="lazy"></div></div></div>
+        <div class="hcard-visual hcard-visual--nota" aria-hidden="true">
+          <div class="hcard-visual-inner hcard-visual-inner--nota">
+            <svg class="nota-morph-svg" viewBox="0 0 238 205" xmlns="http://www.w3.org/2000/svg" focusable="false">
+              <g class="nota-morph-start">
+                <path d="M44.7895 182.441C44.7895 194.534 34.9869 204.336 22.8947 204.336C10.8026 204.336 0.999995 194.534 0.999994 182.441L1.00008 70.8945C1.00008 58.8024 10.8027 48.9998 22.8948 48.9998C34.9869 48.9998 44.7896 58.8024 44.7896 70.8945L44.7895 182.441Z" fill="#FF1B00"/>
+                <path d="M237.789 133.836C237.789 145.928 227.987 155.731 215.895 155.731C203.803 155.731 194 145.928 194 133.836L194 22.2891C194 10.1969 203.803 0.394327 215.895 0.394326C227.987 0.394326 237.79 10.1969 237.79 22.2891L237.789 133.836Z" fill="#FF1B00"/>
+                <path d="M189.79 182.455C189.79 194.548 179.987 204.35 167.895 204.35C155.803 204.35 146 194.548 146 182.455L146 21.8945C146 9.8024 155.803 -0.000204508 167.895 -0.000205037C179.987 -0.000205565 189.79 9.8024 189.79 21.8945L189.79 182.455Z" fill="#FF1B00"/>
+                <path d="M141.79 182.455C141.79 194.548 131.987 204.35 119.895 204.35C107.803 204.35 98.0001 194.548 98 182.455L98.0001 21.8945C98.0001 9.8024 107.803 -0.000204508 119.895 -0.000205037C131.987 -0.000205565 141.79 9.8024 141.79 21.8945L141.79 182.455Z" fill="#FF1B00"/>
+                <path d="M93 182.455C93 194.548 83.1974 204.35 71.1053 204.35C59.0132 204.35 49.2105 194.548 49.2105 182.455L49.2105 21.8945C49.2105 9.8024 59.0131 -0.000204508 71.1053 -0.000205037C83.1974 -0.000205565 93 9.8024 93 21.8945L93 182.455Z" fill="#FF1B00"/>
+                <path d="M193.999 182.29C193.999 170.198 203.802 160.395 215.894 160.395C227.987 160.395 237.789 170.198 237.789 182.29C237.789 194.382 227.987 204.185 215.894 204.185C203.802 204.185 193.999 194.382 193.999 182.29Z" fill="#FF1B00"/>
+                <path d="M0 22.2895C0 10.1974 9.80256 0.394836 21.8947 0.394836C33.9868 0.394836 43.7895 10.1974 43.7895 22.2895C43.7895 34.3816 33.9868 44.1842 21.8947 44.1842C9.80256 44.1842 0 34.3816 0 22.2895Z" fill="#FF1B00"/>
+              </g>
+              <g class="nota-morph-target">
+                <g transform="translate(16.5 0)">
+                  <path d="M43.7894 182.443C43.7894 194.535 33.9868 204.338 21.8947 204.338C9.80258 204.338 -3.26597e-05 194.535 -3.31882e-05 182.443L7.7251e-05 90.8947C7.67224e-05 78.8026 9.80268 69 21.8948 69C33.9869 69 43.7896 78.8026 43.7896 90.8947C43.7895 134.457 43.7895 138.881 43.7894 182.443Z" fill="#FF1B00"/>
+                  <path d="M43.7894 42.4429C43.7894 54.535 33.9868 64.3378 21.8947 64.3378C9.80258 64.3378 -3.19485e-05 54.535 -3.2477e-05 42.4429L7.7251e-05 21.8947C7.67224e-05 9.80261 9.80268 1.48561e-06 21.8948 9.57049e-07C33.9869 4.28486e-07 43.7896 9.80261 43.7896 21.8947C43.7895 65.4565 43.7895 -1.1189 43.7894 42.4429Z" fill="#FF1B00"/>
+                  <path d="M204.789 182.443C204.789 194.535 194.987 204.338 182.895 204.338C170.803 204.338 161 194.535 161 182.443L161 155.895C161 143.803 170.803 134 182.895 134C194.987 134 204.79 143.803 204.79 155.895C204.79 199.457 204.789 138.881 204.789 182.443Z" fill="#FF1B00"/>
+                  <path d="M204.789 107.836C204.789 119.928 194.987 129.731 182.895 129.731C170.803 129.731 161 119.928 161 107.836L161 22.2893C161 10.1971 170.803 0.394533 182.895 0.394532C194.987 0.394532 204.79 10.1971 204.79 22.2893L204.789 107.836Z" fill="#FF1B00"/>
+                  <path d="M110.999 143.895C110.999 131.802 120.802 122 132.894 122C144.986 122 154.789 131.802 154.789 143.895C154.789 155.987 144.986 165.79 132.894 165.79C120.802 165.79 110.999 155.987 110.999 143.895Z" fill="#FF1B00"/>
+                  <path d="M78.9999 104.895C78.9999 92.8024 88.8025 83 100.895 83C112.987 83 122.79 92.8024 122.79 104.895C122.79 116.987 112.987 126.79 100.895 126.79C88.8025 126.79 78.9999 116.987 78.9999 104.895Z" fill="#FF1B00"/>
+                  <path d="M47.9999 64.895C47.9999 52.8029 57.8025 43.0003 69.8947 43.0003C81.9868 43.0003 91.7895 52.8029 91.7895 64.895C91.7895 76.9871 81.9868 86.7897 69.8947 86.7897C57.8025 86.7897 47.9999 76.9871 47.9999 64.895Z" fill="#FF1B00"/>
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
         <div class="hcard-detail-wrap">
           <div class="hcard-detail-inner">
             <div class="hcard-detail" id="hcard-detail-nota" aria-hidden="true">
@@ -3280,7 +3374,21 @@ button.site-meta-panel__terminal-submit{
           <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Overture DS</span></span></h3>
           <p class="pg-desc">A design system workflow for shaping, querying, and evolving systems with agents.</p>
         </div>
-        <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--scaffold"></div></div>
+        <div class="hcard-visual" aria-hidden="true">
+          <div class="hcard-visual-inner hcard-visual-inner--scaffold hcard-visual-inner--overture">
+            <svg class="overture-ripple-svg" viewBox="0 0 209 209" xmlns="http://www.w3.org/2000/svg" focusable="false">
+              <g class="overture-ripple-layer overture-ripple-layer--core">
+                <path d="M66.6709 112.39C81.6242 115.476 93.4008 127.252 96.4873 142.205C81.534 139.119 69.7573 127.343 66.6709 112.39ZM141.913 112.39C138.827 127.343 127.051 139.119 112.098 142.205C115.184 127.252 126.961 115.476 141.913 112.39ZM96.4863 66.9619C93.3999 81.9152 81.6242 93.6909 66.6709 96.7773C69.7575 81.8247 81.5336 70.0484 96.4863 66.9619ZM112.099 66.9619C127.051 70.0483 138.826 81.8247 141.913 96.7773C126.96 93.6904 115.185 81.9148 112.099 66.9619Z" fill="#FF1B00"/>
+              </g>
+              <g class="overture-ripple-layer overture-ripple-layer--mid">
+                <path d="M40.0967 117.537C65.6126 122.803 85.7072 142.899 90.9736 168.415C65.4578 163.149 45.3627 143.053 40.0967 117.537ZM168.488 117.537C163.222 143.053 143.127 163.149 117.611 168.415C122.878 142.899 142.973 122.804 168.488 117.537ZM90.9736 40.0225C85.7075 65.5386 65.6128 85.6341 40.0967 90.9004C45.363 65.3847 65.458 45.2889 90.9736 40.0225ZM117.611 40.0225C143.127 45.2886 163.222 65.3845 168.488 90.9004C142.973 85.6338 122.877 65.5384 117.611 40.0225Z" fill="#FF1B00"/>
+              </g>
+              <g class="overture-ripple-layer overture-ripple-layer--outer">
+                <path d="M0 125.839C41.4248 134.388 74.0491 167.013 82.5986 208.438C41.1741 199.888 8.54896 167.264 0 125.839ZM208.438 125.839C199.889 167.263 167.265 199.888 125.841 208.438C134.39 167.013 167.014 134.388 208.438 125.839ZM82.5986 0C74.0492 41.4244 41.4247 74.0478 0 82.5967C8.54943 41.1727 41.1746 8.54927 82.5986 0ZM125.841 0C167.265 8.54921 199.889 41.1728 208.438 82.5967C167.015 74.0473 134.39 41.424 125.841 0Z" fill="#FF1B00"/>
+              </g>
+            </svg>
+          </div>
+        </div>
         <div class="hcard-detail-wrap">
           <div class="hcard-detail-inner">
             <div class="hcard-detail" id="hcard-detail-overture" aria-hidden="true">
@@ -3299,7 +3407,32 @@ button.site-meta-panel__terminal-submit{
           <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Health Atlas</span></span></h3>
           <p class="pg-desc">An early personal experiment in more connected care.</p>
         </div>
-        <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--atlas"></div></div>
+        <div class="hcard-visual" aria-hidden="true">
+          <div class="hcard-visual-inner hcard-visual-inner--atlas">
+            <svg class="atlas-morph-svg" viewBox="0 0 252 299" xmlns="http://www.w3.org/2000/svg" focusable="false">
+              <g class="atlas-morph-apart">
+                <path d="M199 217H241.44V246.233C241.44 253.527 235.527 259.44 228.233 259.44H199V217Z" fill="#FF1B00"/>
+                <path d="M198.797 83.7632L198.797 41.3233L228.031 41.3233C235.325 41.3233 241.237 47.236 241.237 54.5298L241.237 83.7632L198.797 83.7632Z" fill="#FF1B00"/>
+                <path d="M125.831 128.437L125.831 40.5784L155.064 40.5784C162.358 40.5784 168.271 46.4912 168.271 53.785L168.271 128.437L125.831 128.437Z" fill="#FF1B00"/>
+                <path d="M97.5374 255.756H55.0974V284.99C55.0974 292.283 61.0102 298.196 68.304 298.196H97.5374V255.756Z" fill="#FF1B00"/>
+                <path d="M51.0024 83.0186H6.74725e-05V112.252C6.74725e-05 119.546 5.91286 125.458 13.2067 125.458H51.0024V83.0186Z" fill="#FF1B00"/>
+                <path d="M101.633 83.0186L101.633 9.01222e-05L64.2091 8.9676e-05C56.9153 8.9589e-05 51.0025 5.91288 51.0025 13.2067L51.0025 83.0186L101.633 83.0186Z" fill="#FF1B00"/>
+                <path d="M251.289 128.437L168.271 128.437L168.271 165.86C168.271 173.154 174.184 179.067 181.477 179.067L251.289 179.067L251.289 128.437Z" fill="#FF1B00"/>
+                <path d="M101.633 173.11L18.6141 173.11L18.6141 210.534C18.6141 217.828 24.5269 223.74 31.8207 223.74L101.633 223.74L101.633 173.11Z" fill="#FF1B00"/>
+                <path d="M101.633 83.0186L101.633 173.11L113.741 173.11C121.035 173.11 126.948 167.198 126.948 159.904L126.948 83.0186L101.633 83.0186Z" fill="#FF1B00"/>
+                <path d="M168.271 259.479L168.271 171.994L140.154 171.994C132.861 171.994 126.948 177.906 126.948 185.2L126.948 259.479L168.271 259.479Z" fill="#FF1B00"/>
+              </g>
+              <g class="atlas-morph-target">
+                <g transform="translate(77.36 100.62) scale(0.572)">
+                  <path d="M83.0186 87L9.01222e-05 87L9.33939e-05 124.424C9.40315e-05 131.717 5.91288 137.63 13.2067 137.63L83.0186 137.63L83.0186 87Z" fill="#FF1B00"/>
+                  <path d="M82.6301 83.0186L82.6301 9.01222e-05L45.2066 8.9676e-05C37.9128 8.9589e-05 32 5.91288 32 13.2067L32 83.0186L82.6301 83.0186Z" fill="#FF1B00"/>
+                  <path d="M87 82.6299H170.018V45.2064C170.018 37.9126 164.106 31.9998 156.812 31.9998L87 31.9998V82.6299Z" fill="#FF1B00"/>
+                  <path d="M87 87L87 170.018L124.424 170.018C131.717 170.018 137.63 164.106 137.63 156.812L137.63 87L87 87Z" fill="#FF1B00"/>
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
         <div class="hcard-detail-wrap">
           <div class="hcard-detail-inner">
             <div class="hcard-detail" id="hcard-detail-health-atlas" aria-hidden="true">
@@ -5292,6 +5425,43 @@ function attachHlCharExitHideAfterTransform(c){
         if(!(window.scrollX || window.pageXOffset)) return;
         window.scrollTo({ left: 0, top: window.scrollY, behavior: 'auto' });
       }
+      /* Vertical page scroll only — avoids scrollIntoView() pulling the horizontal track. */
+      function ensureCardVerticallyInView(card, behavior){
+        if(!card) return;
+        var r = card.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+        if(!vh) return;
+        var topLimit = 12;
+        var headerEl = document.querySelector('.scroll-intro-header-strip');
+        if(headerEl){
+          var hb = headerEl.getBoundingClientRect().bottom;
+          if(hb > 0) topLimit = Math.max(topLimit, hb + 8);
+        }
+        var bottomLimit = vh - 24;
+        var delta = 0;
+        if(r.top < topLimit){
+          delta = r.top - topLimit;
+        } else if(r.bottom > bottomLimit){
+          if(r.top > bottomLimit){
+            delta = r.top - topLimit;
+          } else {
+            delta = r.bottom - bottomLimit;
+          }
+        } else {
+          return;
+        }
+        if(Math.abs(delta) < 2) return;
+        var be = behavior || 'smooth';
+        if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+          be = 'auto';
+        }
+        try{
+          window.scrollBy({ left: 0, top: delta, behavior: be });
+        }catch(_){
+          window.scrollTo(0, window.scrollY + delta);
+        }
+        pinPageScrollX();
+      }
       /* scrollIntoView() can nudge the *page* horizontally; only move the horizontal track. */
       function scrollCardCenterInTrack(card){
         var cardRect = card.getBoundingClientRect();
@@ -5348,6 +5518,9 @@ function attachHlCharExitHideAfterTransform(c){
         notaFigVarsPinBeforeExpand(card);
         card.classList.add('hcard--expanded');
         syncDetailA11y(card, true);
+        requestAnimationFrame(function(){
+          ensureCardVerticallyInView(card, 'smooth');
+        });
         /*
          * Single smooth scroll, fired once the flex-basis transition is ~70% complete.
          * Earlier we issued a scroll on the next frame AND a corrective at 560ms — the
@@ -5355,7 +5528,10 @@ function attachHlCharExitHideAfterTransform(c){
          * jump (most obvious for the 2nd/3rd cards where the delta is large).
          */
         var SCROLL_AT = 360;
-        setTimeout(function(){ scrollCardCenterInTrack(card); }, SCROLL_AT);
+        setTimeout(function(){
+          scrollCardCenterInTrack(card);
+          ensureCardVerticallyInView(card, 'smooth');
+        }, SCROLL_AT);
         /* After flex morph + big title (CSS delays ~0.55s+0.5s), snap any residual track scroll. */
         setTimeout(function(){
           var cardRect = card.getBoundingClientRect();
@@ -5371,6 +5547,7 @@ function attachHlCharExitHideAfterTransform(c){
             }
           }
           pinPageScrollX();
+          ensureCardVerticallyInView(card, 'auto');
         }, 1180);
         setTimeout(pinPageScrollX, 120);
       }
@@ -6122,6 +6299,558 @@ function attachHlCharExitHideAfterTransform(c){
 })();
 </script>
 <script>
+(function(w){
+  w.OuroSite = w.OuroSite || {};
+  w.OuroSite.cardMostlyVisible = function(cardEl){
+    if(!cardEl) return false;
+    var r = cardEl.getBoundingClientRect();
+    var vh = w.innerHeight || document.documentElement.clientHeight || 0;
+    var overlap = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+    return overlap > Math.min(80, r.height * 0.12);
+  };
+})(window);
+</script>
+<script>
+(function(){
+  var reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(reduceMotionQuery.matches) return;
+
+  var svg = document.querySelector('.hcard-visual-inner--atlas .atlas-morph-svg');
+  if(!svg) return;
+
+  var apartLayer = svg.querySelector('.atlas-morph-apart');
+  var targetLayer = svg.querySelector('.atlas-morph-target');
+  if(!apartLayer || !targetLayer) return;
+
+  var apartPaths = Array.prototype.slice.call(apartLayer.querySelectorAll('path'));
+  var targetPaths = Array.prototype.slice.call(targetLayer.querySelectorAll('path'));
+  if(!apartPaths.length || !targetPaths.length) return;
+
+  var stageCenter = { x: 126, y: 149.5 };
+  var samplePoints = 96;
+  var startLayoutScale = 0.68;
+  var holdBeforeMorphMs = 320;
+  var durationMs = 1560;
+  var spreadPhaseRatio = 0.62;
+  var model = null;
+  var rafId = 0;
+  var holdTimer = 0;
+  var cardEl = svg.closest('.hcard');
+  var isInView = false;
+  var hasPlayedInitialInView = false;
+  var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
+
+  function clamp01(value){
+    return Math.min(1, Math.max(0, value));
+  }
+  function easeInOutCubic(t){
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+  function pathCenterFromBox(path){
+    var box = path.getBBox();
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  }
+  function translatePoints(points, dx, dy){
+    return points.map(function(point){
+      return { x: point.x + dx, y: point.y + dy };
+    });
+  }
+  function scalePointsAround(points, scale, center){
+    return points.map(function(point){
+      return {
+        x: center.x + (point.x - center.x) * scale,
+        y: center.y + (point.y - center.y) * scale
+      };
+    });
+  }
+  function samplePathPointsInSvg(path, count){
+    var points = [];
+    var length = path.getTotalLength();
+    var matrix = path.getCTM();
+    var svgPoint = svg.createSVGPoint();
+    for(var i = 0; i < count; i += 1){
+      var t = i / (count - 1);
+      var sample = path.getPointAtLength(length * t);
+      svgPoint.x = sample.x;
+      svgPoint.y = sample.y;
+      var out = matrix ? svgPoint.matrixTransform(matrix) : { x: sample.x, y: sample.y };
+      points.push({ x: out.x, y: out.y });
+    }
+    return points;
+  }
+  function pointsToPathD(points){
+    if(!points.length) return '';
+    var first = points[0];
+    var d = 'M' + first.x.toFixed(3) + ' ' + first.y.toFixed(3);
+    for(var i = 1; i < points.length; i += 1){
+      var point = points[i];
+      d += 'L' + point.x.toFixed(3) + ' ' + point.y.toFixed(3);
+    }
+    return d + 'Z';
+  }
+  function interpolatePoints(from, to, t){
+    return from.map(function(point, idx){
+      return {
+        x: point.x + (to[idx].x - point.x) * t,
+        y: point.y + (to[idx].y - point.y) * t
+      };
+    });
+  }
+  function pointsBounds(points){
+    var minX = Infinity;
+    var minY = Infinity;
+    var maxX = -Infinity;
+    var maxY = -Infinity;
+    points.forEach(function(point){
+      minX = Math.min(minX, point.x);
+      minY = Math.min(minY, point.y);
+      maxX = Math.max(maxX, point.x);
+      maxY = Math.max(maxY, point.y);
+    });
+    return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
+  }
+  function pointsCenter(points){
+    var b = pointsBounds(points);
+    return { x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2 };
+  }
+  function pointSetsCenter(pointSets){
+    var minX = Infinity;
+    var minY = Infinity;
+    var maxX = -Infinity;
+    var maxY = -Infinity;
+    pointSets.forEach(function(points){
+      var b = pointsBounds(points);
+      minX = Math.min(minX, b.minX);
+      minY = Math.min(minY, b.minY);
+      maxX = Math.max(maxX, b.maxX);
+      maxY = Math.max(maxY, b.maxY);
+    });
+    return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+  }
+  function buildBalancedAssignments(pathCenters, targetCenters){
+    var byAngle = pathCenters.map(function(center, idx){
+      return { idx: idx, angle: Math.atan2(center.y - stageCenter.y, center.x - stageCenter.x) };
+    }).sort(function(a, b){
+      return a.angle - b.angle;
+    });
+    var targetOrder = targetCenters.map(function(center, idx){
+      return { idx: idx, angle: Math.atan2(center.y - stageCenter.y, center.x - stageCenter.x) };
+    }).sort(function(a, b){
+      return a.angle - b.angle;
+    }).map(function(entry){
+      return entry.idx;
+    });
+    var assignments = new Array(pathCenters.length);
+    byAngle.forEach(function(entry, orderIndex){
+      assignments[entry.idx] = targetOrder[orderIndex % targetOrder.length];
+    });
+    return assignments;
+  }
+  function buildModel(){
+    var targetPointSetsRaw = targetPaths.map(function(path){
+      return samplePathPointsInSvg(path, samplePoints);
+    });
+    var targetCenter = pointSetsCenter(targetPointSetsRaw);
+    var centerOffset = {
+      x: stageCenter.x - targetCenter.x,
+      y: stageCenter.y - targetCenter.y
+    };
+    var targetPointSets = targetPointSetsRaw.map(function(points){
+      return translatePoints(points, centerOffset.x, centerOffset.y);
+    });
+    var targetCenters = targetPointSets.map(function(points){
+      return pointsCenter(points);
+    });
+    var pathCenters = apartPaths.map(function(path){
+      return pathCenterFromBox(path);
+    });
+    var assignments = buildBalancedAssignments(pathCenters, targetCenters);
+
+    return apartPaths.map(function(path, idx){
+      var targetIndex = assignments[idx];
+      var sourcePointsRaw = samplePathPointsInSvg(path, samplePoints);
+      var sourcePoints = scalePointsAround(sourcePointsRaw, startLayoutScale, stageCenter);
+      var targetPoints = targetPointSets[targetIndex];
+      return {
+        sourcePoints: sourcePoints,
+        targetPoints: targetPoints,
+        sourceD: pointsToPathD(sourcePoints),
+        morphDelay: idx * 36
+      };
+    });
+  }
+  function resetState(){
+    if(!model) model = buildModel();
+    apartPaths.forEach(function(path, idx){
+      var m = model[idx];
+      path.style.transition = 'none';
+      path.setAttribute('d', m.sourceD);
+    });
+  }
+  function clearTimersAndFrame(){
+    if(rafId){
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+    if(holdTimer){
+      clearTimeout(holdTimer);
+      holdTimer = 0;
+    }
+  }
+  function runMorph(){
+    var startAt = performance.now();
+
+    function tick(now){
+      var active = false;
+      apartPaths.forEach(function(path, idx){
+        var m = model[idx];
+        var raw = (now - startAt - m.morphDelay) / durationMs;
+        if(raw < 0){
+          active = true;
+          return;
+        }
+        var eased = easeInOutCubic(clamp01(raw));
+        var points = eased < spreadPhaseRatio
+          ? interpolatePoints(
+            m.sourcePoints,
+            m.targetPoints,
+            easeInOutCubic(eased / spreadPhaseRatio)
+          )
+          : m.targetPoints;
+        path.setAttribute('d', pointsToPathD(points));
+        if(raw < 1) active = true;
+      });
+      if(active){
+        rafId = requestAnimationFrame(tick);
+      }else{
+        rafId = 0;
+      }
+    }
+
+    rafId = requestAnimationFrame(tick);
+  }
+  function play(){
+    clearTimersAndFrame();
+    resetState();
+    holdTimer = setTimeout(function(){
+      runMorph();
+    }, holdBeforeMorphMs);
+  }
+
+  resetState();
+  if(typeof IntersectionObserver === 'undefined'){
+    isInView = true;
+    if(!hasPlayedInitialInView){
+      hasPlayedInitialInView = true;
+      play();
+    }
+  }else{
+    var observer = new IntersectionObserver(function(entries){
+      var entry = entries[0];
+      if(!entry) return;
+      if(entry.isIntersecting){
+        isInView = true;
+        if(!hasPlayedInitialInView){
+          hasPlayedInitialInView = true;
+          play();
+        }
+      }else{
+        isInView = false;
+        clearTimersAndFrame();
+      }
+    }, { root: null, threshold: 0.35 });
+
+    observer.observe(svg);
+  }
+  if(cardEl && typeof MutationObserver !== 'undefined'){
+    var classObs = new MutationObserver(function(){
+      var expanded = cardEl.classList.contains('hcard--expanded');
+      if(wasExpanded && !expanded && window.OuroSite.cardMostlyVisible(cardEl)){
+        isInView = true;
+        play();
+      }
+      wasExpanded = expanded;
+    });
+    classObs.observe(cardEl, { attributes: true, attributeFilter: ['class'] });
+  }
+})();
+</script>
+
+<script>
+(function(){
+  var reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(reduceMotionQuery.matches) return;
+
+  var svg = document.querySelector('.hcard-visual-inner--nota .nota-morph-svg');
+  if(!svg) return;
+
+  var startLayer = svg.querySelector('.nota-morph-start');
+  var targetLayer = svg.querySelector('.nota-morph-target');
+  if(!startLayer || !targetLayer) return;
+
+  var startPaths = Array.prototype.slice.call(startLayer.querySelectorAll('path'));
+  var targetPaths = Array.prototype.slice.call(targetLayer.querySelectorAll('path'));
+  if(!startPaths.length || startPaths.length !== targetPaths.length) return;
+
+  var samplePoints = 92;
+  var holdBeforeMorphMs = 180;
+  var durationMs = 1180;
+  var model = null;
+  var rafId = 0;
+  var holdTimer = 0;
+  var cardEl = svg.closest('.hcard');
+  var isInView = false;
+  var hasPlayedInitialInView = false;
+  var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
+
+  function clamp01(value){
+    return Math.min(1, Math.max(0, value));
+  }
+  function easeInOutCubic(t){
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+  function centerFromPoints(points){
+    var minX = Infinity;
+    var minY = Infinity;
+    var maxX = -Infinity;
+    var maxY = -Infinity;
+    points.forEach(function(point){
+      minX = Math.min(minX, point.x);
+      minY = Math.min(minY, point.y);
+      maxX = Math.max(maxX, point.x);
+      maxY = Math.max(maxY, point.y);
+    });
+    return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
+  }
+  function samplePathPointsInSvg(path, count){
+    var points = [];
+    var length = path.getTotalLength();
+    var matrix = path.getCTM();
+    var svgPoint = svg.createSVGPoint();
+    for(var i = 0; i < count; i += 1){
+      var t = i / (count - 1);
+      var sample = path.getPointAtLength(length * t);
+      svgPoint.x = sample.x;
+      svgPoint.y = sample.y;
+      var out = matrix ? svgPoint.matrixTransform(matrix) : { x: sample.x, y: sample.y };
+      points.push({ x: out.x, y: out.y });
+    }
+    return points;
+  }
+  function pointsToPathD(points){
+    if(!points.length) return '';
+    var first = points[0];
+    var d = 'M' + first.x.toFixed(3) + ' ' + first.y.toFixed(3);
+    for(var i = 1; i < points.length; i += 1){
+      var point = points[i];
+      d += 'L' + point.x.toFixed(3) + ' ' + point.y.toFixed(3);
+    }
+    return d + 'Z';
+  }
+  function interpolatePoints(from, to, t){
+    return from.map(function(point, idx){
+      return {
+        x: point.x + (to[idx].x - point.x) * t,
+        y: point.y + (to[idx].y - point.y) * t
+      };
+    });
+  }
+  function buildModel(){
+    var startEntries = startPaths.map(function(path, idx){
+      var points = samplePathPointsInSvg(path, samplePoints);
+      var center = centerFromPoints(points);
+      return { idx: idx, points: points, center: center };
+    }).sort(function(a, b){
+      if(a.center.x !== b.center.x) return a.center.x - b.center.x;
+      return a.center.y - b.center.y;
+    });
+    var targetEntries = targetPaths.map(function(path, idx){
+      var points = samplePathPointsInSvg(path, samplePoints);
+      var center = centerFromPoints(points);
+      return { idx: idx, points: points, center: center };
+    }).sort(function(a, b){
+      if(a.center.x !== b.center.x) return a.center.x - b.center.x;
+      return a.center.y - b.center.y;
+    });
+    var remappedTargets = targetEntries.slice();
+    if(remappedTargets.length >= 2){
+      var last = remappedTargets.length - 1;
+      var temp = remappedTargets[last];
+      remappedTargets[last] = remappedTargets[last - 1];
+      remappedTargets[last - 1] = temp;
+    }
+
+    var out = new Array(startPaths.length);
+    startEntries.forEach(function(entry, orderIdx){
+      var target = remappedTargets[orderIdx];
+      out[entry.idx] = {
+        sourcePoints: entry.points,
+        targetPoints: target.points,
+        sourceD: pointsToPathD(entry.points),
+        morphDelay: orderIdx * 38
+      };
+    });
+    return out;
+  }
+  function resetState(){
+    if(!model) model = buildModel();
+    startPaths.forEach(function(path, idx){
+      var m = model[idx];
+      path.setAttribute('d', m.sourceD);
+    });
+  }
+  function clearTimersAndFrame(){
+    if(rafId){
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+    if(holdTimer){
+      clearTimeout(holdTimer);
+      holdTimer = 0;
+    }
+  }
+  function runMorph(){
+    var startAt = performance.now();
+    function tick(now){
+      var active = false;
+      startPaths.forEach(function(path, idx){
+        var m = model[idx];
+        var raw = (now - startAt - m.morphDelay) / durationMs;
+        if(raw < 0){
+          active = true;
+          return;
+        }
+        var clamped = clamp01(raw);
+        var eased = easeInOutCubic(clamped);
+        var points = interpolatePoints(m.sourcePoints, m.targetPoints, eased);
+        path.setAttribute('d', pointsToPathD(points));
+        if(raw < 1) active = true;
+      });
+      if(active){
+        rafId = requestAnimationFrame(tick);
+      }else{
+        rafId = 0;
+      }
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+  function play(){
+    clearTimersAndFrame();
+    resetState();
+    holdTimer = setTimeout(function(){
+      runMorph();
+    }, holdBeforeMorphMs);
+  }
+
+  resetState();
+
+  if(typeof IntersectionObserver === 'undefined'){
+    isInView = true;
+    if(!hasPlayedInitialInView){
+      hasPlayedInitialInView = true;
+      play();
+    }
+  }else{
+    var observer = new IntersectionObserver(function(entries){
+      var entry = entries[0];
+      if(!entry) return;
+      if(entry.isIntersecting){
+        isInView = true;
+        if(!hasPlayedInitialInView){
+          hasPlayedInitialInView = true;
+          play();
+        }
+      }else{
+        isInView = false;
+        clearTimersAndFrame();
+      }
+    }, { root: null, threshold: 0.35 });
+    observer.observe(svg);
+  }
+
+  if(cardEl && typeof MutationObserver !== 'undefined'){
+    var classObs = new MutationObserver(function(){
+      var expanded = cardEl.classList.contains('hcard--expanded');
+      if(wasExpanded && !expanded && window.OuroSite.cardMostlyVisible(cardEl)){
+        isInView = true;
+        play();
+      }
+      wasExpanded = expanded;
+    });
+    classObs.observe(cardEl, { attributes: true, attributeFilter: ['class'] });
+  }
+})();
+</script>
+
+<script>
+(function(){
+  var reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(reduceMotionQuery.matches) return;
+
+  var svg = document.querySelector('.hcard-visual-inner--overture .overture-ripple-svg');
+  if(!svg) return;
+
+  var cardEl = svg.closest('.hcard');
+  var isInView = false;
+  var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
+  var playTimer = 0;
+
+  function clearPlayTimer(){
+    if(playTimer){
+      clearTimeout(playTimer);
+      playTimer = 0;
+    }
+  }
+
+  function playOnce(){
+    clearPlayTimer();
+    svg.classList.remove('is-playing');
+    void svg.getBoundingClientRect();
+    svg.classList.add('is-playing');
+    playTimer = setTimeout(function(){
+      svg.classList.remove('is-playing');
+      playTimer = 0;
+    }, 1650);
+  }
+
+  function resetIdleState(){
+    clearPlayTimer();
+    svg.classList.remove('is-playing');
+  }
+
+  if(typeof IntersectionObserver === 'undefined'){
+    isInView = true;
+    playOnce();
+  }else{
+    var observer = new IntersectionObserver(function(entries){
+      var entry = entries[0];
+      if(!entry) return;
+      if(entry.isIntersecting){
+        isInView = true;
+        playOnce();
+      }else{
+        isInView = false;
+        resetIdleState();
+      }
+    }, { root: null, threshold: 0.35 });
+    observer.observe(svg);
+  }
+
+  if(cardEl && typeof MutationObserver !== 'undefined'){
+    var classObs = new MutationObserver(function(){
+      var expanded = cardEl.classList.contains('hcard--expanded');
+      if(wasExpanded && !expanded && window.OuroSite.cardMostlyVisible(cardEl)){
+        isInView = true;
+        playOnce();
+      }
+      wasExpanded = expanded;
+    });
+    classObs.observe(cardEl, { attributes: true, attributeFilter: ['class'] });
+  }
+})();
+</script>
+
+<script>
 (function(){
   var mqMobileNav = window.matchMedia('(max-width: 600px)');
   var topNav = document.getElementById('scroll-intro-top-nav');
@@ -6473,7 +7202,7 @@ function attachHlCharExitHideAfterTransform(c){
       expect: 'log',
       lines: [fullTexts[5], fullTexts[6], fullTexts[7], fullTexts[8], fullTexts[9], fullTexts[10], fullTexts[11], fullTexts[12]],
       after: {
-        hash: '# Curious who the designers are?',
+        hash: '# Curious who made this site?',
         instruction: 'Type "makers" and press Enter.'
       }
     },
@@ -6553,15 +7282,15 @@ function attachHlCharExitHideAfterTransform(c){
     if(innerEl) innerEl.classList.toggle('site-meta-panel__inner--terminal-only', !show);
   }
   setStoryRowsVisible(false);
-  var TERM_PROMPT = 'ourolabs@learn:~$ ';
+  var TERM_PROMPT = 'ourolabs@origin:~$ ';
   var termPromptEl = panel.querySelector('.site-meta-panel__terminal-prompt');
   function setTermPromptFromDisplay(host){
-    var d = String(host || 'ourolabs@learn:~$')
+    var d = String(host || 'ourolabs@origin:~$')
       .replace(/\s+$/, '');
     TERM_PROMPT = d + ' ';
     if(termPromptEl) termPromptEl.textContent = d;
   }
-  setTermPromptFromDisplay('ourolabs@learn:~$');
+  setTermPromptFromDisplay('ourolabs@origin:~$');
   function updateTermBlockCursor(){
     if(!terminalInput || !termCursor || !termMirror) return;
     if(terminalInput.disabled){
@@ -7332,7 +8061,7 @@ function attachHlCharExitHideAfterTransform(c){
         stepIndex: storyStepIndex|0,
         storyFeedback: panel.classList.contains('site-meta-panel--story-feedback'),
         logHTML: terminalLog.innerHTML,
-        termPrompt: termPromptEl ? String(termPromptEl.textContent || '') : 'ourolabs@learn:~$',
+        termPrompt: termPromptEl ? String(termPromptEl.textContent || '') : 'ourolabs@origin:~$',
         innerTerminalOnly: !!(innerEl && innerEl.classList.contains('site-meta-panel__inner--terminal-only')),
         formAwaiting: !!(terminalForm && terminalForm.classList.contains('site-meta-panel__terminal-form--awaiting-ready')),
         input: terminalInput ? String(terminalInput.value || '') : '',
@@ -7362,7 +8091,7 @@ function attachHlCharExitHideAfterTransform(c){
       if(data.storyFeedback) panel.classList.add('site-meta-panel--story-feedback');
       else panel.classList.remove('site-meta-panel--story-feedback');
       terminalLog.innerHTML = data.logHTML == null ? '' : String(data.logHTML);
-      setTermPromptFromDisplay(data.termPrompt || 'ourolabs@learn:~$');
+      setTermPromptFromDisplay(data.termPrompt || 'ourolabs@origin:~$');
       if(data.innerTerminalOnly === false) setStoryRowsVisible(true);
       else setStoryRowsVisible(false);
       setTerminalFormAwaitingReady(!!data.formAwaiting);
@@ -7548,7 +8277,7 @@ function attachHlCharExitHideAfterTransform(c){
     panel.classList.remove('site-meta-panel--story-feedback');
     resetTypewriter();
     setStoryRowsVisible(false);
-    setTermPromptFromDisplay('ourolabs@learn:~$');
+    setTermPromptFromDisplay('ourolabs@origin:~$');
     setTerminalInputEnabled(false);
     setTerminalFormAwaitingReady(true);
     clearTerminalLog();
