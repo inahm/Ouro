@@ -3537,6 +3537,12 @@ function attachHlCharExitHideAfterTransform(c){
       if(window.OuroSecondLullaby) window.OuroSecondLullaby.tick({ zone: false, mouseSpd: 0 });
       return;
     }
+    /* scroll-intro-scrollable + stale --visible: second canvas is display:none (0×0), ring test must not run. */
+    if(document.documentElement.classList.contains('scroll-intro-scrollable')){
+      secondParticleWrap.classList.remove('second-hl-particles-wrap--visible');
+      secondParticlesStop();
+      return;
+    }
     spRaf = requestAnimationFrame(secondParticleFrame);
     if(!spCtx || !spParticles || !spParticles.length){
       if(window.OuroSecondLullaby){
@@ -3629,6 +3635,9 @@ function attachHlCharExitHideAfterTransform(c){
 
   /** Same expanded O-disc as third-act audio: center + ring + outer buffer (canvas space). */
   function spPointerInRingAudioZone(){
+    if(!secondParticleCanvas) return false;
+    var _br = secondParticleCanvas.getBoundingClientRect();
+    if(_br.width < 1 || _br.height < 1) return false;
     if(spMouse.x === -9999 || spMouse.y === -9999) return false;
     if(!(spBaseR > 0 && spInnerR > 0)) return false;
     var dx = spMouse.x - spCx;
@@ -4112,6 +4121,7 @@ function attachHlCharExitHideAfterTransform(c){
   var TA_CYCLE_HOLD = 4200;
   var TA_CYCLE_TRANS = 1800;
   var TA_CYCLE_SRCS = ['statue.mp4', 'wyatt.mp4', 'orb.mp4', 'cycle-2.mp4', 'cycle-4.mp4', 'cycle-3.mp4'];
+  var TA_STATUE_IDX = TA_CYCLE_SRCS.indexOf('statue.mp4');
   var TA_ORB_IDX = TA_CYCLE_SRCS.indexOf('orb.mp4');
   var TA_CYCLE_EYE_IDX = TA_CYCLE_SRCS.indexOf('cycle-4.mp4');
   var taCycleIdx = TA_CYCLE_EYE_IDX;
@@ -4271,19 +4281,32 @@ function attachHlCharExitHideAfterTransform(c){
 
     function drawCImg(img, alpha, zoom){
       if(!img || img.readyState < 2 || alpha <= 0) return;
-      var diam = imgSize * zoom;
+      var baseDiam = imgSize * zoom;
+      var statueClip = TA_STATUE_IDX >= 0 && thirdCycleVids[TA_STATUE_IDX] === img;
+      /* Medusa/statue clip: tighter framing, but keep zoom growth pinned to top-left. */
+      var extraZoom = statueClip ? 1.24 : 1;
+      var diam = baseDiam * extraZoom;
       var vw = img.videoWidth || diam;
       var vh = img.videoHeight || diam;
+      var baseS = Math.max(baseDiam / vw, baseDiam / vh);
+      var baseDw = vw * baseS;
+      var baseDh = vh * baseS;
       var s = Math.max(diam / vw, diam / vh);
       var dw = vw * s;
       var dh = vh * s;
+      var dx = cx - dw / 2;
+      var dy = cy - dh / 2;
+      if(statueClip){
+        dx += (dw - baseDw) / 2;
+        dy += (dh - baseDh) / 2;
+      }
       thirdRingCtx.save();
       thirdRingCtx.globalAlpha = alpha;
       thirdRingCtx.globalCompositeOperation = 'source-over';
       if(TA_ORB_IDX >= 0 && thirdCycleVids[TA_ORB_IDX] === img){
         thirdRingCtx.globalCompositeOperation = 'difference';
       }
-      thirdRingCtx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
+      thirdRingCtx.drawImage(img, dx, dy, dw, dh);
       thirdRingCtx.restore();
     }
 
@@ -5433,6 +5456,10 @@ function attachHlCharExitHideAfterTransform(c){
     var continuation = document.getElementById('scroll-intro-continuation');
     if(continuation) continuation.removeAttribute('hidden');
     document.documentElement.classList.add('scroll-intro-scrollable');
+    if(secondParticleWrap && secondParticleWrap.classList.contains('second-hl-particles-wrap--visible')){
+      secondParticleWrap.classList.remove('second-hl-particles-wrap--visible');
+      secondParticlesStop();
+    }
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         thirdRingResize();
@@ -5868,6 +5895,10 @@ function attachHlCharExitHideAfterTransform(c){
       var continuation = document.getElementById('scroll-intro-continuation');
       if(continuation) continuation.removeAttribute('hidden');
       document.documentElement.classList.add('scroll-intro-scrollable');
+      if(secondParticleWrap && secondParticleWrap.classList.contains('second-hl-particles-wrap--visible')){
+        secondParticleWrap.classList.remove('second-hl-particles-wrap--visible');
+        secondParticlesStop();
+      }
       detachHeroScrollLocks();
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){
@@ -5916,6 +5947,10 @@ function attachHlCharExitHideAfterTransform(c){
       var continuation = document.getElementById('scroll-intro-continuation');
       if(continuation) continuation.removeAttribute('hidden');
       document.documentElement.classList.add('scroll-intro-scrollable');
+      if(secondParticleWrap && secondParticleWrap.classList.contains('second-hl-particles-wrap--visible')){
+        secondParticleWrap.classList.remove('second-hl-particles-wrap--visible');
+        secondParticlesStop();
+      }
       detachHeroScrollLocks();
       requestAnimationFrame(function(){
         requestAnimationFrame(function(){
