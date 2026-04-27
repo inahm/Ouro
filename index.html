@@ -6435,9 +6435,10 @@ function attachHlCharExitHideAfterTransform(c){
 <script>
 (function(w){
   w.OuroSite = w.OuroSite || {};
-  w.OuroSite.cardMostlyVisible = function(cardEl){
-    if(!cardEl) return false;
-    var r = cardEl.getBoundingClientRect();
+  /** Meaningful overlap of any element with the layout viewport (vert + horiz). */
+  function regionMostlyVisible(el){
+    if(!el) return false;
+    var r = el.getBoundingClientRect();
     var vh = w.innerHeight || document.documentElement.clientHeight || 0;
     var vw = w.innerWidth || document.documentElement.clientWidth || 0;
     var vOverlap = Math.min(r.bottom, vh) - Math.max(r.top, 0);
@@ -6447,6 +6448,10 @@ function attachHlCharExitHideAfterTransform(c){
       vOverlap > Math.min(80, r.height * 0.12) &&
       hOverlap > Math.min(48, r.width * 0.1)
     );
+  }
+  w.OuroSite.regionMostlyVisible = regionMostlyVisible;
+  w.OuroSite.cardMostlyVisible = function(cardEl){
+    return regionMostlyVisible(cardEl);
   };
 })(window);
 </script>
@@ -6481,8 +6486,9 @@ function attachHlCharExitHideAfterTransform(c){
   var morphFinishedOnce = false;
   var ioWasIntersecting = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
-  /* Observe the full card so horizontal strip scroll matches real viewport visibility. */
-  var ioTarget = cardEl || svg.closest('.hcard-visual-inner--atlas') || svg;
+  /* IO on the card visual strip — not the full article — so morph runs only when that surface is on-screen. */
+  var visEl = svg.closest('.hcard-visual-inner--atlas') || svg;
+  var ioTarget = visEl;
 
   function clamp01(value){
     return Math.min(1, Math.max(0, value));
@@ -6691,7 +6697,7 @@ function attachHlCharExitHideAfterTransform(c){
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
-      var eligible = entry.isIntersecting && window.OuroSite.cardMostlyVisible(cardEl);
+      var eligible = entry.isIntersecting && window.OuroSite.regionMostlyVisible(visEl);
       if(eligible){
         isInView = true;
         if(!ioWasIntersecting && !morphFinishedOnce) play();
@@ -6708,7 +6714,7 @@ function attachHlCharExitHideAfterTransform(c){
   if(cardEl && typeof MutationObserver !== 'undefined'){
     var classObs = new MutationObserver(function(){
       var expanded = cardEl.classList.contains('hcard--expanded');
-      if(wasExpanded && !expanded && window.OuroSite.cardMostlyVisible(cardEl)){
+      if(wasExpanded && !expanded && window.OuroSite.regionMostlyVisible(visEl)){
         isInView = true;
         play();
       }
@@ -6746,7 +6752,8 @@ function attachHlCharExitHideAfterTransform(c){
   var morphFinishedOnce = false;
   var ioWasIntersecting = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
-  var ioTarget = cardEl || svg.closest('.hcard-visual-inner--nota') || svg;
+  var visEl = svg.closest('.hcard-visual-inner--nota') || svg;
+  var ioTarget = visEl;
 
   function clamp01(value){
     return Math.min(1, Math.max(0, value));
@@ -6902,7 +6909,7 @@ function attachHlCharExitHideAfterTransform(c){
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
-      var eligible = entry.isIntersecting && window.OuroSite.cardMostlyVisible(cardEl);
+      var eligible = entry.isIntersecting && window.OuroSite.regionMostlyVisible(visEl);
       if(eligible){
         isInView = true;
         if(!ioWasIntersecting && !morphFinishedOnce) play();
@@ -6919,7 +6926,7 @@ function attachHlCharExitHideAfterTransform(c){
   if(cardEl && typeof MutationObserver !== 'undefined'){
     var classObs = new MutationObserver(function(){
       var expanded = cardEl.classList.contains('hcard--expanded');
-      if(wasExpanded && !expanded && window.OuroSite.cardMostlyVisible(cardEl)){
+      if(wasExpanded && !expanded && window.OuroSite.regionMostlyVisible(visEl)){
         isInView = true;
         play();
       }
@@ -6945,6 +6952,7 @@ function attachHlCharExitHideAfterTransform(c){
   var rippleFinishedOnce = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
   var playTimer = 0;
+  var visEl = svg.closest('.hcard-visual-inner--overture') || svg;
 
   function clearPlayTimer(){
     if(playTimer){
@@ -6974,13 +6982,13 @@ function attachHlCharExitHideAfterTransform(c){
     isInView = true;
     if(!rippleFinishedOnce) playOnce();
   }else{
-    var ioTarget = cardEl || svg;
+    var ioTarget = visEl;
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
       var eligible =
         entry.isIntersecting &&
-        (!cardEl || window.OuroSite.cardMostlyVisible(cardEl));
+        window.OuroSite.regionMostlyVisible(visEl);
       if(eligible){
         isInView = true;
         if(!ioWasIntersecting && !rippleFinishedOnce) playOnce();
@@ -6997,7 +7005,7 @@ function attachHlCharExitHideAfterTransform(c){
   if(cardEl && typeof MutationObserver !== 'undefined'){
     var classObs = new MutationObserver(function(){
       var expanded = cardEl.classList.contains('hcard--expanded');
-      if(wasExpanded && !expanded && window.OuroSite.cardMostlyVisible(cardEl)){
+      if(wasExpanded && !expanded && window.OuroSite.regionMostlyVisible(visEl)){
         isInView = true;
         rippleFinishedOnce = false;
         playOnce();
