@@ -8,6 +8,7 @@
   var ATTACK_TC = 0.14;
   var RELEASE_TC = 0.55;
   var MAX_MIX = 0.032;
+  var IDLE_ZONE_MIX = 0.014;
   var MOTION_FLOOR = 0.018;
   var MOTION_SCALE = 0.26;
 
@@ -129,7 +130,7 @@
       } catch (_) {}
 
       var motion = Math.min(1, Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE));
-      var target = motion * MAX_MIX;
+      var target = Math.max(IDLE_ZONE_MIX, motion * MAX_MIX);
       var tc = motion > 0.018 ? ATTACK_TC : RELEASE_TC;
       try {
         outGain.gain.setTargetAtTime(target, ctx.currentTime, tc);
@@ -160,12 +161,29 @@
   }
 
   function unlockAudio() {
-    if (!ctx) return;
     try {
-      ctx.resume();
+      if (!reduceMotion && !coarsePointer && !userMuted) {
+        ensureGraph();
+      }
+      if (ctx) ctx.resume();
     } catch (_) {}
   }
   window.addEventListener('pointerdown', unlockAudio, { passive: true, capture: true });
   window.addEventListener('touchstart', unlockAudio, { passive: true, capture: true });
   window.addEventListener('mousemove', unlockAudio, { passive: true, capture: true });
+  window.addEventListener(
+    'keydown',
+    function (e) {
+      if (!e || e.metaKey || e.ctrlKey || e.altKey) return;
+      unlockAudio();
+    },
+    { passive: true, capture: true }
+  );
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    unlockAudio();
+  });
+  window.addEventListener('pageshow', function () {
+    unlockAudio();
+  });
 })();

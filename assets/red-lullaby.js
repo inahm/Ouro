@@ -12,6 +12,8 @@
   var BPM_SMOOTH_IN_LOOP = 0.055;
   var PULSE_BPM_PER_SPD_DELTA = 88;
   var MAX_MIX = 0.34;
+  /** Audible floor while in the ring so still cursor + suspended-context edge cases are not silent. */
+  var IDLE_ZONE_MIX = 0.065;
   var MOTION_FLOOR = 0.012;
   var MOTION_SCALE = 0.22;
   var ATTACK_TC = 0.1;
@@ -640,7 +642,7 @@
       } catch (_) {}
 
       var motion = Math.min(1, Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE));
-      var target = motion * MAX_MIX;
+      var target = Math.max(IDLE_ZONE_MIX, motion * MAX_MIX);
       var tc = motion > 0.025 ? ATTACK_TC : RELEASE_TC;
       try {
         mixOut.gain.setTargetAtTime(target, ctx.currentTime, tc);
@@ -682,9 +684,12 @@
   }
 
   function unlockAudio() {
-    if (!ctx) return;
     try {
-      ctx.resume();
+      if (!reduceMotion && !coarsePointer && !userMuted) {
+        ensureAudio();
+        ensureMotionLayer();
+      }
+      if (ctx) ctx.resume();
     } catch (_) {}
   }
   window.addEventListener('pointerdown', unlockAudio, { passive: true, capture: true });
@@ -698,5 +703,12 @@
     },
     { passive: true, capture: true }
   );
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'visible') return;
+    unlockAudio();
+  });
+  window.addEventListener('pageshow', function () {
+    unlockAudio();
+  });
 })();
 
