@@ -90,7 +90,7 @@ PROJECT STRIP (HORIZONTAL CARDS)
   Expanded: #hcard-detail-overture
     (Body) We’re not just building an agentic design system. We’re building the
     workflow around it, so designers like us can still shape it visually when
-    we need to, query it structurally, and extend it across products, tools,
+    we need to, query it structurally with agent support, and extend it across products, tools,
     and teams through natural language prompts.
     Today, JSON is the connective layer. It turns our design decisions into
     something structured enough to adapt across an evolving tooling
@@ -108,9 +108,9 @@ PROJECT STRIP (HORIZONTAL CARDS)
   An early personal experiment in more connected care.
   Expanded: #hcard-detail-health-atlas
     (Body) This project started as a very personal experiment, born from our
-    own frustration: trying to hold a more holistic, longitudinal view of our
+    own frustration trying to hold a more holistic, longitudinal view of our
     health in a system that was never designed to hold the whole story.
-    Especially in women’s health, the details matter: random symptoms, labs,
+    Especially when it comes to women’s health, the details matter: random symptoms, labs,
     cycles, medications, history, lifestyle, and lived experience. But they end
     up scattered across portals, PDFs, notes, and memory. Too much of the
     story lives between appointments, and too often, we’re the ones piecing it
@@ -119,8 +119,8 @@ PROJECT STRIP (HORIZONTAL CARDS)
     archive we can actually use. AI helps organize the details, surface
     patterns, notice what has changed, and prepare better questions for the
     next appointment.
-    The question we’re trying to answer is simple, and one many women are
-    already asking: what if a clear picture of our health didn’t have to live
+    The question we’re trying to answer is simple, and one many people are
+    also asking: what if a clear picture of our health didn’t have to live
     behind expensive concierge medicine, membership clinics, or fragmented
     hospital portals?
 

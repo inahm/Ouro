@@ -140,9 +140,9 @@
   --nav-second-hl-accent:color-mix(in srgb, var(--red) 72%, #ff8f4a);
   /* System stack — typical UI / editor code without extra font request */
   --font-code:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  /* Horizontal project cards (.pg-desc) + site-meta intro — shared body size */
-  --card-body-font-size:clamp(13px, 1.35vw, 15px);
-  --card-body-line-height:1.55;
+  /* Horizontal project cards (.pg-desc, .hcard-detail) + site-meta intro — shared body size */
+  --card-body-font-size:clamp(15px, 1.65vw, 18px);
+  --card-body-line-height:1.6;
   /* Orbit trigger + panel close — top-left, aligned with fixed nav band */
   --site-meta-fab-top:var(--scroll-intro-nav-top);
   --site-meta-fab-left:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-left, 0px) + 8px));
@@ -806,9 +806,9 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 .scroll-intro-continuation .hcard-detail{
   font-family:'Inter',sans-serif;
-  font-size:clamp(12px,1.2vw,15px);
+  font-size:var(--card-body-font-size);
   font-weight:400;
-  line-height:1.5;
+  line-height:var(--card-body-line-height);
   color:var(--hcard-ink,#F2F1EC);
   margin:0;
   padding:0;
@@ -847,7 +847,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 .scroll-intro-continuation .hcard-detail-cta{
   display:inline-block;
   font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(12px,1.45vw,14px);
+  font-size:clamp(13px,1.55vw,15px);
   font-weight:500;
   letter-spacing:0.06em;
   line-height:1.2;
@@ -1232,6 +1232,13 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
     padding:24px 20px calc(24px + var(--hcard-cta-pad)) 20px;
   }
   .scroll-intro-continuation .hcard--expanded{flex-basis:clamp(280px,min(96%,calc(100% - 2 * var(--g))),600px) !important;}
+  .scroll-intro-continuation .hcard-discover{
+    font-size:clamp(14px, 3.8vw, 17px);
+    min-height:48px;
+    padding:12px 8px 12px 4px;
+    box-sizing:border-box;
+    align-items:center;
+  }
   .scroll-intro-continuation .pg-desc{
     max-width:100%;
   }
@@ -1512,15 +1519,32 @@ html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[
   }
   .scroll-intro-header-strip .site-meta-btn--fab{
     align-items:center;
-    /* Match hamburger .scroll-intro-nav-toggle vertical padding (10px 8px). */
-    padding:10px 8px;
+    /* Match hamburger tap target (~48px) */
+    min-width:48px;
+    min-height:48px;
+    padding:12px 10px;
+    box-sizing:border-box;
   }
   /* Match FAB’s horizontal inset: FAB has 8px padding on both sides; toggle had 0 right — looked tighter to the edge. */
   .scroll-intro-nav-toggle{
     display:flex;
     align-items:center;
     justify-content:flex-end;
-    padding:10px 8px 10px 14px;
+    /* ~48px min touch target (WCAG / mobile HIG) */
+    min-width:48px;
+    min-height:48px;
+    padding:12px 10px 12px 16px;
+    box-sizing:border-box;
+  }
+  .scroll-intro-nav-link{
+    font-size:clamp(15px, 4.25vw, 18px);
+    letter-spacing:0.055em;
+    min-height:48px;
+    padding:12px 10px;
+    box-sizing:border-box;
+    display:inline-flex;
+    align-items:center;
+    justify-content:flex-end;
   }
   .scroll-intro-top-nav{
     align-items:flex-end;
@@ -1544,7 +1568,7 @@ html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[
     visibility:hidden;
     overflow:hidden;
     pointer-events:none;
-    gap:clamp(16px, 4vw, 26px);
+    gap:clamp(10px, 3vw, 18px);
     padding:0;
     border:0;
     background:transparent;
@@ -1555,7 +1579,7 @@ html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[
     transition:max-height 0.36s var(--ease-out-flow), opacity 0.24s var(--ease-out-flow);
   }
   .scroll-intro-top-nav.scroll-intro-top-nav--open .scroll-intro-nav-dropdown{
-    max-height:8.5rem;
+    max-height:14rem;
     opacity:1;
     visibility:visible;
     overflow:visible;
@@ -2409,6 +2433,14 @@ html.site-meta-open .site-meta-panel.site-meta-panel--open{
       max(18px, calc(8px + env(safe-area-inset-right, 0px)))
       12px
       max(18px, calc(8px + env(safe-area-inset-left, 0px)));
+  }
+  .site-meta-panel__titlebar-dots{
+    gap:clamp(14px, 4vw, 22px);
+  }
+  /* Expand invisible hit slop on phone (was 28×28). */
+  button.site-meta-panel__dot-btn::after{
+    width:44px;
+    height:44px;
   }
 }
 .site-meta-panel__titlebar-dots{
@@ -3392,7 +3424,7 @@ button.site-meta-panel__terminal-submit{
         <div class="hcard-detail-wrap">
           <div class="hcard-detail-inner">
             <div class="hcard-detail" id="hcard-detail-overture" aria-hidden="true">
-              <p>We&rsquo;re not just building an agentic design system. We&rsquo;re building the workflow around it, so designers like us can still shape it visually when we need to, query it structurally, and extend it across products, tools, and teams through natural language prompts.</p>
+              <p>We&rsquo;re not just building an agentic design system. We&rsquo;re building the workflow around it, so designers like us can still shape it visually when we need to, query it structurally with agent support, and extend it across products, tools, and teams through natural language prompts.</p>
               <p>Today, JSON is the connective layer. It turns our design decisions into something structured enough to adapt across an evolving tooling landscape, precise enough to support implementation, and clear enough for agents to reason over.</p>
               <p>This is where agents and code editors become integral. Not as a shortcut around design judgment, but as a way to help the system respond and adapt quickly to new contexts, platforms, and brand languages. Agents can read the structure, compose UI from prompts, check for consistency, adapt rules across contexts, and help generate new patterns that still belong.</p>
               <p>We&rsquo;re still early, but that&rsquo;s the point. The work is not just the design system. It is the way the system gets made, used, and evolved.</p>
@@ -3436,10 +3468,10 @@ button.site-meta-panel__terminal-submit{
         <div class="hcard-detail-wrap">
           <div class="hcard-detail-inner">
             <div class="hcard-detail" id="hcard-detail-health-atlas" aria-hidden="true">
-              <p>This project started as a very personal experiment, born from our own frustration: trying to hold a more holistic, longitudinal view of our health in a system that was never designed to hold the whole story.</p>
-              <p>Especially in women&rsquo;s health, the details matter: random symptoms, labs, cycles, medications, history, lifestyle, and lived experience. But they end up scattered across portals, PDFs, notes, and memory. Too much of the story lives between appointments, and too often, we&rsquo;re the ones piecing it back together.</p>
+              <p>This project started as a very personal experiment, born from our own frustration trying to hold a more holistic, longitudinal view of our health in a system that was never designed to hold the whole story.</p>
+              <p>Especially when it comes to women&rsquo;s health, the details matter: random symptoms, labs, cycles, medications, history, lifestyle, and lived experience. But they end up scattered across portals, PDFs, notes, and memory. Too much of the story lives between appointments, and too often, we&rsquo;re the ones piecing it back together.</p>
               <p>Health Atlas turns the records we already have into a personal health archive we can actually use. AI helps organize the details, surface patterns, notice what has changed, and prepare better questions for the next appointment.</p>
-              <p>The question we&rsquo;re trying to answer is simple, and one many women are already asking: what if a clear picture of our health didn&rsquo;t have to live behind expensive concierge medicine, membership clinics, or fragmented hospital portals?</p>
+              <p>The question we&rsquo;re trying to answer is simple, and one many people are also asking: what if a clear picture of our health didn&rsquo;t have to live behind expensive concierge medicine, membership clinics, or fragmented hospital portals?</p>
             </div>
           </div>
         </div>
@@ -6337,7 +6369,9 @@ function attachHlCharExitHideAfterTransform(c){
   var holdTimer = 0;
   var cardEl = svg.closest('.hcard');
   var isInView = false;
-  var hasPlayedInitialInView = false;
+  /* Only set when the morph rAF finishes — survives scroll-away so we don’t replay when coming back. */
+  var morphFinishedOnce = false;
+  var ioWasIntersecting = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
 
   function clamp01(value){
@@ -6524,12 +6558,14 @@ function attachHlCharExitHideAfterTransform(c){
         rafId = requestAnimationFrame(tick);
       }else{
         rafId = 0;
+        morphFinishedOnce = true;
       }
     }
 
     rafId = requestAnimationFrame(tick);
   }
   function play(){
+    morphFinishedOnce = false;
     clearTimersAndFrame();
     resetState();
     holdTimer = setTimeout(function(){
@@ -6540,22 +6576,18 @@ function attachHlCharExitHideAfterTransform(c){
   resetState();
   if(typeof IntersectionObserver === 'undefined'){
     isInView = true;
-    if(!hasPlayedInitialInView){
-      hasPlayedInitialInView = true;
-      play();
-    }
+    if(!morphFinishedOnce) play();
   }else{
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
       if(entry.isIntersecting){
         isInView = true;
-        if(!hasPlayedInitialInView){
-          hasPlayedInitialInView = true;
-          play();
-        }
+        if(!ioWasIntersecting && !morphFinishedOnce) play();
+        ioWasIntersecting = true;
       }else{
         isInView = false;
+        ioWasIntersecting = false;
         clearTimersAndFrame();
       }
     }, { root: null, threshold: 0.35 });
@@ -6600,8 +6632,10 @@ function attachHlCharExitHideAfterTransform(c){
   var holdTimer = 0;
   var cardEl = svg.closest('.hcard');
   var isInView = false;
-  var hasPlayedInitialInView = false;
+  var morphFinishedOnce = false;
+  var ioWasIntersecting = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
+  var ioTarget = svg.closest('.hcard-visual-inner--nota') || svg;
 
   function clamp01(value){
     return Math.min(1, Math.max(0, value));
@@ -6730,11 +6764,13 @@ function attachHlCharExitHideAfterTransform(c){
         rafId = requestAnimationFrame(tick);
       }else{
         rafId = 0;
+        morphFinishedOnce = true;
       }
     }
     rafId = requestAnimationFrame(tick);
   }
   function play(){
+    morphFinishedOnce = false;
     clearTimersAndFrame();
     resetState();
     holdTimer = setTimeout(function(){
@@ -6742,30 +6778,30 @@ function attachHlCharExitHideAfterTransform(c){
     }, holdBeforeMorphMs);
   }
 
-  resetState();
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      resetState();
+    });
+  });
 
   if(typeof IntersectionObserver === 'undefined'){
     isInView = true;
-    if(!hasPlayedInitialInView){
-      hasPlayedInitialInView = true;
-      play();
-    }
+    if(!morphFinishedOnce) play();
   }else{
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
       if(entry.isIntersecting){
         isInView = true;
-        if(!hasPlayedInitialInView){
-          hasPlayedInitialInView = true;
-          play();
-        }
+        if(!ioWasIntersecting && !morphFinishedOnce) play();
+        ioWasIntersecting = true;
       }else{
         isInView = false;
+        ioWasIntersecting = false;
         clearTimersAndFrame();
       }
-    }, { root: null, threshold: 0.35 });
-    observer.observe(svg);
+    }, { root: null, threshold: [0, 0.08, 0.2], rootMargin: '12% 0px 8% 0px' });
+    observer.observe(ioTarget);
   }
 
   if(cardEl && typeof MutationObserver !== 'undefined'){
@@ -6792,6 +6828,9 @@ function attachHlCharExitHideAfterTransform(c){
 
   var cardEl = svg.closest('.hcard');
   var isInView = false;
+  var ioWasIntersecting = false;
+  /* After ripple CSS finishes — don’t retrigger on every scroll-into-view. */
+  var rippleFinishedOnce = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
   var playTimer = 0;
 
@@ -6810,6 +6849,7 @@ function attachHlCharExitHideAfterTransform(c){
     playTimer = setTimeout(function(){
       svg.classList.remove('is-playing');
       playTimer = 0;
+      rippleFinishedOnce = true;
     }, 1650);
   }
 
@@ -6820,16 +6860,18 @@ function attachHlCharExitHideAfterTransform(c){
 
   if(typeof IntersectionObserver === 'undefined'){
     isInView = true;
-    playOnce();
+    if(!rippleFinishedOnce) playOnce();
   }else{
     var observer = new IntersectionObserver(function(entries){
       var entry = entries[0];
       if(!entry) return;
       if(entry.isIntersecting){
         isInView = true;
-        playOnce();
+        if(!ioWasIntersecting && !rippleFinishedOnce) playOnce();
+        ioWasIntersecting = true;
       }else{
         isInView = false;
+        ioWasIntersecting = false;
         resetIdleState();
       }
     }, { root: null, threshold: 0.35 });
@@ -6841,6 +6883,7 @@ function attachHlCharExitHideAfterTransform(c){
       var expanded = cardEl.classList.contains('hcard--expanded');
       if(wasExpanded && !expanded && window.OuroSite.cardMostlyVisible(cardEl)){
         isInView = true;
+        rippleFinishedOnce = false;
         playOnce();
       }
       wasExpanded = expanded;
