@@ -247,6 +247,21 @@ html.site-meta-open .custom-cursor{
   margin-top:0;
   background:#fff;
 }
+.custom-cursor__arrow{
+  position:absolute;
+  left:0;
+  top:0;
+  width:24px;
+  height:24px;
+  color:var(--red);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  will-change:transform;
+  transform-origin:50% 50%;
+  transition:opacity 0.15s ease, visibility 0.15s ease;
+  z-index:3;
+}
 /* Cards: keep blend behavior, but tint cursor dot red. */
 html.custom-cursor--hcard .custom-cursor{
   mix-blend-mode:normal;
@@ -260,6 +275,17 @@ html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor{
 }
 html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor__dot{
   background:#fff;
+}
+/* Collapsed work cards: show arrow (open another card) instead of the dot. */
+html.custom-cursor--hcard-arrow .custom-cursor__dot{
+  opacity:0;
+  width:0;
+  height:0;
+  overflow:hidden;
+}
+html.custom-cursor--hcard-arrow .custom-cursor__arrow{
+  opacity:1;
+  visibility:visible;
 }
 /* After third act: native vertical scroll + continuation (see unlockThirdActPageScroll)
    Single scroll root on <html> — iOS Safari often “sticks” when both html and body are overflow-y:auto. */
@@ -530,6 +556,23 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   opacity:0;
   pointer-events:none;
 }
+/* Nota art: pin before expand (JS sets --nota-fig-*) so it only fades, no travel with flex collapse */
+.scroll-intro-continuation .hcard--expanded .hcard-visual--nota{
+  position:absolute;
+  left:var(--nota-fig-l);
+  top:var(--nota-fig-t);
+  width:var(--nota-fig-w);
+  height:var(--nota-fig-h);
+  min-height:0 !important;
+  max-height:none !important;
+  flex:0 0 auto;
+  margin:0 !important;
+  opacity:0;
+  z-index:2;
+  overflow:visible;
+  transition:opacity 0.42s var(--ease-hcard-surface) !important;
+  pointer-events:none;
+}
 /* Re-opening the motif: quick, so the bottom CTA (pinned) doesn’t travel with a slow flex grow. */
 .scroll-intro-continuation .hcard:not(.hcard--expanded) .hcard-visual{
   transition:
@@ -549,28 +592,24 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   height:auto;
   max-width:100%;
 }
-/* Thin wireframe motifs (reference: aptosnetwork.com use-case cards) */
+/* Nota: small illustration (keeps type as the focus) */
 .scroll-intro-continuation .hcard-visual-inner--nota{
-  width:min(90%,360px,min(56vw,380px));
+  width:min(40%,120px,min(24vw,140px));
 }
 .scroll-intro-continuation .hcard-visual-inner--nota .nota-abstract-minimal{
   position:absolute;
   inset:0;
   overflow:hidden;
   border-radius:2px;
-  background:
-    radial-gradient(ellipse 95% 60% at 75% 20%, rgba(255,27,0,0.12) 0%, transparent 55%),
-    linear-gradient(165deg, #121212 0%, #0e0e0e 50%, #080808 100%);
+  background:transparent;
 }
-.scroll-intro-continuation .hcard-visual-inner--nota .nota-abstract-minimal::after{
-  content:'';
-  position:absolute;
-  inset:12%;
-  border:1px solid rgba(228,227,224,0.14);
-  border-radius:50%;
-  box-shadow:
-    0 0 0 1px rgba(228,227,224,0.06),
-    inset 0 0 0 1px rgba(228,227,224,0.04);
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-card-visual-img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  vertical-align:top;
 }
 .scroll-intro-continuation .hcard-visual-inner--atlas{
   background:
@@ -783,6 +822,9 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   .scroll-intro-continuation .hcard-detail{
     filter:none !important;
     transform:none !important;
+  }
+  .scroll-intro-continuation .hcard--expanded .hcard-visual--nota{
+    transition-duration:0.01ms !important;
   }
 }
 .scroll-intro-continuation .hscroll-end-pad{
@@ -1139,7 +1181,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
     width:min(88%,280px,min(64vw,300px));
   }
   .scroll-intro-continuation .hcard-visual-inner--nota{
-    width:min(90%,300px,min(68vw,320px));
+    width:min(45%,110px,min(32vw,128px));
   }
   /* Less air between leadership subcopy and footer wordmark (footer min-height + row margins were desktop-sized). */
   #scroll-intro-below-after-cards{
@@ -2989,6 +3031,9 @@ button.site-meta-panel__terminal-submit{
 <div class="custom-cursor" id="custom-cursor-root" aria-hidden="true">
   <canvas class="custom-cursor__ring" id="custom-cursor-ring-canvas" width="64" height="64" aria-hidden="true"></canvas>
   <div class="custom-cursor__dot"></div>
+  <svg class="custom-cursor__arrow" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <path d="M4 12h10M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
 </div>
 <!-- O torus clip: same geometry as circle.svg#ouro-circle-ring-path (734×734) -->
 <svg class="third-act-svg-defs" width="0" height="0" aria-hidden="true" focusable="false">
@@ -3212,7 +3257,7 @@ button.site-meta-panel__terminal-submit{
           <h3 class="pg-name"><span class="hl-line"><span class="hl-inner">Nota</span></span></h3>
           <p class="pg-desc">An iOS-native app for reviewing footage. Log moments, write notes, find what matters.</p>
         </div>
-        <div class="hcard-visual" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--nota"><div class="nota-abstract-minimal"></div></div></div>
+        <div class="hcard-visual hcard-visual--nota" aria-hidden="true"><div class="hcard-visual-inner hcard-visual-inner--nota"><div class="nota-abstract-minimal"><img class="nota-card-visual-img" src="assets/nota-card-visual.png" width="368" height="380" alt="" decoding="async" loading="lazy"></div></div></div>
         <div class="hcard-detail-wrap">
           <div class="hcard-detail-inner">
             <div class="hcard-detail" id="hcard-detail-nota" aria-hidden="true">
@@ -5275,13 +5320,32 @@ function attachHlCharExitHideAfterTransform(c){
       function syncTrackExpandedClass(){
         trackEl.classList.toggle('hscroll-track--card-expanded', !!trackEl.querySelector('.hcard--expanded'));
       }
+      function notaFigVarsClear(el){
+        if(!el) return;
+        el.style.removeProperty('--nota-fig-t');
+        el.style.removeProperty('--nota-fig-l');
+        el.style.removeProperty('--nota-fig-w');
+        el.style.removeProperty('--nota-fig-h');
+      }
+      function notaFigVarsPinBeforeExpand(card){
+        var notaV = card.querySelector('.hcard-visual--nota');
+        if(!notaV) return;
+        var cr = card.getBoundingClientRect();
+        var vr = notaV.getBoundingClientRect();
+        card.style.setProperty('--nota-fig-t', vr.top - cr.top + 'px');
+        card.style.setProperty('--nota-fig-l', vr.left - cr.left + 'px');
+        card.style.setProperty('--nota-fig-w', vr.width + 'px');
+        card.style.setProperty('--nota-fig-h', vr.height + 'px');
+      }
       function collapse(card){
         if(!card || !card.classList.contains('hcard--expanded')) return;
         card.classList.remove('hcard--expanded');
+        notaFigVarsClear(card);
         syncDetailA11y(card, false);
       }
       function expand(card, allCards){
         allCards.forEach(function(c){ if(c !== card) collapse(c); });
+        notaFigVarsPinBeforeExpand(card);
         card.classList.add('hcard--expanded');
         syncDetailA11y(card, true);
         /*
@@ -6112,6 +6176,7 @@ function attachHlCharExitHideAfterTransform(c){
   var root = document.getElementById('custom-cursor-root');
   var ring = root && root.querySelector('.custom-cursor__ring');
   var dot = root && root.querySelector('.custom-cursor__dot');
+  var arrow = root && root.querySelector('.custom-cursor__arrow');
   if(!root || !ring || !dot) return;
   var ctx = ring.getContext('2d');
   if(!ctx) return;
@@ -6127,6 +6192,7 @@ function attachHlCharExitHideAfterTransform(c){
   var lastHover = false;
   var ringRaf = null;
   var ringAngle = 0;
+  var hcardArrowRotDeg = 0;
   var ringDpr = 1;
   var ringLogical = 64;
   var particleCount = 32;
@@ -6220,6 +6286,11 @@ function attachHlCharExitHideAfterTransform(c){
     var t = 'translate3d(' + dx + 'px,' + dy + 'px,0) translate(-50%,-50%)';
     ring.style.transform = t;
     dot.style.transform = t;
+    if(arrow){
+      var at = t;
+      if(hcardArrowRotDeg) at += ' rotate(' + hcardArrowRotDeg + 'deg)';
+      arrow.style.transform = at;
+    }
     if(hover !== undefined){
       var now = !!hover;
       root.classList.toggle('custom-cursor--hover', now);
@@ -6240,19 +6311,44 @@ function attachHlCharExitHideAfterTransform(c){
     return false;
   }
 
+  function hcardOpenElsewhereInStrip(){
+    return !!document.querySelector('#proj-grid-wrap .hcard--expanded');
+  }
+
   function syncHcardCursorClass(isInteractive){
     var el = document.elementFromPoint(mx, my);
-    var onH = !!(el && el.closest && el.closest('.scroll-intro-continuation .hcard'));
+    var card = el && el.closest && el.closest('.scroll-intro-continuation .hcard');
+    var onH = !!card;
+    var expanded = !!(card && card.classList.contains('hcard--expanded'));
+    /* Circle on every card until one is expanded; then arrow on collapsed cards only. */
+    var showArrow = onH && !expanded && !isInteractive && hcardOpenElsewhereInStrip();
+    hcardArrowRotDeg = 0;
+    if(showArrow && card){
+      var open = document.querySelector('#proj-grid-wrap .hcard--expanded');
+      if(open && open !== card){
+        var list = document.querySelectorAll('#proj-grid-wrap .hcard');
+        var iH = -1, iE = -1, i;
+        for(i = 0; i < list.length; i++){
+          if(list[i] === card) iH = i;
+          if(list[i] === open) iE = i;
+        }
+        if(iH >= 0 && iE >= 0){
+          /* Hovered card left of open → point left (strip scrolls left); right → point right. */
+          hcardArrowRotDeg = iH < iE ? 180 : 0;
+        }
+      }
+    }
     document.documentElement.classList.toggle('custom-cursor--hcard', onH);
     document.documentElement.classList.toggle('custom-cursor--hcard-interactive', onH && !!isInteractive);
+    document.documentElement.classList.toggle('custom-cursor--hcard-arrow', showArrow);
   }
 
   function tick(){
     dx += (mx - dx) * posEase;
     dy += (my - dy) * posEase;
     var hover = hitIsInteractive(mx, my);
-    setTransforms(hover);
     syncHcardCursorClass(hover);
+    setTransforms(hover);
     var moving = Math.abs(mx - dx) > 0.04 || Math.abs(my - dy) > 0.04;
     if(moving){
       requestAnimationFrame(tick);
@@ -6264,7 +6360,6 @@ function attachHlCharExitHideAfterTransform(c){
   function onMove(e){
     mx = e.clientX;
     my = e.clientY;
-    syncHcardCursorClass(hitIsInteractive(mx, my));
     if(!visible){
       visible = true;
       root.classList.add('custom-cursor--visible');
@@ -6276,18 +6371,32 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function onScroll(){
-    syncHcardCursorClass(hitIsInteractive(mx, my));
+    var h = hitIsInteractive(mx, my);
+    syncHcardCursorClass(h);
     if(!ticking){
+      setTransforms(h);
       ticking = true;
       requestAnimationFrame(tick);
     }
   }
 
+  function syncHcardFromPointerAfterUi(){
+    var h = hitIsInteractive(mx, my);
+    syncHcardCursorClass(h);
+    setTransforms(h);
+  }
+  /* Expand/collapse without moving the mouse: refresh cursor (arrow vs circle). */
+  document.addEventListener('click', syncHcardFromPointerAfterUi, { capture: true, passive: true });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') requestAnimationFrame(syncHcardFromPointerAfterUi);
+  }, { capture: true, passive: true });
+
   window.addEventListener('mousemove', onMove, { passive: true });
   window.addEventListener('scroll', onScroll, { passive: true, capture: true });
   document.documentElement.addEventListener('mouseleave', function(){
     root.classList.remove('custom-cursor--visible', 'custom-cursor--hover');
-    document.documentElement.classList.remove('custom-cursor--hcard', 'custom-cursor--hcard-interactive');
+    document.documentElement.classList.remove('custom-cursor--hcard', 'custom-cursor--hcard-interactive', 'custom-cursor--hcard-arrow');
+    hcardArrowRotDeg = 0;
     visible = false;
     lastHover = false;
     stopRingAnim();
