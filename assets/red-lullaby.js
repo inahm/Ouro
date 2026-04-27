@@ -2,7 +2,7 @@
  * Ambient lullaby for third-act (red) particle interaction.
  * Loudness follows pointer motion; tempo (BPM) follows movement so the bar pulse tracks the hand.
  * Timbre leans Kraftwerk / Kling Klang: saw & pulse stacks, drier delays, punchier bus,
- * chord‑machine motion layer. Fades when the mouse stops or the zone exits.
+ * chord‑machine motion layer. Fades when the pointer stops, leaves the zone, or the tab is hidden.
  * Disabled on touch‑primary devices (pointer: coarse) — no audio on typical mobile.
  */
 (function () {
@@ -12,8 +12,6 @@
   var BPM_SMOOTH_IN_LOOP = 0.055;
   var PULSE_BPM_PER_SPD_DELTA = 88;
   var MAX_MIX = 0.34;
-  /** Audible floor while in the ring so still cursor + suspended-context edge cases are not silent. */
-  var IDLE_ZONE_MIX = 0.065;
   var MOTION_FLOOR = 0.012;
   var MOTION_SCALE = 0.22;
   var ATTACK_TC = 0.1;
@@ -561,7 +559,7 @@
     }
   }
 
-  function silenceFromUserMute() {
+  function fadeOutputAll() {
     fadeMotionLayerOut();
     disarmScheduler();
     if (mixOut && ctx) {
@@ -569,6 +567,10 @@
         mixOut.gain.setTargetAtTime(0, ctx.currentTime, RELEASE_TC);
       } catch (_) {}
     }
+  }
+
+  function silenceFromUserMute() {
+    fadeOutputAll();
   }
 
   function teardown() {
@@ -625,13 +627,14 @@
 
       if (!zone) {
         lastSpd = 0;
-        fadeMotionLayerOut();
-        disarmScheduler();
-        if (mixOut && ctx) {
-          try {
-            mixOut.gain.setTargetAtTime(0, ctx.currentTime, RELEASE_TC);
-          } catch (_) {}
-        }
+        fadeOutputAll();
+        return;
+      }
+
+      var motion = Math.min(1, Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE));
+      if (motion <= 0) {
+        lastSpd = 0;
+        fadeOutputAll();
         return;
       }
 
@@ -641,9 +644,8 @@
         ctx.resume();
       } catch (_) {}
 
-      var motion = Math.min(1, Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE));
-      var target = Math.max(IDLE_ZONE_MIX, motion * MAX_MIX);
-      var tc = motion > 0.025 ? ATTACK_TC : RELEASE_TC;
+      var target = motion * MAX_MIX;
+      var tc = motion > 0.08 ? ATTACK_TC : RELEASE_TC;
       try {
         mixOut.gain.setTargetAtTime(target, ctx.currentTime, tc);
       } catch (_) {}
@@ -704,7 +706,11 @@
     { passive: true, capture: true }
   );
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState !== 'visible') return;
+    if (document.visibilityState === 'hidden') {
+      lastSpd = 0;
+      fadeOutputAll();
+      return;
+    }
     unlockAudio();
   });
   window.addEventListener('pageshow', function () {

@@ -1,14 +1,14 @@
 /**
  * Minimal bed for second-headline red particle ring: two soft sines, no sequencer,
  * no extra layers. Loudness follows pointer speed only while the cursor is in the
- * ring zone (caller sets zone). Same mobile / reduced-motion policy as third-act audio.
+ * ring zone (caller sets zone). Silent while the pointer is still; motion opens the bed.
+ * Same mobile / reduced-motion policy as third-act audio.
  * Mute preference: localStorage key ouroSecondParticleSoundMuted (UI in index.html).
  */
 (function () {
   var ATTACK_TC = 0.14;
   var RELEASE_TC = 0.55;
   var MAX_MIX = 0.032;
-  var IDLE_ZONE_MIX = 0.014;
   var MOTION_FLOOR = 0.018;
   var MOTION_SCALE = 0.26;
 
@@ -81,12 +81,16 @@
     lp = null;
   }
 
-  function silenceFromUserMute() {
+  function fadeOutputGain() {
     if (outGain && ctx) {
       try {
         outGain.gain.setTargetAtTime(0, ctx.currentTime, RELEASE_TC);
       } catch (_) {}
     }
+  }
+
+  function silenceFromUserMute() {
+    fadeOutputGain();
   }
 
   window.OuroSecondLullaby = {
@@ -111,16 +115,18 @@
       var spd = opts && typeof opts.mouseSpd === 'number' ? opts.mouseSpd : 0;
 
       if (userMuted) {
-        silenceFromUserMute();
+        fadeOutputGain();
         return;
       }
 
       if (!zone) {
-        if (outGain && ctx) {
-          try {
-            outGain.gain.setTargetAtTime(0, ctx.currentTime, RELEASE_TC);
-          } catch (_) {}
-        }
+        fadeOutputGain();
+        return;
+      }
+
+      var motion = Math.min(1, Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE));
+      if (motion <= 0) {
+        fadeOutputGain();
         return;
       }
 
@@ -129,9 +135,8 @@
         ctx.resume();
       } catch (_) {}
 
-      var motion = Math.min(1, Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE));
-      var target = Math.max(IDLE_ZONE_MIX, motion * MAX_MIX);
-      var tc = motion > 0.018 ? ATTACK_TC : RELEASE_TC;
+      var target = motion * MAX_MIX;
+      var tc = motion > 0.12 ? ATTACK_TC : RELEASE_TC;
       try {
         outGain.gain.setTargetAtTime(target, ctx.currentTime, tc);
         lp.frequency.setTargetAtTime(320 + motion * 180, ctx.currentTime, 0.18);
@@ -180,7 +185,10 @@
     { passive: true, capture: true }
   );
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState !== 'visible') return;
+    if (document.visibilityState === 'hidden') {
+      fadeOutputGain();
+      return;
+    }
     unlockAudio();
   });
   window.addEventListener('pageshow', function () {

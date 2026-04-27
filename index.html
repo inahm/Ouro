@@ -365,7 +365,7 @@ html.scroll-intro-scrollable .stage{
 /* Hero was only hidden with visibility — collapse it so the red block is the first in-flow slice */
 html.scroll-intro-scrollable .hero-content{display:none;}
 html.scroll-intro-scrollable .second-hl-particles-wrap{display:none;}
-/* Third act stays on (not torn down); sits above #scroll-intro-below in normal scroll order */
+/* Third act stays on (not torn down); sits above #studio in normal scroll order */
 html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow{
   position:relative;
   inset:auto;
@@ -3147,6 +3147,13 @@ button.site-meta-panel__terminal-submit{
   }
 }
 </style>
+<script>
+(function () {
+  if (location.hash === '#scroll-intro-below' && history.replaceState) {
+    history.replaceState(null, '', location.pathname + location.search + '#studio');
+  }
+})();
+</script>
 </head>
 <body>
 <div class="custom-cursor" id="custom-cursor-root" aria-hidden="true">
@@ -3190,7 +3197,7 @@ button.site-meta-panel__terminal-submit{
     </span>
   </button>
   <div class="scroll-intro-nav-dropdown" id="scroll-intro-nav-dropdown">
-    <a class="scroll-intro-nav-link" id="studio-nav-link" href="#scroll-intro-below">Studio</a>
+    <a class="scroll-intro-nav-link" id="studio-nav-link" href="#studio">Studio</a>
     <a class="scroll-intro-nav-link" id="projects-nav-link" href="#proj-grid-wrap">Projects</a>
   </div>
 </nav>
@@ -3241,27 +3248,27 @@ button.site-meta-panel__terminal-submit{
     <ul class="site-meta-panel__stats" role="list">
       <li class="site-meta-panel__stats-line site-meta-panel__stats-li--lead">
         <span class="site-meta-panel__type-measure" aria-hidden="true"></span>
-        <span class="site-meta-panel__type-line" data-typewriter="Over 24 days, we worked through roughly:"></span>
+        <span class="site-meta-panel__type-line" data-typewriter="Over 29 days, we worked through roughly:"></span>
       </li>
       <li class="site-meta-panel__stats-line">
         <span class="site-meta-panel__type-measure" aria-hidden="true"></span>
-        <span class="site-meta-panel__type-line" data-typewriter="89 hours of tracked AI-assisted build sessions"></span>
+        <span class="site-meta-panel__type-line" data-typewriter="160 hours of tracked AI-assisted build sessions"></span>
       </li>
       <li class="site-meta-panel__stats-line">
         <span class="site-meta-panel__type-measure" aria-hidden="true"></span>
-        <span class="site-meta-panel__type-line" data-typewriter="1,800 Composer requests"></span>
+        <span class="site-meta-panel__type-line" data-typewriter="3,240 Composer requests"></span>
       </li>
       <li class="site-meta-panel__stats-line">
         <span class="site-meta-panel__type-measure" aria-hidden="true"></span>
-        <span class="site-meta-panel__type-line" data-typewriter="47 conversations"></span>
+        <span class="site-meta-panel__type-line" data-typewriter="85 conversations"></span>
       </li>
       <li class="site-meta-panel__stats-line">
         <span class="site-meta-panel__type-measure" aria-hidden="true"></span>
-        <span class="site-meta-panel__type-line" data-typewriter="65 commits"></span>
+        <span class="site-meta-panel__type-line" data-typewriter="117 commits"></span>
       </li>
       <li class="site-meta-panel__stats-line">
         <span class="site-meta-panel__type-measure" aria-hidden="true"></span>
-        <span class="site-meta-panel__type-line" data-typewriter="17,000+ AI-attributed code edits"></span>
+        <span class="site-meta-panel__type-line" data-typewriter="30,600+ AI-attributed code edits"></span>
       </li>
       <li class="site-meta-panel__stats-line site-meta-panel__stats-li--tools">
         <span class="site-meta-panel__type-measure" aria-hidden="true"></span>
@@ -3360,7 +3367,7 @@ button.site-meta-panel__terminal-submit{
 </div>
 
 <div id="scroll-intro-continuation" class="scroll-intro-continuation" hidden>
-  <section class="scroll-intro-below" id="scroll-intro-below" aria-labelledby="scroll-intro-below-heading">
+  <section class="scroll-intro-below" id="studio" aria-labelledby="scroll-intro-below-heading">
     <div class="scroll-intro-below__inner">
       <h2 class="sr-only" id="scroll-intro-below-heading">Practice and purpose</h2>
       <div id="scroll-intro-below-statement" class="scroll-intro-below__statements">
@@ -3567,7 +3574,7 @@ button.site-meta-panel__terminal-submit{
               </svg>
             </span>
           </button>
-          <a href="#scroll-intro-below">Studio</a>
+          <a href="#studio">Studio</a>
           <a href="#proj-grid-wrap">Projects</a>
           <a href="mailto:hello@ourolabs.com">Contact</a>
           <a href="https://www.linkedin.com/company/ouro-labs/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
@@ -5730,7 +5737,7 @@ function attachHlCharExitHideAfterTransform(c){
     });
     initKimTeamScrollMotion();
 
-    var subcopyBlockForNav = cont.querySelector('#scroll-intro-below');
+    var subcopyBlockForNav = cont.querySelector('#studio');
     var cardsBlockForNav = cont.querySelector('#proj-grid-wrap');
     var scrollIntroLogoNav = document.querySelector('.scroll-intro-logo');
     var scrollIntroNavLinks = document.querySelectorAll('.scroll-intro-nav-link');
@@ -5852,7 +5859,7 @@ function attachHlCharExitHideAfterTransform(c){
     void document.documentElement.offsetHeight;
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var nextSection =
-      document.getElementById('scroll-intro-below') || document.getElementById('proj-grid-wrap');
+      document.getElementById('studio') || document.getElementById('proj-grid-wrap');
     var scrollBehavior = reduceMotion ? 'auto' : 'smooth';
     if(nextSection){
       nextSection.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
@@ -6233,7 +6240,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
 
   function jumpToStudio(){
-    var studioSection = document.getElementById('scroll-intro-below');
+    var studioSection = document.getElementById('studio');
     if(!studioSection) return;
     var y = window.pageYOffset + studioSection.getBoundingClientRect().top;
     window.scrollTo({ top: y, behavior: 'auto' });
@@ -6356,12 +6363,12 @@ function attachHlCharExitHideAfterTransform(c){
       if(history.replaceState) history.replaceState(null, '', '#proj-grid-wrap');
     });
   });
-  document.querySelectorAll('a[href="#scroll-intro-below"]').forEach(function(link){
+  document.querySelectorAll('a[href="#studio"]').forEach(function(link){
     if(link.id === 'studio-nav-link') return;
     link.addEventListener('click', function(e){
       e.preventDefault();
       scheduleJumpToStudio();
-      if(history.replaceState) history.replaceState(null, '', '#scroll-intro-below');
+      if(history.replaceState) history.replaceState(null, '', '#studio');
     });
   });
 
@@ -6453,6 +6460,20 @@ function attachHlCharExitHideAfterTransform(c){
   w.OuroSite.cardMostlyVisible = function(cardEl){
     return regionMostlyVisible(cardEl);
   };
+  /**
+   * Canonical copy for the “About this build” stats (panel typewriter + terminal `log` flow).
+   * Update here when figures change; synced to DOM on site-meta init.
+   */
+  w.OuroSite.BUILD_STATS_LINES = [
+    'Over 29 days, we worked through roughly:',
+    '160 hours of tracked AI-assisted build sessions',
+    '3,240 Composer requests',
+    '85 conversations',
+    '117 commits',
+    '30,600+ AI-attributed code edits',
+    'Tooling and models:',
+    'Figma, Cursor, Composer 2, Claude Sonnet, GPT-5.3 Codex, Opus, and Pika 2.5.'
+  ];
 })(window);
 </script>
 <script>
@@ -7323,8 +7344,24 @@ function attachHlCharExitHideAfterTransform(c){
   var savedPageScrollY = 0;
   var themeMeta = document.querySelector('meta[name="theme-color"]');
   var themeColorPrev = themeMeta ? themeMeta.getAttribute('content') : null;
+  var buildLines = window.OuroSite && Array.isArray(window.OuroSite.BUILD_STATS_LINES)
+    ? window.OuroSite.BUILD_STATS_LINES
+    : null;
+  if(buildLines && buildLines.length && panel){
+    var statSpans = panel.querySelectorAll('.site-meta-panel__stats [data-typewriter]');
+    for(var si = 0; si < statSpans.length && si < buildLines.length; si++){
+      statSpans[si].setAttribute('data-typewriter', buildLines[si]);
+    }
+  }
   var typeEls = Array.prototype.slice.call(panel.querySelectorAll('[data-typewriter]'));
   var fullTexts = typeEls.map(function(el){ return el.getAttribute('data-typewriter') || ''; });
+  var logStatLines =
+    buildLines && buildLines.length >= 8
+      ? buildLines.slice(0, 8)
+      : [
+          fullTexts[5], fullTexts[6], fullTexts[7], fullTexts[8],
+          fullTexts[9], fullTexts[10], fullTexts[11], fullTexts[12]
+        ];
   var terminalForm = document.getElementById('site-meta-terminal-form');
   var terminalInput = document.getElementById('site-meta-terminal-input');
   var terminalInputWrap = document.getElementById('site-meta-terminal-input-wrap');
@@ -7367,7 +7404,7 @@ function attachHlCharExitHideAfterTransform(c){
     },
     {
       expect: 'log',
-      lines: [fullTexts[5], fullTexts[6], fullTexts[7], fullTexts[8], fullTexts[9], fullTexts[10], fullTexts[11], fullTexts[12]],
+      lines: logStatLines,
       after: {
         hash: '# Curious who made this site?',
         instruction: 'Type "makers" and press Enter.'
@@ -8200,7 +8237,7 @@ function attachHlCharExitHideAfterTransform(c){
     terminalForm.classList.toggle('site-meta-panel__terminal-form--awaiting-ready', !!awaiting);
     terminalForm.setAttribute('aria-hidden', awaiting ? 'true' : 'false');
   }
-  var TERMINAL_STORY_STORAGE_KEY = 'ouro-site-meta-terminal-v1';
+  var TERMINAL_STORY_STORAGE_KEY = 'ouro-site-meta-terminal-v2';
   /* New value on every full navigation / reload — used so localStorage snapshot only applies in this page session. */
   var terminalPageLoadOrigin =
     typeof performance !== 'undefined' && typeof performance.timeOrigin === 'number'
