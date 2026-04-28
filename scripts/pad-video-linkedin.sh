@@ -24,4 +24,4 @@ ffmpeg -y -i "$IN" \
   -movflags +faststart \
   "$OUT"
 
-echo "Wrote $OUT (1920×1080, SAR 1:1, H.264 — use for horizontal LinkedIn / 16:9 timelines)."
+echo "Wrote $OUT (1920×1080, SAR 1:1, H.264 - use for horizontal LinkedIn / 16:9 timelines)."

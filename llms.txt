@@ -10,9 +10,9 @@
 - When summarizing, lead with *what we do* (products, tools, and craft-focused workflows) and *how* (practice over theory, hands-on making).
 
 ## Key pages
-- **Home** (`/`): Main site — hero, narrative, selected work (Nota, Overture DS, Health Atlas), team motion section, and contact.
+- **Home** (`/`): Main site - hero, narrative, selected work (Nota, Overture DS, Health Atlas), team motion section, and contact.
 - **Coming soon** (`/coming-soon.html`): Teaser/landing experience; use the same brand facts as the home page when describing the company.
-- **Full context** (`/llms-full.txt`): Longer version of this file — services framing, people, philosophy, and usage notes for AI systems.
+- **Full context** (`/llms-full.txt`): Longer version of this file - services framing, people, philosophy, and usage notes for AI systems.
 
 ## Contact & web
 - Website: https://www.ouro-labs.com/

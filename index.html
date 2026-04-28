@@ -18,7 +18,7 @@
 <meta property="og:image:width" content="1024">
 <meta property="og:image:height" content="537">
 <meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:alt" content="Ouro Labs — ouro labs wordmark on red with circular mark">
+<meta property="og:image:alt" content="Ouro Labs - ouro labs wordmark on red with circular mark">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Ouro Labs | AI-Native Product Studio">
 <meta name="twitter:description" content="A design and AI practice built by two design leaders. Play, Precision, Craft.">
@@ -88,7 +88,7 @@
 }
 :root{
   --bg:#DDDBD6;
-  /* Primary dark foreground — use for all body/UI text on light surfaces */
+  /* Primary dark foreground - use for all body/UI text on light surfaces */
   --ink:#000000;
   /* Statement word ramp start (matches scroll scrub JS) */
   --ink-muted-statement:#B5AFA6;
@@ -98,15 +98,15 @@
   --text-on-dark-muted:#F2F1EC;
   --text-on-dark:#E4E3E0;
   --red:#FF1B00;
-  /* Snappy motion — no mushy ease */
+  /* Snappy motion - no mushy ease */
   --ease-snap-out:cubic-bezier(0.2,0.88,0.12,1);
   --ease-snap-in:cubic-bezier(0.55,0,0.95,0.38);
   --g:88px;
-  /* Particle ring outer Ø = min(viewport) * 0.72 — must stay in sync with secondParticleSetup (spBaseR = core * 0.36) */
+  /* Particle ring outer Ø = min(viewport) * 0.72 - must stay in sync with secondParticleSetup (spBaseR = core * 0.36) */
   --particle-o-core:min(100vw, 100vh);
   --particle-o-diam:calc(var(--particle-o-core) * 0.72);
   --content-max:1240px;
-  /* Large dense display — bumped again for bigger / tighter lockup */
+  /* Large dense display - bumped again for bigger / tighter lockup */
   --hero-hl-size:clamp(64px,16.5vw,182px);
   --hero-hl-size-md:clamp(52px,11.5vw,118px);
   --hero-hl-size-mobile:clamp(42px,12.8vw,96px);
@@ -114,23 +114,23 @@
   --wm-nudge-y:clamp(20px, 4.2vw, 56px);
   --ease-out-flow:cubic-bezier(0.22,1,0.52,1);
   --ease-out-settle:cubic-bezier(0.33,1,0.68,1);
-  /* Headline letter rise-in — softer deceleration than --ease-snap-out */
+  /* Headline letter rise-in - softer deceleration than --ease-snap-out */
   --ease-hl-char-in:cubic-bezier(0.17,1,0.32,1);
-  /* Work strip: layout vs content — use instead of --ease-out-flow in scroll-intro-continuation hcards. */
+  /* Work strip: layout vs content - use instead of --ease-out-flow in scroll-intro-continuation hcards. */
   --ease-hcard-surface:cubic-bezier(0.2,0.86,0.1,1);
   --ease-hcard-silk:cubic-bezier(0.14,0.98,0.22,1);
   --ease-hcard-snapshut:cubic-bezier(0.45,0,0.2,1);
   /* Third act: light → red circular wipe */
   --third-act-red-iris-duration:3.55s;
-  /* Long, plush deceleration — stronger ease than --ease-out-flow / --ease-out-settle */
+  /* Long, plush deceleration - stronger ease than --ease-out-flow / --ease-out-settle */
   --third-act-red-iris-ease:cubic-bezier(0.18,1,0.78,1);
-  /* Fixed nav (must match .scroll-intro-logo top + svg height) — used so scroll-into-view lands with equal red above/below the mark */
+  /* Fixed nav (must match .scroll-intro-logo top + svg height) - used so scroll-into-view lands with equal red above/below the mark */
   --scroll-intro-nav-top:max(26px, calc(env(safe-area-inset-top, 0px) + clamp(18px, 2.4vw, 28px)));
   --scroll-intro-logo-h:clamp(20px, 4.1vw, 28px);
   /* Extra below logo height for stacked top-nav links (second row) */
   --scroll-intro-nav-stack-extra:clamp(10px, 2.4vw, 18px);
   --scroll-intro-anchor-margin:calc(2 * var(--scroll-intro-nav-top) + var(--scroll-intro-logo-h) + var(--scroll-intro-nav-stack-extra));
-  /* Bottom edge of fixed .scroll-intro-header-strip — hero/third-act are vertically centered, so min padding-top must clear the band (FAB + wordmark + stacked nav). */
+  /* Bottom edge of fixed .scroll-intro-header-strip - hero/third-act are vertically centered, so min padding-top must clear the band (FAB + wordmark + stacked nav). */
   --scroll-intro-header-clear:max(
     calc(
       var(--scroll-intro-nav-top) + var(--scroll-intro-logo-h) + var(--scroll-intro-nav-stack-extra) + clamp(1.75rem, 3.6vh, 2.75rem)
@@ -141,17 +141,17 @@
   --selection-fg: var(--ink);
   /* Fixed nav accent during second hero headline (AI-native / product studio) */
   --nav-second-hl-accent:color-mix(in srgb, var(--red) 72%, #ff8f4a);
-  /* System stack — typical UI / editor code without extra font request */
+  /* System stack - typical UI / editor code without extra font request */
   --font-code:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  /* Horizontal project cards (.pg-desc, .hcard-detail); cap matches pre-2026 desktop — larger phones override below. */
+  /* Horizontal project cards (.pg-desc, .hcard-detail); cap matches pre-2026 desktop - larger phones override below. */
   --card-body-font-size:clamp(13px, 1.35vw, 15px);
   --card-body-line-height:1.55;
-  /* Orbit trigger + panel close — top-left, aligned with fixed nav band */
+  /* Orbit trigger + panel close - top-left, aligned with fixed nav band */
   --site-meta-fab-top:var(--scroll-intro-nav-top);
   --site-meta-fab-left:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-left, 0px) + 8px));
   --site-meta-fab-right:max(clamp(12px, 1.6vw, 22px), calc(env(safe-area-inset-right, 0px) + 8px));
 }
-/* Selection — including third-act red headline (same neon on red; readable black on yellow) */
+/* Selection - including third-act red headline (same neon on red; readable black on yellow) */
 ::selection,
 #third-act-hl::selection{
   background-color: var(--selection-bg);
@@ -177,7 +177,7 @@ html,body{
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
 }
-/* Custom cursor (desktop / fine pointer) — solid dot; ring only on links / interactive, difference blend */
+/* Custom cursor (desktop / fine pointer) - solid dot; ring only on links / interactive, difference blend */
 @media (hover:hover) and (pointer:fine){
   html.custom-cursor--active,
   html.custom-cursor--active *{
@@ -291,7 +291,7 @@ html.custom-cursor--hcard-arrow .custom-cursor__arrow{
   visibility:visible;
 }
 /* After third act: native vertical scroll + continuation (see unlockThirdActPageScroll)
-   Single scroll root on <html> — iOS Safari often “sticks” when both html and body are overflow-y:auto. */
+   Single scroll root on <html> - iOS Safari often “sticks” when both html and body are overflow-y:auto. */
 html.scroll-intro-scrollable{
   height:auto;
   min-height:100%;
@@ -333,7 +333,7 @@ html.site-meta-open.scroll-intro-scrollable body{
   touch-action:none;
   overflow:hidden !important;
 }
-/* Page cannot steal input — !important beats .third-act (4-class) and .scroll-intro-header-strip > * */
+/* Page cannot steal input - !important beats .third-act (4-class) and .scroll-intro-header-strip > * */
 html.site-meta-open body *{
   pointer-events:none !important;
 }
@@ -362,7 +362,7 @@ html.scroll-intro-scrollable .stage{
   overflow:visible;
   touch-action:pan-y;
 }
-/* Hero was only hidden with visibility — collapse it so the red block is the first in-flow slice */
+/* Hero was only hidden with visibility - collapse it so the red block is the first in-flow slice */
 html.scroll-intro-scrollable .hero-content{display:none;}
 html.scroll-intro-scrollable .second-hl-particles-wrap{display:none;}
 /* Third act stays on (not torn down); sits above #studio in normal scroll order */
@@ -463,7 +463,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   overflow-x:hidden;
   overflow-x:clip;
 }
-/* ── Project cards (horizontal) + footer wordmark — same pattern as index ── */
+/* ── Project cards (horizontal) + footer wordmark - same pattern as index ── */
 .scroll-intro-continuation .hscroll-frame{
   position:relative;
   z-index:0;
@@ -506,7 +506,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   --hcard-cta-pad:2.4rem;
   /* Whole card opens details when collapsed (see initHcardDiscoverExpand); keep text cursor when open. */
   cursor:pointer;
-  /* % flex-basis is vs. the track width — avoids 100vw + vertical-scrollbar overflow gap */
+  /* % flex-basis is vs. the track width - avoids 100vw + vertical-scrollbar overflow gap */
   flex:0 0 clamp(400px,min(88%,calc(100% - 2 * var(--g))),760px);
   display:flex;
   flex-direction:column;
@@ -582,7 +582,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   box-sizing:border-box;
   flex:0 0 auto;
   align-self:center;
-  /* One edge length for a square — avoids width + max-height fighting aspect-ratio on mobile. */
+  /* One edge length for a square - avoids width + max-height fighting aspect-ratio on mobile. */
   width:min(88%,320px,min(52vw,340px));
   aspect-ratio:1 / 1;
   height:auto;
@@ -763,7 +763,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded{
   transition:height 0.5s var(--ease-hcard-surface);
-  /* Grow with expanded copy — no in-card scrollbar; page scroll handles overflow. */
+  /* Grow with expanded copy - no in-card scrollbar; page scroll handles overflow. */
   height:auto;
   min-height:clamp(720px,78vh,900px);
 }
@@ -1000,7 +1000,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 }
 /*
  * Stagger: (1) card flex/scroll + layout, (2) big red title, (3) body. Teaser (subcopy) is
- * not shown in the expanded state — only the display title + long copy.
+ * not shown in the expanded state - only the display title + long copy.
  */
 .scroll-intro-continuation .hcard--expanded .hcard-top{
   gap:clamp(6px,0.8vw,12px);
@@ -1040,7 +1040,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
 .scroll-intro-continuation footer{
   margin-top:auto;
   /*
-   * Full width of the scrollable column only — not 100vw. With a vertical scrollbar,
+   * Full width of the scrollable column only - not 100vw. With a vertical scrollbar,
    * 100vw is wider than the layout viewport; overflow-x:hidden then clips the right
    * side of the wordmark (LABS disappears).
    */
@@ -1162,7 +1162,7 @@ html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow .th
   color:var(--red);
   line-height:0;
   transform:translateY(5px);
-  /* slice scales past the box — hidden clipped “LABS”; page scroll uses overflow-x on html */
+  /* slice scales past the box - hidden clipped “LABS”; page scroll uses overflow-x on html */
   overflow:visible;
 }
 .scroll-intro-continuation .wordmark-svg-physics{
@@ -1278,7 +1278,7 @@ body{
   -webkit-tap-highlight-color:transparent;
 }
 
-/* Fixed header row: terminal open | logo | section links — one band, vertically centered. */
+/* Fixed header row: terminal open | logo | section links - one band, vertically centered. */
 .scroll-intro-header-strip{
   position:fixed;
   top:var(--scroll-intro-nav-top);
@@ -1473,7 +1473,7 @@ html.nav-over-third-red .scroll-intro-logo:hover,
 html.nav-over-third-red .scroll-intro-logo:focus-visible{
   color:var(--ink);
 }
-/* Third-act red fills the viewport — light ink on red. */
+/* Third-act red fills the viewport - light ink on red. */
 html.nav-over-third-red .scroll-intro-logo,
 html.nav-over-third-red .scroll-intro-nav-link,
 html.nav-over-third-red .scroll-intro-nav-toggle{
@@ -1485,7 +1485,7 @@ html.nav-over-third-red .scroll-intro-nav-link:focus-visible,
 html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible{
   outline-color:var(--ink);
 }
-/* Second hero headline — warm red/orange nav (normal blend on grey). :not so red-act overlap wins. */
+/* Second hero headline - warm red/orange nav (normal blend on grey). :not so red-act overlap wins. */
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo,
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link,
 html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle{
@@ -1531,7 +1531,7 @@ html:not(.nav-hero-second-hl):not(.nav-over-third-red) .scroll-intro-nav-toggle[
     padding:10px 8px;
     box-sizing:border-box;
   }
-  /* Match FAB’s horizontal inset: FAB has 8px padding on both sides; toggle had 0 right — looked tighter to the edge. */
+  /* Match FAB’s horizontal inset: FAB has 8px padding on both sides; toggle had 0 right - looked tighter to the edge. */
   .scroll-intro-nav-toggle{
     display:flex;
     align-items:center;
@@ -1625,7 +1625,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   }
 }
 
-/* Fixed stage — no page scroll; wheel, touch, and click drive intro motion */
+/* Fixed stage - no page scroll; wheel, touch, and click drive intro motion */
 .stage{
   position:fixed;inset:0;z-index:1;
   min-height:100%;
@@ -1669,7 +1669,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   margin:0 auto;
   padding:0 2px;
 }
-/* Full-viewport particle plane — fixed to viewport (no transform here: preserves fixed containing block) */
+/* Full-viewport particle plane - fixed to viewport (no transform here: preserves fixed containing block) */
 .second-hl-particles-wrap{
   position:fixed;
   inset:0;
@@ -1722,7 +1722,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
 #hero-hl .hl-line{white-space:nowrap;}
 #hero-hl .hero-hl-accent{color:var(--red);}
 #hero-hl .hero-hl-accent .hl-char{color:var(--red);}
-/* Second block headline — same brand red as particles */
+/* Second block headline - same brand red as particles */
 .hero-hl.hero-hl--second-block,
 .hero-hl.hero-hl--second-block .hl-inner,
 .hero-hl.hero-hl--second-block .hl-char:not(.hl-char--space){
@@ -1753,15 +1753,15 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
 }
 .hl-char--space{display:inline;padding-bottom:0!important;transform:none!important;opacity:1!important;transition:none!important;}
 /* Straight fall: do not reuse --cr here; staggerChars leaves random --cr on each
-   letter for the *in* motion only — exit was re-applying it and looked crooked. */
-/* Longhands only — a `transition` shorthand with !important was resetting inline delay */
+   letter for the *in* motion only - exit was re-applying it and looked crooked. */
+/* Longhands only - a `transition` shorthand with !important was resetting inline delay */
 .hl-char-exit{
   transform:translate3d(0,calc(1.35em + 16px),0.02px) rotate(0deg)!important;
   transition-property:transform!important;
   transition-duration:var(--cd,0.32s)!important;
   transition-timing-function:var(--ease-snap-in)!important;
 }
-/* Second headline (red): keep solid brand color — no opacity/color drift while exiting */
+/* Second headline (red): keep solid brand color - no opacity/color drift while exiting */
 .hero-hl.hero-hl--second-block .hl-char.hl-char-exit{
   opacity:1!important;
   color:var(--red)!important;
@@ -1851,7 +1851,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   }
 }
 
-/* Third act — red iris then headline on red */
+/* Third act - red iris then headline on red */
 .third-act{
   position:fixed;
   inset:0;
@@ -1901,7 +1901,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
 }
 .third-act-inner--ring{z-index:1;}
 .third-act-inner--hl{z-index:3;}
-/* Video torus — same outer Ø as particle ring; sits under headline in same grid cell */
+/* Video torus - same outer Ø as particle ring; sits under headline in same grid cell */
 .third-act-video-plane{
   grid-area:1 / 1;
   z-index:0;
@@ -1920,7 +1920,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   height:100%;
   opacity:0;
   transform:scale(0.38);
-  /* Fast scale-in — runs in parallel with slow iris */
+  /* Fast scale-in - runs in parallel with slow iris */
   transition:transform 0.2s var(--ease-snap-out), opacity 0.14s ease;
 }
 .third-act-video-shell.third-act-video-shell--in{
@@ -1941,7 +1941,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   background:transparent;
   overflow:visible;
 }
-/* O clip on video only — particle canvas extends past the torus */
+/* O clip on video only - particle canvas extends past the torus */
 .third-act-ring-canvas{
   position:relative;
   z-index:0;
@@ -2019,11 +2019,11 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
   margin-left:auto;
   margin-right:auto;
 }
-/* One visual row per .hl-line like #hero-hl — avoids wrapped sub-lines and mismatched drop distance. */
+/* One visual row per .hl-line like #hero-hl - avoids wrapped sub-lines and mismatched drop distance. */
 .third-act .third-act-hl .hl-line{
   white-space:nowrap;
 }
-/* Third act shares .hero-hl; do not apply the mobile 19ch cap — it squeezes long words into letter wraps */
+/* Third act shares .hero-hl; do not apply the mobile 19ch cap - it squeezes long words into letter wraps */
 @media(max-width:600px){
   .third-act .hero-hl.third-act-hl{
     max-width:100%;
@@ -2034,7 +2034,7 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable #site-meta-open.site-me
     transition-duration:0.06s;
   }
 }
-/* Particle-ring interaction sound — bottom-right waves; rollover shows SOUND ON / OFF. */
+/* Particle-ring interaction sound - bottom-right waves; rollover shows SOUND ON / OFF. */
 .particle-sound-btn{
   position:fixed;
   z-index:4;
@@ -2260,7 +2260,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
   visibility:visible;
   pointer-events:none;
 }
-/* Terminal window modal (backdrop + centered “window”) — same content palette as before */
+/* Terminal window modal (backdrop + centered “window”) - same content palette as before */
 .site-meta-panel{
   --site-meta-win-titlebar:#323232;
   --site-meta-term-surface:#000000;
@@ -2274,7 +2274,7 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible{
      body / echoed command / “Type …” (stream) = --stream-fg;
      # in callouts = --stream-hash; following question = --stream-fg; Type "cmd" = hash on command word, white for rest; errors = --error;
      Dimmer: on each successful command, non-feedback log lines get --dim. Lines from typeTerminalLogLine
-     (.terminal-log-line--feedback) are the narrative and stay --stream-fg (white) always—never dimmed. CTA/echo/status/#
+     (.terminal-log-line--feedback) are the narrative and stay --stream-fg (white) always - never dimmed. CTA/echo/status/#
      (but not .terminal-log-line--feedback) go grey so focus is on the story body + new CTA. Ready override unchanged. */
   --site-meta-stream-fg:#ffffff;
   --site-meta-stream-status:#6a6a6a;
@@ -2371,7 +2371,7 @@ html.site-meta-open .site-meta-panel.site-meta-panel--open{
     max-height 0.32s var(--ease-snap-out),
     height 0.32s var(--ease-snap-out);
 }
-/* Green (zoom) — use full viewport inside panel padding (same insets as .site-meta-panel) */
+/* Green (zoom) - use full viewport inside panel padding (same insets as .site-meta-panel) */
 .site-meta-panel__window.site-meta-panel__window--max{
   width:100%;
   max-width:100%;
@@ -2461,7 +2461,7 @@ html.site-meta-open .site-meta-panel.site-meta-panel--open{
   height:12px;
   border-radius:50%;
   flex-shrink:0;
-  /* Solid fills — no border ring (reference Terminal) */
+  /* Solid fills - no border ring (reference Terminal) */
   box-shadow:none;
   pointer-events:none;
 }
@@ -2637,7 +2637,7 @@ html.site-meta-minimized .site-meta-btn__icon--filled{
     opacity:1;
   }
 }
-/* Typewriter rows — all monospace; stats still --red for emphasis */
+/* Typewriter rows - all monospace; stats still --red for emphasis */
 .site-meta-panel__type-row{
   position:relative;
   display:block;
@@ -2827,7 +2827,7 @@ html.site-meta-minimized .site-meta-btn__icon--filled{
 .site-meta-panel__terminal-log-status-label{
   color:var(--site-meta-stream-status);
 }
-/* Loading dots before “Ready”—grey to match terminal chrome */
+/* Loading dots before “Ready” - grey to match terminal chrome */
 .site-meta-panel__terminal-log-status-ellipsis{
   color:var(--site-meta-stream-status);
   font-weight:inherit;
@@ -3022,7 +3022,7 @@ button.site-meta-panel__terminal-submit{
 .site-meta-panel.site-meta-panel--story-feedback .site-meta-panel__terminal-log-line--stream{
   margin-bottom:0.85em;
 }
-/* Narrative from typeTerminalLogLine—always full white; never in the dim pass (incl. over --head) */
+/* Narrative from typeTerminalLogLine - always full white; never in the dim pass (incl. over --head) */
 .site-meta-panel.site-meta-panel--story-feedback .site-meta-panel__terminal-log-line--feedback{
   color:var(--site-meta-stream-fg) !important;
 }
@@ -3207,7 +3207,7 @@ button.site-meta-panel__terminal-submit{
           <span class="site-meta-panel__dot site-meta-panel__dot--g" aria-hidden="true"></span>
         </button>
       </div>
-      <span class="site-meta-panel__titlebar-label" id="site-meta-window-title">ouro site — origin.log</span>
+      <span class="site-meta-panel__titlebar-label" id="site-meta-window-title">ouro site - origin.log</span>
     </div>
     <div class="site-meta-panel__body" id="site-meta-body">
   <div class="site-meta-panel__inner">
@@ -3296,8 +3296,8 @@ button.site-meta-panel__terminal-submit{
     </div>
   </div>
 </div>
-<button type="button" class="site-meta-dock" id="site-meta-dock" hidden aria-label="Restore ouro site — origin.log window">
-  ouro site — origin.log
+<button type="button" class="site-meta-dock" id="site-meta-dock" hidden aria-label="Restore ouro site - origin.log window">
+  ouro site - origin.log
 </button>
 
 <div class="stage" id="stage" role="presentation">
@@ -3440,9 +3440,9 @@ button.site-meta-panel__terminal-submit{
         <div class="hcard-detail-wrap">
           <div class="hcard-detail-inner">
             <div class="hcard-detail" id="hcard-detail-overture" aria-hidden="true">
-              <p>Overture is our way of giving design intent a structure agents can understand without flattening the work into a rigid template. It creates a common language for the system &mdash; tokens, components, patterns, rules, and rationale &mdash; so decisions can move between design, code, tools, and teams with more continuity.</p>
+              <p>Overture is our way of giving design intent a structure agents can understand without flattening the work into a rigid template. It creates a common language for the system - tokens, components, patterns, rules, and rationale - so decisions can move between design, code, tools, and teams with more continuity.</p>
               <p>But it is meant to stay open. Every product has its own edge cases. Every brand has its own behavior. Every team has its own way of working. So the system has to be structured enough for agents to read, and flexible enough for designers to keep shaping.</p>
-              <p>For us, JSON and YAML form much of the connective layer: machine-readable structure that tools, pipelines, and agents can parse and keep in sync. Markdown rides alongside for rationale, specs, and the narrative around patterns and usage &mdash; readable for people, linkable for context. Together they turn design decisions into something portable, inspectable, and precise enough to support implementation, while still leaving room for new patterns, custom logic, and context-specific rules to emerge.</p>
+              <p>For us, JSON and YAML form much of the connective layer: machine-readable structure that tools, pipelines, and agents can parse and keep in sync. Markdown rides alongside for rationale, specs, and the narrative around patterns and usage - readable for people, linkable for context. Together they turn design decisions into something portable, inspectable, and precise enough to support implementation, while still leaving room for new patterns, custom logic, and context-specific rules to emerge.</p>
               <p>This is where agents become useful: not as a shortcut around design judgment, but as a way to help the system respond. Agents can read the structure, compose UI from prompts, check for consistency, adapt components across contexts, and help generate new patterns that still belong.</p>
               <p>We&rsquo;re still early, but that&rsquo;s the point. The work is not just the design system. It is the way the system gets made, used, and evolved.</p>
             </div>
@@ -3671,7 +3671,7 @@ function attachHlCharExitHideAfterTransform(c){
   var SP_MRAD = 100;
   var SP_MFORCE = 62;
   var SP_ROT = 0.001;
-  /* Punch-through only — less downward “gravity”; ring size / spring physics unchanged */
+  /* Punch-through only - less downward “gravity”; ring size / spring physics unchanged */
   var PUNCH_GRAVITY_Y = 0.58;
   var PUNCH_GRAVITY_Y_JITTER = 0.72;
   var PUNCH_RADIAL_Y = 0.32;
@@ -3758,7 +3758,7 @@ function attachHlCharExitHideAfterTransform(c){
     return document.documentElement.classList.contains('site-meta-open');
   }
 
-  /** After page unlocks, third-act may scroll off-screen while the particle RAF + shell--in stay active — gate audio on real visibility. */
+  /** After page unlocks, third-act may scroll off-screen while the particle RAF + shell--in stay active - gate audio on real visibility. */
   function thirdActParticleAudioAudible(){
     var el = document.getElementById('third-act');
     if(!el) return true;
@@ -3960,7 +3960,7 @@ function attachHlCharExitHideAfterTransform(c){
     var c = document.getElementById('third-act-particles-canvas');
     if(!wrap || !c) return;
     tpDpr = Math.min(window.devicePixelRatio || 1, 2);
-    /* Use layout viewport, not the padded flex box — matches --particle-o-core: min(100vw, 100dvh) with torus. */
+    /* Use layout viewport, not the padded flex box - matches --particle-o-core: min(100vw, 100dvh) with torus. */
     var rw = window.innerWidth;
     var rh = window.innerHeight;
     if(rw < 12 || rh < 12) return;
@@ -4010,7 +4010,7 @@ function attachHlCharExitHideAfterTransform(c){
     });
   }
 
-  /** Iris-style: kill ribbon springs, coast, radial kick — fills viewport like intro orange field */
+  /** Iris-style: kill ribbon springs, coast, radial kick - fills viewport like intro orange field */
   function thirdParticleExplode(){
     if(tpBlasted || !tpParticles || !tpParticles.length) return;
     tpBlasted = true;
@@ -4269,13 +4269,13 @@ function attachHlCharExitHideAfterTransform(c){
   function getSecondHeadlineLines(){
     return window.matchMedia('(max-width: 600px)').matches ? SECOND_LINES_MOBILE : SECOND_LINES;
   }
-  /* One .hl-line each — same mask as hero. */
+  /* One .hl-line each - same mask as hero. */
   var THIRD_LINES = [
     'Where play',
     'meets curiosity',
     'and craft.'
   ];
-  /** Small / mobile (≤600px) only — extra rows; large breakpoints use THIRD_LINES. */
+  /** Small / mobile (≤600px) only - extra rows; large breakpoints use THIRD_LINES. */
   var THIRD_LINES_MOBILE = [
     'Where play',
     'meets',
@@ -4299,7 +4299,7 @@ function attachHlCharExitHideAfterTransform(c){
   ];
   var primaryHeadlineBpMq = window.matchMedia('(max-width: 600px)');
   var lastPrimaryHeadlineMobile = primaryHeadlineBpMq.matches;
-  /** Phases 2 / 25 / 3 = second headline; 40 = iris handoff (keep accent until red covers nav — avoids difference flash on grey). */
+  /** Phases 2 / 25 / 3 = second headline; 40 = iris handoff (keep accent until red covers nav - avoids difference flash on grey). */
   function syncNavHeroSecondHeadline(){
     document.documentElement.classList.toggle(
       'nav-hero-second-hl',
@@ -4495,7 +4495,7 @@ function attachHlCharExitHideAfterTransform(c){
   }
   /**
    * WebKit (esp. iOS): compositing from HTMLVideoElement with mode "difference" can draw blank/wrong.
-   * Rasterize the frame to a bitmap canvas, then difference-composite that — matches desktop output.
+   * Rasterize the frame to a bitmap canvas, then difference-composite that - matches desktop output.
    */
   function thirdRingDrawVideoDifference(ctx, vid, dx, dy, dw, dh){
     if(!taIsLikelyIOSWebKitVideoBlendBug()){
@@ -4553,7 +4553,7 @@ function attachHlCharExitHideAfterTransform(c){
     if(cw < 8) return;
     var cx = cw / 2;
     var cy = ch / 2;
-    /* #third-act-o-clip uses objectBoundingBox outer circle R=0.5 — canvas is already Ø=core*0.72, so outer R = min/2 (not *0.36, which is R/core on the larger viewport). */
+    /* #third-act-o-clip uses objectBoundingBox outer circle R=0.5 - canvas is already Ø=core*0.72, so outer R = min/2 (not *0.36, which is R/core on the larger viewport). */
     var clipR = Math.min(cw, ch) * 0.5;
     var imgSize = clipR * 2.2;
 
@@ -5108,16 +5108,16 @@ function attachHlCharExitHideAfterTransform(c){
       return v;
     }());
     if(!window.__bgVid) window.__bgVid = vidWm;
-    /* No bottom trim — index trims slack for a tighter crop; at full width it clipped descenders (S, B). */
+    /* No bottom trim - index trims slack for a tighter crop; at full width it clipped descenders (S, B). */
     var VB_BOTTOM_TRIM_WM = 0;
     /* Must match inner <g transform="... scale(...)"> on the R .wm-l (canvas mask uses path only). */
-    /* Match R cap height to U (322.331) — was 0.978, which made R visibly shorter. */
+    /* Match R cap height to U (322.331) - was 0.978, which made R visibly shorter. */
     var WM_R_PATH_SCALE = 322.331 / 322;
 
     function resizeWm(){
       var r = svgElWm.getBoundingClientRect();
       if(r.width <= 0 || r.height <= 0) return;
-      /* Full viewport (row) width — index uses --g inset; here we scale the mark edge-to-edge. */
+      /* Full viewport (row) width - index uses --g inset; here we scale the mark edge-to-edge. */
       var gPx = 0;
       var eff = Math.max(r.width - 2 * gPx, r.width * 0.4);
       var sc = r.width / eff;
@@ -5557,7 +5557,7 @@ function attachHlCharExitHideAfterTransform(c){
         if(!(window.scrollX || window.pageXOffset)) return;
         window.scrollTo({ left: 0, top: window.scrollY, behavior: 'auto' });
       }
-      /* Vertical page scroll only — avoids scrollIntoView() pulling the horizontal track. */
+      /* Vertical page scroll only - avoids scrollIntoView() pulling the horizontal track. */
       function ensureCardVerticallyInView(card, behavior){
         if(!card) return;
         var r = card.getBoundingClientRect();
@@ -5652,7 +5652,7 @@ function attachHlCharExitHideAfterTransform(c){
         syncDetailA11y(card, true);
         /*
          * Horizontal: one smooth centering after flex ~70% (avoid stacking two smooth horizontals).
-         * Vertical: do not run in parallel — height:auto on the track reflows through ~1s; multiple
+         * Vertical: do not run in parallel - height:auto on the track reflows through ~1s; multiple
          * window.scrollBy(smooth) calls + a late scrollTo(auto) read as “jumpy”. Nudge Y once after
          * horizontal snap + next paint so rects match final layout.
          */
@@ -5716,7 +5716,7 @@ function attachHlCharExitHideAfterTransform(c){
     pgNames.forEach(function(pn){
       pn.querySelectorAll('.hl-inner').forEach(function(inner){ splitToChars(inner); });
     });
-    /* Titles visible immediately — no scroll-triggered stagger (last card was fading/sliding in late). */
+    /* Titles visible immediately - no scroll-triggered stagger (last card was fading/sliding in late). */
     pgNames.forEach(function(pn){
       var chars = Array.from(pn.querySelectorAll('.hl-char:not(.hl-char--space)'));
       chars.forEach(function(ch){
@@ -6063,7 +6063,7 @@ function attachHlCharExitHideAfterTransform(c){
   var introTouchActive = false;
   /** After intro touch gestures, ignore the synthetic click so we don’t advance twice. */
   var introStageClickTouchGuardUntil = 0;
-  /** Set only when touchmove actually advances intro — otherwise tap’s synthetic click is blocked. */
+  /** Set only when touchmove actually advances intro - otherwise tap’s synthetic click is blocked. */
   var introTouchDidAdvance = false;
   var mobilePhase5FastUnlockDone = false;
   function introStageClickTargetIsInteractive(t){
@@ -6216,13 +6216,13 @@ function attachHlCharExitHideAfterTransform(c){
     }
   }
 
-  /** Instant scroll — smooth scroll animates through the full-viewport red third act and reads as a flash. */
+  /** Instant scroll - smooth scroll animates through the full-viewport red third act and reads as a flash. */
   function jumpToProjects(){
     var projectsSection = document.getElementById('projects');
     if(!projectsSection) return;
     projectsSection.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
-  /** Wait for continuation layout before scrolling — avoids post-scroll reflow jump. */
+  /** Wait for continuation layout before scrolling - avoids post-scroll reflow jump. */
   function scheduleJumpToProjects(){
     requestAnimationFrame(function(){
       requestAnimationFrame(jumpToProjects);
@@ -6493,11 +6493,11 @@ function attachHlCharExitHideAfterTransform(c){
   var holdTimer = 0;
   var cardEl = svg.closest('.hcard');
   var isInView = false;
-  /* Only set when the morph rAF finishes — survives scroll-away so we don’t replay when coming back. */
+  /* Only set when the morph rAF finishes - survives scroll-away so we don’t replay when coming back. */
   var morphFinishedOnce = false;
   var ioWasIntersecting = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
-  /* IO on the card visual strip — not the full article — so morph runs only when that surface is on-screen. */
+  /* IO on the card visual strip - not the full article - so morph runs only when that surface is on-screen. */
   var visEl = svg.closest('.hcard-visual-inner--atlas') || svg;
   var ioTarget = visEl;
 
@@ -6959,7 +6959,7 @@ function attachHlCharExitHideAfterTransform(c){
   var cardEl = svg.closest('.hcard');
   var isInView = false;
   var ioWasIntersecting = false;
-  /* After ripple CSS finishes — don’t retrigger on every scroll-into-view. */
+  /* After ripple CSS finishes - don’t retrigger on every scroll-into-view. */
   var rippleFinishedOnce = false;
   var wasExpanded = !!(cardEl && cardEl.classList.contains('hcard--expanded'));
   var playTimer = 0;
@@ -7115,7 +7115,7 @@ function attachHlCharExitHideAfterTransform(c){
   applyRingDpr();
   window.addEventListener('resize', applyRingDpr, { passive: true });
 
-  /** One ring, three shape kinds — same rhythm as the torus dots (round) + wordmark (square rect on R) + triadic accent (△). */
+  /** One ring, three shape kinds - same rhythm as the torus dots (round) + wordmark (square rect on R) + triadic accent (△). */
   function drawRotatingRing(){
     var cx = ringLogical * 0.5;
     var cy = ringLogical * 0.5;
@@ -7603,7 +7603,7 @@ function attachHlCharExitHideAfterTransform(c){
     /* Window is `display:flex; flex-direction:column; height:100dvh; box-sizing:border-box`, with the
        scrollable body as `flex:1`. Adding padding-bottom = keyboardH shrinks the body's usable area
        so the terminal form (last child inside body) anchors right above the keyboard. Padding is not
-       in the window's transition list, so the lift is instant — no animated lag, no layout fight. */
+       in the window's transition list, so the lift is instant - no animated lag, no layout fight. */
     siteMetaWindow.style.paddingBottom = keyboardH + 'px';
   }
   function syncTerminalInputViewport(){
@@ -8228,7 +8228,7 @@ function attachHlCharExitHideAfterTransform(c){
     terminalForm.setAttribute('aria-hidden', awaiting ? 'true' : 'false');
   }
   var TERMINAL_STORY_STORAGE_KEY = 'ouro-site-meta-terminal-v2';
-  /* New value on every full navigation / reload — used so localStorage snapshot only applies in this page session. */
+  /* New value on every full navigation / reload - used so localStorage snapshot only applies in this page session. */
   var terminalPageLoadOrigin =
     typeof performance !== 'undefined' && typeof performance.timeOrigin === 'number'
       ? performance.timeOrigin
@@ -8873,7 +8873,7 @@ function attachHlCharExitHideAfterTransform(c){
       return;
     }
     /* A second "open" while already open re-ran tryRestore/reset, wiped the log, and resynced
-       typeGen — aborting the in-flight learn stream after the first paragraph. */
+       typeGen - aborting the in-flight learn stream after the first paragraph. */
     if(panel.classList.contains('site-meta-panel--open')){
       if(typeof requestAnimationFrame === 'function') requestAnimationFrame(function(){
         tryFocusTerminalInput();

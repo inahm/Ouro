@@ -1,11 +1,11 @@
 ================================================================================
-OURO LABS — SITE COPY (for editing)
+OURO LABS - SITE COPY (for editing)
 Source: index.html  •  Created for easy reference; re-apply changes in the file.
 ================================================================================
 
 BROWSER / TAB
 -------------
-  Title: Hero scroll test — fixed viewport
+  Title: Hero scroll test - fixed viewport
 
 
 NAV (TOP)
@@ -14,7 +14,7 @@ NAV (TOP)
   Link: Projects
 
 
-HERO — PRIMARY (first screen)
+HERO - PRIMARY (first screen)
 -----------------------------
   Line 1: We're [CYCLE] our
           [CYCLE] rotates through these three words (must match script):
@@ -32,7 +32,7 @@ HERO — PRIMARY (first screen)
       DESIGN PRACTICE.
 
 
-HERO — SECOND BLOCK (after first interaction sequence)
+HERO - SECOND BLOCK (after first interaction sequence)
 -----------------------------------------------------
   Line 1: The only way
   Line 2: we know how.
@@ -41,7 +41,7 @@ HERO — SECOND BLOCK (after first interaction sequence)
   HERO_SECOND_TEMPLATE_LINES: THE ONLY WAY  |  WE KNOW HOW.
 
 
-THIRD ACT — RED FULL-SCREEN HEADLINE
+THIRD ACT - RED FULL-SCREEN HEADLINE
 --------------------------------------
   Line 1: Experimenting
   Line 2: at the edge of
@@ -63,7 +63,7 @@ PROJECT STRIP (HORIZONTAL CARDS)
   becomes Close when open. Escape closes; opening another card closes the
   previous.
 
-  [Nota] — featured card
+  [Nota] - featured card
   An OS-native app for reviewing video footage, logging moments, and finding
   what matters.
   Button: Learn more / Close
@@ -90,8 +90,8 @@ PROJECT STRIP (HORIZONTAL CARDS)
   Expanded: #hcard-detail-overture
     (Body) Overture is our way of giving design intent a structure agents can
     understand without flattening the work into a rigid template. It creates a
-    common language for the system — tokens, components, patterns, rules, and
-    rationale — so decisions can move between design, code, tools, and teams
+    common language for the system - tokens, components, patterns, rules, and
+    rationale - so decisions can move between design, code, tools, and teams
     with more continuity.
     But it is meant to stay open. Every product has its own edge cases. Every
     brand has its own behavior. Every team has its own way of working. So the
@@ -100,7 +100,7 @@ PROJECT STRIP (HORIZONTAL CARDS)
     For us, JSON and YAML form much of the connective layer: machine-readable
     structure that tools, pipelines, and agents can parse and keep in sync.
     Markdown rides alongside for rationale, specs, and the narrative around
-    patterns and usage — readable for people, linkable for context. Together
+    patterns and usage - readable for people, linkable for context. Together
     they turn design decisions into something portable, inspectable, and
     precise enough to support implementation, while still leaving room for new
     patterns, custom logic, and context-specific rules to emerge.
@@ -136,7 +136,7 @@ PROJECT STRIP (HORIZONTAL CARDS)
 
 FOOTER
 ------
-  (Large “Ouro” — graphic wordmark, not text copy)
+  (Large “Ouro” - graphic wordmark, not text copy)
 
   Nav label (accessibility): Site links
   Links:
@@ -158,10 +158,10 @@ TEAM / MARQUEE SECTION (CURRENTLY HIDDEN IN MARKUP)
 
 WHERE TO EDIT IN index.html
 -----------------------------
-  • <title> — near top
+  • <title> - near top
   • Primary hero: <h1 id="hero-hl"> and #hero-cycle-word
   • CYCLE_WORDS, HERO_PRIMARY_TEMPLATE_LINES, HERO_SECOND_TEMPLATE_LINES,
-    SECOND_LINES, THIRD_LINES — in the main <script> block
+    SECOND_LINES, THIRD_LINES - in the main <script> block
   • Statement: #scroll-intro-below-statement
   • Project cards: .pg-name, .pg-desc, .hcard-discover__label, footer <nav> links
   • Marquee: .kim-team-line (section has hidden attribute)

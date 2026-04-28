@@ -3,7 +3,7 @@
  * Loudness follows pointer motion; tempo (BPM) follows movement so the bar pulse tracks the hand.
  * Timbre leans Kraftwerk / Kling Klang: saw & pulse stacks, drier delays, punchier bus,
  * chord‑machine motion layer. Fades when the pointer stops, leaves the zone, or the tab is hidden.
- * Disabled on touch‑primary devices (pointer: coarse) — no audio on typical mobile.
+ * Disabled on touch‑primary devices (pointer: coarse) - no audio on typical mobile.
  */
 (function () {
   var LOOKAHEAD = 1.55;

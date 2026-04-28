@@ -1,4 +1,4 @@
-# Ouro Labs — allow crawlers; see llms.txt for AI/LLM context
+# Ouro Labs - allow crawlers; see llms.txt for AI/LLM context
 User-agent: *
 Allow: /
 
