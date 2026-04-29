@@ -576,22 +576,25 @@ html.scroll-intro-scrollable
   visibility: hidden;
   pointer-events: none;
 }
+/* Health Atlas: portrait morph — ~75% prior footprint; grid-centered like Nota */
 .scroll-intro-continuation .hcard-visual-inner--atlas {
   position: relative;
+  width: min(66%, 215px, min(39vw, 255px));
   display: grid;
   place-items: center;
   background: none;
   mask-image: none;
   -webkit-mask-image: none;
+  aspect-ratio: 286 / 319;
 }
 .scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-svg {
-  width: min(84%, 252px);
+  width: 100%;
   max-width: 100%;
   height: auto;
   overflow: visible;
   filter: none;
 }
-.scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-apart path {
+.scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-start path {
   transform-box: fill-box;
   transform-origin: center;
   will-change: d;
@@ -1386,6 +1389,9 @@ html.scroll-intro-scrollable
   }
   .scroll-intro-continuation .hcard-visual-inner--nota {
     width: min(45%, 110px, min(32vw, 128px));
+  }
+  .scroll-intro-continuation .hcard-visual-inner--atlas {
+    width: min(50%, 161px, min(29vw, 189px));
   }
   /* Less air between leadership subcopy and footer wordmark (footer min-height + row margins were desktop-sized). */
   #scroll-intro-below-after-cards {

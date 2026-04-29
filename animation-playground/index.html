@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ouro Motion — try merging shapes</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0a0a0a;
+    --surface: #18181b;
+    --surface-raised: #27272a;
+    --ink: #f4f4f5;
+    --muted: #a1a1aa;
+    --accent: #9ca3af;
+    --border: rgba(255, 255, 255, 0.09);
+    --font: "Inter", system-ui, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", monospace;
+    --lottie-panel: #1c1c1e;
+    --lottie-panel-deep: #141416;
+    --lottie-edge: #3f3f46;
+    --lottie-ink: #e4e4e7;
+    --lottie-muted: #9ca3af;
+    --lottie-time: #d4d4d8;
+    --lottie-time-dim: rgba(212, 212, 216, 0.18);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .shell {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: clamp(16px, 3vw, 28px);
+    display: grid;
+    gap: clamp(18px, 2.5vw, 28px);
+  }
+  h1 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr minmax(280px, 420px);
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .preview-card {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: clamp(16px, 3vw, 24px);
+    display: grid;
+    place-items: center;
+    min-height: 220px;
+  }
+  .preview-card.lottie-stage {
+    background-color: #141416;
+    background-image:
+      linear-gradient(45deg, #27272a 25%, transparent 25%),
+      linear-gradient(-45deg, #27272a 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #27272a 75%),
+      linear-gradient(-45deg, transparent 75%, #27272a 75%);
+    background-size: 11px 11px;
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+    border-color: var(--lottie-edge);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+  .preview-card .nota-morph-svg {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: min(100%, 320px);
+    max-height: min(72vh, 520px);
+    margin: 0 auto;
+    overflow: visible;
+    shape-rendering: geometricPrecision;
+  }
+  .preview-card .nota-morph-target {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .controls {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: clamp(14px, 2.5vw, 20px);
+    display: grid;
+    gap: 14px;
+  }
+  .controls.lottie-panel {
+    background: var(--lottie-panel);
+    border-color: var(--lottie-edge);
+    color: var(--lottie-ink);
+    gap: 12px;
+  }
+  .lottie-panel .row label {
+    color: var(--lottie-muted);
+  }
+  .lottie-panel .row .val {
+    color: var(--lottie-ink);
+  }
+  .lottie-panel button {
+    background: var(--lottie-panel-deep);
+    color: var(--lottie-ink);
+    border-color: var(--lottie-edge);
+  }
+  .lottie-panel button.primary {
+    background: var(--lottie-time);
+    color: #18181b;
+    border-color: var(--lottie-time);
+    font-weight: 600;
+  }
+  .lottie-panel button:hover {
+    filter: brightness(1.08);
+  }
+  .lottie-panel select {
+    font: inherit;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--lottie-edge);
+    background: var(--lottie-panel-deep);
+    color: var(--lottie-ink);
+  }
+  .comp-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 16px;
+    padding: 10px 12px;
+    margin: -2px -2px 0;
+    background: var(--lottie-panel-deep);
+    border-radius: 8px;
+    border: 1px solid var(--lottie-edge);
+  }
+  .comp-bar__label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--lottie-muted);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .comp-bar__name {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--lottie-ink);
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .comp-bar__timing {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+  }
+  .comp-fps-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: var(--lottie-muted);
+    margin: 0;
+  }
+  .frame-readout {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--lottie-time);
+    letter-spacing: 0.02em;
+  }
+  .frame-readout__sep {
+    color: var(--lottie-muted);
+    font-weight: 400;
+  }
+  .transport-row .transport-play {
+    min-width: 44px;
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+  .timeline-panel {
+    display: grid;
+    gap: 6px;
+  }
+  .timeline-ruler {
+    height: 14px;
+    border-radius: 3px;
+    background: var(--lottie-panel-deep);
+    border: 1px solid var(--lottie-edge);
+    background-image: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 39px,
+      rgba(255, 255, 255, 0.07) 39px,
+      rgba(255, 255, 255, 0.07) 40px
+    );
+  }
+  .timeline-track-wrap {
+    position: relative;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid var(--lottie-edge);
+    background: #1a1a1c;
+    overflow: hidden;
+  }
+  .timeline-progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0%;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      var(--lottie-time-dim),
+      rgba(212, 212, 216, 0.06)
+    );
+    border-right: 2px solid var(--lottie-time);
+  }
+  .timeline-scrub {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 24px;
+    margin: 0;
+    opacity: 1;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+  }
+  .timeline-scrub:focus {
+    outline: none;
+  }
+  .timeline-scrub:focus-visible {
+    outline: 2px solid var(--lottie-time);
+    outline-offset: 2px;
+  }
+  .timeline-scrub::-webkit-slider-runnable-track {
+    height: 24px;
+    background: transparent;
+  }
+  .timeline-scrub::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 8px;
+    height: 20px;
+    margin-top: 2px;
+    border-radius: 2px;
+    background: var(--lottie-time);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  }
+  .timeline-scrub::-moz-range-track {
+    height: 24px;
+    background: transparent;
+  }
+  .timeline-scrub::-moz-range-thumb {
+    width: 8px;
+    height: 20px;
+    border: none;
+    border-radius: 2px;
+    background: var(--lottie-time);
+  }
+  .time-readouts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  .time-readouts #time-readout {
+    color: var(--lottie-muted);
+    margin: 0;
+  }
+  .time-readout__hint {
+    color: #71717a;
+    font-size: 0.72rem;
+  }
+  .layer-stack-wrap {
+    border-top: 1px solid var(--lottie-edge);
+    padding-top: 10px;
+    margin-top: 2px;
+  }
+  .layer-stack__title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--lottie-muted);
+    margin-bottom: 8px;
+  }
+  .layer-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .layer-row {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.72rem;
+  }
+  .layer-row__name {
+    font-family: var(--mono);
+    color: var(--lottie-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .layer-row__track {
+    position: relative;
+    height: 8px;
+    border-radius: 3px;
+    background: #1a1a1c;
+    border: 1px solid var(--lottie-edge);
+    overflow: hidden;
+  }
+  .layer-row__bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-radius: 2px;
+    background: rgba(212, 212, 216, 0.22);
+    min-width: 2px;
+  }
+  .layer-row__playhead {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--lottie-time);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.85);
+    pointer-events: none;
+  }
+  .json-panel.lottie-json label {
+    color: var(--lottie-muted);
+  }
+  .json-panel.lottie-json textarea {
+    background: var(--lottie-panel-deep);
+    color: var(--lottie-ink);
+    border-color: var(--lottie-edge);
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .row label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--muted);
+    min-width: 0;
+  }
+  .row input[type="range"] {
+    width: min(160px, 40vw);
+    accent-color: var(--lottie-time);
+  }
+  .row .val {
+    font-variant-numeric: tabular_nums;
+    color: var(--ink);
+    min-width: 3.2em;
+    font-family: var(--mono);
+    font-size: 0.85em;
+  }
+  button {
+    font: inherit;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid var(--lottie-edge);
+    background: var(--surface-raised);
+    padding: 8px 14px;
+    color: var(--ink);
+  }
+  button.primary {
+    background: var(--lottie-time);
+    color: #18181b;
+    border-color: var(--lottie-time);
+  }
+  button:hover { filter: brightness(1.02); }
+  .json-panel label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--muted);
+  }
+  textarea {
+    width: 100%;
+    min-height: 220px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.35;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--lottie-edge);
+    resize: vertical;
+    background: var(--lottie-panel-deep);
+    color: var(--lottie-ink);
+    tab-size: 2;
+  }
+  .json-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .hint {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0;
+    max-width: 70ch;
+  }
+  .vector-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+    width: 100%;
+    max-width: min(420px, 100%);
+  }
+  .vector-compare__col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .vector-compare__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .vector-compare__card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    display: grid;
+    place-items: center;
+  }
+  .vector-compare__svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    shape-rendering: geometricPrecision;
+  }
+  .preview-chrome {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 12px;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .preview-chrome__tag {
+    font-family: var(--mono);
+    font-size: 0.8em;
+  }
+  .preview-chrome__tag code {
+    color: var(--lottie-muted);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+  .preview-chrome__meta {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+  }
+  .preview-chrome__status {
+    margin-left: auto;
+    color: var(--ink);
+    font-size: 0.76rem;
+  }
+  .svg-chrome__bar {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 8px;
+    background: var(--lottie-panel-deep);
+    color: var(--lottie-ink);
+    border-radius: 6px 6px 0 0;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    line-height: 1.35;
+    border: 1px solid var(--border);
+    border-bottom: none;
+  }
+  .svg-chrome__bar code {
+    color: var(--lottie-muted);
+    font-size: 0.95em;
+  }
+  .svg-chrome__meta {
+    color: var(--lottie-muted);
+    word-break: break-all;
+  }
+  .vector-compare__card {
+    border-radius: 0 0 10px 10px;
+    border-top: none;
+  }
+  .svg-source-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: clamp(12px, 2vw, 16px);
+    display: grid;
+    gap: 10px;
+  }
+  .svg-source-panel h2 {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  .svg-source-panel__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .svg-source-panel label.file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .svg-source-panel input[type="file"] {
+    font: inherit;
+    font-size: 0.8rem;
+    max-width: min(200px, 46vw);
+  }
+  .svg-source-panel__hint {
+    margin: 0;
+    font-size: 0.76rem;
+    color: var(--muted);
+    max-width: 75ch;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>Ouro Motion</h1>
+  </header>
+
+  <section class="svg-source-panel" aria-labelledby="svg-source-heading">
+    <h2 id="svg-source-heading">Files</h2>
+    <p class="svg-source-panel__hint">
+      Pick two SVG files with the <strong>same number of paths</strong>. They’re matched in order (first path to first path, and so on). Your pair is saved in this browser until you use <strong>Sample animation</strong>.
+    </p>
+    <div class="svg-source-panel__row">
+      <label class="file-label">First SVG <input type="file" id="file-start-svg" accept=".svg,image/svg+xml" /></label>
+      <label class="file-label">Second SVG <input type="file" id="file-target-svg" accept=".svg,image/svg+xml" /></label>
+      <button type="button" class="primary" id="btn-load-svg-pair">Use my SVGs</button>
+      <button type="button" id="btn-restore-bundled">Sample animation</button>
+    </div>
+  </section>
+
+  <div class="grid">
+    <div>
+      <div class="preview-chrome">
+        <span class="preview-chrome__tag">Live preview</span>
+        <span class="preview-chrome__meta" id="om-chrome-main-meta"></span>
+        <span class="preview-chrome__status" id="om-upload-status">Sample animation</span>
+      </div>
+      <div class="preview-card lottie-stage">
+        <svg class="nota-morph-svg" viewBox="0 0 236 204" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g class="nota-morph-start">
+            <path d="M43.9999 182.012C43.9999 194.155 34.1502 204 22 204C9.84972 204 1.40712e-07 194.155 -3.90111e-07 182.012L8.67059e-05 69.9881C8.61751e-05 57.8443 9.8498 47.9998 22 47.9998C34.1503 47.9998 44 57.8443 44 69.9881L43.9999 182.012Z"/>
+            <path d="M236 134.012C236 146.155 226.15 156 214 156C201.85 156 192 146.155 192 134.012L192 21.9881C192 9.84429 201.85 -0.000205381 214 -0.000205912C226.15 -0.000206443 236 9.84429 236 21.9881L236 134.012Z"/>
+            <path d="M188 182.143C188 194.214 178.15 204 166 204C153.85 204 144 194.214 144 182.143L144 21.857C144 9.78561 153.85 -0.000204148 166 -0.000204679C178.15 -0.00020521 188 9.7856 188 21.857L188 182.143Z"/>
+            <path d="M140 182.143C140 194.214 130.15 204 118 204C105.85 204 96 194.214 96 182.143L96 21.857C96 9.78561 105.85 -0.000204148 118 -0.000204679C130.15 -0.00020521 140 9.7856 140 21.857L140 182.143Z"/>
+            <path d="M92 182.143C92 194.214 82.1503 204 70 204C57.8498 204 48 194.214 48 182.143L48 21.857C48 9.78561 57.8498 -0.000204148 70 -0.000204679C82.1503 -0.00020521 92 9.7856 92 21.857L92 182.143Z"/>
+            <path d="M 236 182 A 22 22 0 1 1 192 182 A 22 22 0 1 1 236 182 Z"/>
+            <path d="M 44 22 A 22 22 0 1 1 0 22 A 22 22 0 1 1 44 22 Z"/>
+          </g>
+          <g class="nota-morph-target">
+            <path d="M44 182.499C44 194.374 34.1503 204 22.0001 204C9.84981 204 9.64765e-05 194.374 9.59457e-05 182.499L8.48845e-05 103.988C8.43537e-05 91.8445 9.8498 82 22 82C34.1503 82 44 91.8445 44 103.988L44 182.499Z"/>
+            <path d="M192.002 21.5005C192.002 9.62621 201.852 4.18761e-07 214.002 9.61648e-07C226.153 1.50454e-06 236.002 9.62621 236.002 21.5005L236.002 100.012C236.002 112.156 226.153 122 214.002 122C201.852 122 192.002 112.156 192.002 100.012L192.002 21.5005Z"/>
+            <path d="M44.002 55.5118C44.002 67.9317 34.1522 78 22.002 78C9.85177 78 0.00204764 67.9317 0.0020471 55.5118L0.00203801 21.9883C0.00203748 9.84448 9.85175 1.49275e-06 22.002 9.61649e-07C34.1522 4.30545e-07 44.002 9.84448 44.002 21.9883L44.002 55.5118Z"/>
+            <path d="M192 148.488C192 136.068 201.85 126 214 126C226.151 126 236 136.068 236 148.488L236 182.012C236 194.156 226.151 204 214 204C201.85 204 192 194.156 192 182.012L192 148.488Z"/>
+            <path d="M92 77.5118C92 89.6556 82.1503 99.5001 70.0001 99.5001C57.8498 99.5001 48.0001 89.6556 48.0001 77.5118L48.0001 43.9883C48.0001 31.8445 57.8498 22 70 22C82.1503 22 92 31.8445 92 43.9883L92 77.5118Z"/>
+            <path d="M188 159.512C188 171.656 178.15 181.5 166 181.5C153.849 181.5 144 171.656 144 159.512L144 125.988C144 113.844 153.849 104 166 104C178.15 104 188 113.844 188 125.988L188 159.512Z"/>
+            <path d="M 140 102 A 22 22 0 1 1 96 102 A 22 22 0 1 1 140 102 Z"/>
+          </g>
+        </svg>
+      </div>
+      <div class="vector-compare" aria-label="Before and after thumbnails">
+        <div class="vector-compare__col vector-compare__col--from">
+          <span class="vector-compare__label">Before</span>
+          <div class="svg-chrome__bar">
+            <code>&lt;svg xmlns="http://www.w3.org/2000/svg"&gt;</code>
+            <span class="svg-chrome__meta" id="om-chrome-from-meta"></span>
+          </div>
+          <div class="vector-compare__card">
+            <svg id="om-preview-from" class="vector-compare__svg" viewBox="0 0 236 204" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+        </div>
+        <div class="vector-compare__col vector-compare__col--to">
+          <span class="vector-compare__label">After</span>
+          <div class="svg-chrome__bar">
+            <code>&lt;svg xmlns="http://www.w3.org/2000/svg"&gt;</code>
+            <span class="svg-chrome__meta" id="om-chrome-to-meta"></span>
+          </div>
+          <div class="vector-compare__card">
+            <svg id="om-preview-to" class="vector-compare__svg" viewBox="0 0 236 204" xmlns="http://www.w3.org/2000/svg"></svg>
+          </div>
+        </div>
+      </div>
+      <p class="hint">
+        The small side previews show how each shape is interpreted for the morph. Upload new SVGs at the top to change them. If you paste motion JSON, the numbers there override the sizes read from the canvas when the lists match.
+      </p>
+    </div>
+
+    <div class="controls lottie-panel">
+      <div class="comp-bar">
+        <div class="comp-bar__main">
+          <span class="comp-bar__label">Project</span>
+          <span class="comp-bar__name" id="comp-name" title="">Sample morph</span>
+        </div>
+        <div class="comp-bar__timing">
+          <label class="comp-fps-label">Frame rate
+            <select id="sel-fps" aria-label="Frame rate for time display">
+              <option value="24">24</option>
+              <option value="30">30</option>
+              <option value="60" selected>60</option>
+            </select>
+          </label>
+          <span class="frame-readout" id="frame-readout" title="Current frame (display only)">000 / 000</span>
+        </div>
+      </div>
+      <div class="row transport-row">
+        <button type="button" class="primary transport-play" id="btn-play" title="Play (Spacebar)">▶</button>
+        <button type="button" id="btn-pause" title="Pause">⏸</button>
+        <button type="button" id="btn-restart" title="Back to start">⟲</button>
+        <label>
+          <input type="checkbox" id="chk-loop" />
+          Loop
+        </label>
+      </div>
+      <div class="row">
+        <label>Playback speed <input type="range" id="rng-speed" min="0.25" max="2.5" step="0.05" value="1" /> <span class="val" id="val-speed">1×</span></label>
+        <label>Hold before morph (s) <input type="range" id="rng-hold" min="0" max="1.5" step="0.02" value="0.18" /> <span class="val" id="val-hold">0.18</span></label>
+      </div>
+      <div class="row">
+        <label>Duration (s) <input type="range" id="rng-dur" min="0.35" max="3" step="0.02" value="1.18" /> <span class="val" id="val-dur">1.18</span></label>
+        <label>Stagger (s) <input type="range" id="rng-stag" min="0" max="0.2" step="0.002" value="0.038" /> <span class="val" id="val-stag">0.038</span></label>
+      </div>
+      <div class="row">
+        <label>Midpoint hold (s) <input type="range" id="rng-mid" min="0" max="1.2" step="0.02" value="0" /> <span class="val" id="val-mid">0</span></label>
+        <label>End hold (s) <input type="range" id="rng-hold-after" min="0" max="6" step="0.1" value="2" title="Hold on the last frame before the timeline ends or loops" /> <span class="val" id="val-hold-after">2</span></label>
+        <label>Easing
+          <select id="sel-ease">
+            <option value="easeInOutCubic" selected>Ease-in-out cubic</option>
+            <option value="easeInOutQuad">Ease-in-out quad</option>
+            <option value="easeOutCubic">Ease-out cubic</option>
+            <option value="easeInCubic">Ease-in cubic</option>
+            <option value="linear">Linear</option>
+          </select>
+        </label>
+      </div>
+      <div class="timeline-panel">
+        <div class="timeline-ruler" aria-hidden="true"></div>
+        <div class="timeline-track-wrap">
+          <div class="timeline-progress" id="timeline-progress"></div>
+          <input type="range" class="timeline-scrub" id="rng-scrub" min="0" max="1000" value="0" aria-label="Scrub through the animation" />
+        </div>
+        <div class="time-readouts">
+          <span id="time-readout">0.000s / 0.000s</span>
+          <span class="time-readout__hint">Space: play or pause</span>
+        </div>
+      </div>
+      <div class="layer-stack-wrap">
+        <div class="layer-stack__title">Shapes along the timeline</div>
+        <div class="layer-stack" id="layer-stack"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="json-panel lottie-json">
+    <label for="json-doc">Motion data (JSON) — paste or edit, then apply</label>
+    <textarea id="json-doc" spellcheck="false"></textarea>
+    <div class="json-actions">
+      <button type="button" id="btn-apply">Apply from editor</button>
+      <button type="button" id="btn-export">Save settings to JSON</button>
+      <button type="button" id="btn-sample">Rebuild numbers from canvas</button>
+    </div>
+    <p class="hint">Bad JSON keeps the previous working settings. Applying reloads path pairing and uses the saved numbers when they match your shapes.</p>
+  </div>
+</div>
+
+<script src="../assets/vendor/flubber.min.js"></script>
+<script src="engine.js"></script>
+<script>
+(function () {
+  var Om = window.OuroMotion;
+  var svg = document.querySelector(".nota-morph-svg");
+  var BUNDLED_SVG_INNER = svg.innerHTML;
+  var BUNDLED_VIEWBOX = svg.getAttribute("viewBox") || "0 0 236 204";
+  var STORAGE_CUSTOM_SVG = "ouro-motion-playground:customSvgPair v1";
+
+  function clearStoredCustomSvgPair() {
+    try {
+      localStorage.removeItem(STORAGE_CUSTOM_SVG);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function tryRestoreStoredSvgPair() {
+    try {
+      var raw = localStorage.getItem(STORAGE_CUSTOM_SVG);
+      if (!raw) return false;
+      var data = JSON.parse(raw);
+      if (!data || data.v !== 1 || typeof data.start !== "string" || typeof data.target !== "string") {
+        return false;
+      }
+      applySvgPair(data.start, data.target, data.status || "Restored from last visit", {
+        blendShape:
+          data.blendShape === "box"
+            ? "box"
+            : data.blendShape === "paths"
+              ? "paths"
+              : "capsule",
+        skipStorage: true,
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function getStartPaths() {
+    return svg.querySelectorAll(".nota-morph-start path");
+  }
+  function getTargetPaths() {
+    return svg.querySelectorAll(".nota-morph-target path");
+  }
+
+  var doc = {
+    v: "1",
+    ty: "ouro/capsule-blend",
+    meta: { name: "Sample morph" },
+    holdBeforeSec: 0.18,
+    durationSec: 1.18,
+    midpointHoldSec: 0,
+    holdAfterSec: 2,
+    ease: "easeInOutCubic",
+    staggerSec: 0.038,
+    blendShape: "capsule",
+    from: [],
+    to: [],
+  };
+
+  function rebuildRows() {
+    rows = Om.buildCapsuleBlendRows(
+      getStartPaths(),
+      getTargetPaths(),
+      doc.staggerSec || 0,
+      rows,
+    );
+    Om.hydrateRowsFromDoc(doc, rows);
+    if (doc.blendShape !== "paths") Om.centerBlendRowsTargetToFrom(rows);
+    return rows;
+  }
+
+  var rows = rebuildRows();
+
+  var rngScrub = document.getElementById("rng-scrub");
+  var scrubbing = false;
+
+  function syncPreviewChrome() {
+    var vb = svg.getAttribute("viewBox") || BUNDLED_VIEWBOX;
+    var n = rows.length;
+    var pFrom = document.getElementById("om-preview-from");
+    var pTo = document.getElementById("om-preview-to");
+    if (pFrom) pFrom.setAttribute("viewBox", vb);
+    if (pTo) pTo.setAttribute("viewBox", vb);
+    var mMain = document.getElementById("om-chrome-main-meta");
+    if (mMain) {
+      var vp = vb.trim().split(/[\s,]+/);
+      var cw = vp.length >= 4 ? Math.round(parseFloat(vp[2]) || 0) : 0;
+      var ch = vp.length >= 4 ? Math.round(parseFloat(vp[3]) || 0) : 0;
+      mMain.textContent =
+        n +
+        " shapes" +
+        (cw > 0 && ch > 0 ? " · " + cw + " × " + ch : "");
+    }
+    var mF = document.getElementById("om-chrome-from-meta");
+    var mT = document.getElementById("om-chrome-to-meta");
+    if (mF) {
+      mF.textContent = n + " shapes";
+    }
+    if (mT) {
+      mT.textContent = n + " shapes";
+    }
+  }
+
+  /** Copy fill/stroke (attrs + computed) so preview paths match the main SVG. */
+  function copySvgPathPresentation(src, dest, fillFallback) {
+    if (!dest) return;
+    if (!src) {
+      if (fillFallback) dest.setAttribute("fill", fillFallback);
+      return;
+    }
+    var paintAttrs = [
+      "fill",
+      "stroke",
+      "stroke-width",
+      "stroke-linecap",
+      "stroke-linejoin",
+      "stroke-miterlimit",
+      "opacity",
+      "fill-opacity",
+      "stroke-opacity",
+      "fill-rule",
+      "vector-effect",
+    ];
+    var pi;
+    for (pi = 0; pi < paintAttrs.length; pi++) {
+      var an = paintAttrs[pi];
+      if (src.hasAttribute(an)) dest.setAttribute(an, src.getAttribute(an));
+    }
+    var cs = window.getComputedStyle(src);
+    if (!dest.hasAttribute("fill")) {
+      var f = cs.fill;
+      if (f && f !== "none") dest.setAttribute("fill", f);
+    }
+    if (!dest.hasAttribute("stroke")) {
+      var st = cs.stroke;
+      if (st && st !== "none") {
+        dest.setAttribute("stroke", st);
+        if (!dest.hasAttribute("stroke-width") && cs.strokeWidth) {
+          dest.setAttribute("stroke-width", cs.strokeWidth);
+        }
+      }
+    }
+    var hasStroke =
+      dest.hasAttribute("stroke") && dest.getAttribute("stroke") !== "none";
+    if (!dest.hasAttribute("fill") && !hasStroke && fillFallback) {
+      dest.setAttribute("fill", fillFallback);
+    }
+  }
+
+  function updateVectorPreviews() {
+    var svgFrom = document.getElementById("om-preview-from");
+    var svgTo = document.getElementById("om-preview-to");
+    if (!svgFrom || !svgTo) return;
+    while (svgFrom.firstChild) svgFrom.removeChild(svgFrom.firstChild);
+    while (svgTo.firstChild) svgTo.removeChild(svgTo.firstChild);
+    var ns = "http://www.w3.org/2000/svg";
+    var startPaths = getStartPaths();
+    var targetPaths = getTargetPaths();
+    var paintFallback = "#9ca3af";
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (!r) continue;
+      var pf = document.createElementNS(ns, "path");
+      pf.setAttribute(
+        "d",
+        doc.blendShape === "paths" && typeof r.fromD === "string"
+          ? r.fromD
+          : Om.blendCapsuleToPathD(doc, r.from),
+      );
+      copySvgPathPresentation(startPaths[i], pf, paintFallback);
+      svgFrom.appendChild(pf);
+      var pt = document.createElementNS(ns, "path");
+      pt.setAttribute(
+        "d",
+        doc.blendShape === "paths" && typeof r.toD === "string"
+          ? r.toD
+          : Om.blendCapsuleToPathD(doc, r.to),
+      );
+      copySvgPathPresentation(targetPaths[i], pt, paintFallback);
+      svgTo.appendChild(pt);
+    }
+    syncPreviewChrome();
+  }
+
+  function fmt(n) {
+    return (Math.round(n * 1000) / 1000).toFixed(3);
+  }
+
+  function getDisplayFps() {
+    var sel = document.getElementById("sel-fps");
+    var v = sel ? parseInt(sel.value, 10) : 60;
+    return v > 0 ? v : 60;
+  }
+
+  function pathSpanSec() {
+    var d = doc.durationSec || 1;
+    var mid = doc.midpointHoldSec || 0;
+    return mid > 0 ? d + mid : d;
+  }
+
+  function padFramePair(cur, end) {
+    var w = String(Math.max(cur, end)).length;
+    w = Math.max(3, Math.min(5, w));
+    function pad(n) {
+      n = Math.max(0, Math.round(n));
+      var s = String(n);
+      while (s.length < w) s = "0" + s;
+      return s;
+    }
+    return pad(cur) + " / " + pad(end);
+  }
+
+  function syncCompBar() {
+    var el = document.getElementById("comp-name");
+    if (!el) return;
+    var name = (doc.meta && doc.meta.name) || "Morph";
+    el.textContent = name;
+    el.setAttribute("title", name);
+  }
+
+  function updateLayerStack() {
+    var el = document.getElementById("layer-stack");
+    if (!el) return;
+    var sp = Math.max(1e-6, player.span());
+    var hb = doc.holdBeforeSec || 0;
+    var ps = pathSpanSec();
+    var t = player.timeSec;
+    var pHead = (t / sp) * 100;
+    var parts = [];
+    for (var i = 0; i < rows.length; i++) {
+      var delay = rows[i].morphDelay || 0;
+      var t0 = hb + delay;
+      var L = (t0 / sp) * 100;
+      var W = (ps / sp) * 100;
+      parts.push(
+        '<div class="layer-row"><span class="layer-row__name">Shape ' +
+          (i + 1) +
+          '</span><div class="layer-row__track"><div class="layer-row__bar" style="left:' +
+          L +
+          "%;width:" +
+          W +
+          '%"></div><div class="layer-row__playhead" style="left:' +
+          pHead +
+          '%"></div></div></div>',
+      );
+    }
+    el.innerHTML = parts.join("");
+  }
+
+  function syncScrubMax() {
+    var sp = player.span();
+    rngScrub.max = Math.max(10, Math.round(sp * 1000));
+    rngScrub.value = Math.round(player.timeSec * 1000);
+    var timeEl = document.getElementById("time-readout");
+    if (timeEl) {
+      timeEl.textContent = fmt(player.timeSec) + "s / " + fmt(sp) + "s";
+    }
+    var fps = getDisplayFps();
+    var fr = document.getElementById("frame-readout");
+    if (fr) {
+      fr.textContent = padFramePair(player.timeSec * fps, sp * fps);
+    }
+    var tp = document.getElementById("timeline-progress");
+    if (tp && sp > 0) {
+      tp.style.width = Math.min(100, (player.timeSec / sp) * 100) + "%";
+    }
+    updateLayerStack();
+  }
+
+  var player = new Om.Player({
+    doc: doc,
+    rows: rows,
+    speed: 1,
+    loop: false,
+    onFrame: function () {
+      if (!scrubbing) syncScrubMax();
+    },
+  });
+
+  function extractPathsFromSvgText(text) {
+    var parser = new DOMParser();
+    var parsed = parser.parseFromString(text, "image/svg+xml");
+    var root = parsed.documentElement;
+    if (
+      root &&
+      (root.localName === "parsererror" || root.namespaceURI === "http://www.mozilla.org/newlayout/xml/parsererror.xml")
+    ) {
+      throw new Error("That file doesn’t look like a valid SVG.");
+    }
+    var svgEl =
+      root && root.tagName.toLowerCase() === "svg"
+        ? root
+        : parsed.querySelector("svg");
+    if (!svgEl) throw new Error("We couldn’t find a graphic inside that file.");
+    var paths = svgEl.querySelectorAll("path");
+    if (!paths.length) throw new Error("That SVG has no paths to animate. Add vector paths and try again.");
+    return {
+      viewBox: svgEl.getAttribute("viewBox") || "",
+      paths: Array.prototype.slice.call(paths),
+    };
+  }
+
+  function applySvgPair(startText, targetText, statusLabel, options) {
+    options = options || {};
+    var a = extractPathsFromSvgText(startText);
+    var b = extractPathsFromSvgText(targetText);
+    if (a.paths.length !== b.paths.length) {
+      throw new Error(
+        "These SVGs don’t line up: the first has " +
+          a.paths.length +
+          " paths and the second has " +
+          b.paths.length +
+          ". Use files with the same number of paths.",
+      );
+    }
+    var startG = svg.querySelector(".nota-morph-start");
+    var targetG = svg.querySelector(".nota-morph-target");
+    if (!startG || !targetG) throw new Error("The preview area is missing its layers. Try reloading the page.");
+    while (startG.firstChild) startG.removeChild(startG.firstChild);
+    while (targetG.firstChild) targetG.removeChild(targetG.firstChild);
+    function appendClone(parent, pathNode) {
+      parent.appendChild(pathNode.cloneNode(true));
+    }
+    a.paths.forEach(function (pathNode) {
+      appendClone(startG, pathNode);
+    });
+    b.paths.forEach(function (pathNode) {
+      appendClone(targetG, pathNode);
+    });
+    var vb =
+      (a.viewBox && b.viewBox && a.viewBox === b.viewBox && a.viewBox) ||
+      a.viewBox ||
+      b.viewBox ||
+      BUNDLED_VIEWBOX;
+    svg.setAttribute("viewBox", vb);
+    doc.from = [];
+    doc.to = [];
+    var blendPick = options.blendShape;
+    if (
+      blendPick !== "capsule" &&
+      blendPick !== "box" &&
+      blendPick !== "paths"
+    ) {
+      blendPick = "paths";
+    }
+    doc.blendShape = blendPick;
+    readSlidersToDoc();
+    rows = rebuildRows();
+    player.setDocument(doc, rows);
+    player.restart();
+    syncScrubMax();
+    updateVectorPreviews();
+    pushDocToTextarea();
+    syncCompBar();
+    var status = document.getElementById("om-upload-status");
+    if (status) status.textContent = statusLabel || "Your SVGs are on the canvas";
+    if (!options.skipStorage) {
+      try {
+        localStorage.setItem(
+          STORAGE_CUSTOM_SVG,
+          JSON.stringify({
+            v: 1,
+            start: startText,
+            target: targetText,
+            status: statusLabel || "Uploaded SVG pair",
+            blendShape:
+              doc.blendShape === "box"
+                ? "box"
+                : doc.blendShape === "paths"
+                  ? "paths"
+                  : "capsule",
+          }),
+        );
+      } catch (e) {
+        /* quota, private mode */
+      }
+    }
+  }
+
+  function restoreBundledSvgs() {
+    clearStoredCustomSvgPair();
+    svg.innerHTML = BUNDLED_SVG_INNER;
+    svg.setAttribute("viewBox", BUNDLED_VIEWBOX);
+    var fs = document.getElementById("file-start-svg");
+    var ft = document.getElementById("file-target-svg");
+    if (fs) fs.value = "";
+    if (ft) ft.value = "";
+    doc.from = [];
+    doc.to = [];
+    doc.blendShape = "capsule";
+    readSlidersToDoc();
+    rows = rebuildRows();
+    player.setDocument(doc, rows);
+    player.restart();
+    syncScrubMax();
+    updateVectorPreviews();
+    pushDocToTextarea();
+    syncCompBar();
+    var status = document.getElementById("om-upload-status");
+    if (status) status.textContent = "Sample animation";
+  }
+
+  function pushDocToTextarea() {
+    var exportDoc = Om.documentFromRows(rows, {
+      holdBeforeSec: doc.holdBeforeSec,
+      durationSec: doc.durationSec,
+      midpointHoldSec: doc.midpointHoldSec,
+      holdAfterSec: doc.holdAfterSec,
+      ease: doc.ease,
+      staggerSec: doc.staggerSec,
+      blendShape:
+        doc.blendShape === "box"
+          ? "box"
+          : doc.blendShape === "paths"
+            ? "paths"
+            : "capsule",
+      meta: doc.meta || {},
+    });
+    document.getElementById("json-doc").value = JSON.stringify(
+      exportDoc,
+      null,
+      2,
+    );
+  }
+
+  function readSlidersToDoc() {
+    doc.holdBeforeSec = parseFloat(document.getElementById("rng-hold").value);
+    doc.durationSec = parseFloat(document.getElementById("rng-dur").value);
+    doc.staggerSec = parseFloat(document.getElementById("rng-stag").value);
+    doc.midpointHoldSec = parseFloat(document.getElementById("rng-mid").value);
+    doc.holdAfterSec = parseFloat(document.getElementById("rng-hold-after").value);
+    doc.ease = document.getElementById("sel-ease").value;
+    player.speed = parseFloat(document.getElementById("rng-speed").value);
+    player.loop = document.getElementById("chk-loop").checked;
+    document.getElementById("val-speed").textContent =
+      player.speed.toFixed(2) + "×";
+    document.getElementById("val-hold").textContent = String(doc.holdBeforeSec);
+    document.getElementById("val-dur").textContent = String(doc.durationSec);
+    document.getElementById("val-stag").textContent = String(doc.staggerSec);
+    document.getElementById("val-mid").textContent = String(
+      doc.midpointHoldSec,
+    );
+    document.getElementById("val-hold-after").textContent = String(
+      doc.holdAfterSec,
+    );
+  }
+
+  function refreshFromSliders() {
+    readSlidersToDoc();
+    rows = rebuildRows();
+    player.setDocument(doc, rows);
+    player.seek(player.timeSec);
+    syncScrubMax();
+    updateVectorPreviews();
+  }
+
+  function applyTextareaJSON() {
+    var raw = document.getElementById("json-doc").value;
+    var parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (e) {
+      alert("That isn’t valid JSON. Check brackets, commas, or quotes.");
+      return;
+    }
+    if (parsed.ty !== "ouro/capsule-blend") {
+      alert("This file isn’t a motion preset this tool can read.");
+      return;
+    }
+    doc.v = parsed.v || "1";
+    doc.meta = parsed.meta || {};
+    doc.holdBeforeSec = parsed.holdBeforeSec != null ? parsed.holdBeforeSec : 0;
+    doc.durationSec = parsed.durationSec != null ? parsed.durationSec : 1.18;
+    doc.midpointHoldSec = parsed.midpointHoldSec || 0;
+    doc.holdAfterSec =
+      parsed.holdAfterSec != null ? parsed.holdAfterSec : 2;
+    doc.ease = parsed.ease || "easeInOutCubic";
+    doc.staggerSec =
+      parsed.staggerSec != null ? parsed.staggerSec : doc.staggerSec;
+    doc.blendShape =
+      parsed.blendShape === "box"
+        ? "box"
+        : parsed.blendShape === "paths"
+          ? "paths"
+          : "capsule";
+    doc.from = parsed.from || [];
+    doc.to = parsed.to || [];
+
+    document.getElementById("rng-hold").value = doc.holdBeforeSec;
+    document.getElementById("rng-dur").value = doc.durationSec;
+    document.getElementById("rng-stag").value = doc.staggerSec;
+    document.getElementById("rng-mid").value = doc.midpointHoldSec;
+    document.getElementById("rng-hold-after").value = doc.holdAfterSec;
+    document.getElementById("sel-ease").value = doc.ease;
+
+    rows = rebuildRows();
+    player.setDocument(doc, rows);
+    readSlidersToDoc();
+    player.seek(0);
+    syncScrubMax();
+    updateVectorPreviews();
+    syncCompBar();
+  }
+
+  document.getElementById("btn-play").addEventListener("click", function () {
+    readSlidersToDoc();
+    player.play();
+  });
+  document.getElementById("btn-pause").addEventListener("click", function () {
+    player.pause();
+  });
+  document.getElementById("btn-restart").addEventListener("click", function () {
+    player.pause();
+    player.restart();
+    syncScrubMax();
+  });
+  document.getElementById("chk-loop").addEventListener("change", function () {
+    player.loop = this.checked;
+  });
+  document.getElementById("rng-speed").addEventListener("input", function () {
+    readSlidersToDoc();
+  });
+  ["rng-hold", "rng-dur", "rng-stag", "rng-mid", "rng-hold-after"].forEach(function (id) {
+    document.getElementById(id).addEventListener("input", refreshFromSliders);
+  });
+  document.getElementById("sel-ease").addEventListener("change", function () {
+    doc.ease = this.value;
+    player.seek(player.timeSec);
+  });
+
+  rngScrub.addEventListener("pointerdown", function () {
+    scrubbing = true;
+    player.pause();
+  });
+  rngScrub.addEventListener("pointerup", function () {
+    scrubbing = false;
+    syncScrubMax();
+  });
+  rngScrub.addEventListener("input", function () {
+    var sp = player.span();
+    var t = (parseFloat(this.value) || 0) / 1000;
+    player.seek(Math.min(t, sp));
+    syncScrubMax();
+  });
+
+  document.getElementById("sel-fps").addEventListener("change", function () {
+    syncScrubMax();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.code !== "Space") return;
+    var a = document.activeElement;
+    if (a && a.tagName === "SELECT") return;
+    if (
+      a &&
+      (a.tagName === "TEXTAREA" ||
+        (a.tagName === "INPUT" &&
+          a.type !== "checkbox" &&
+          a.type !== "button" &&
+          a.type !== "radio" &&
+          a.type !== "file"))
+    ) {
+      return;
+    }
+    e.preventDefault();
+    readSlidersToDoc();
+    if (player.isPlaying()) player.pause();
+    else player.play();
+  });
+
+  document.getElementById("btn-apply").addEventListener("click", applyTextareaJSON);
+  document.getElementById("btn-load-svg-pair").addEventListener("click", function () {
+    var fs = document.getElementById("file-start-svg").files[0];
+    var ft = document.getElementById("file-target-svg").files[0];
+    if (!fs || !ft) {
+      alert("Choose both SVG files first. Each file needs the same number of paths.");
+      return;
+    }
+    var readerS = new FileReader();
+    var readerT = new FileReader();
+    var txtS = "";
+    var txtT = "";
+    var pending = 2;
+    function tryApply() {
+      pending -= 1;
+      if (pending > 0) return;
+      try {
+        applySvgPair(txtS, txtT, fs.name + " + " + ft.name);
+      } catch (e) {
+        alert(e.message || String(e));
+      }
+    }
+    readerS.onload = function () {
+      txtS = String(readerS.result || "");
+      tryApply();
+    };
+    readerT.onload = function () {
+      txtT = String(readerT.result || "");
+      tryApply();
+    };
+    readerS.readAsText(fs);
+    readerT.readAsText(ft);
+  });
+  document.getElementById("btn-restore-bundled").addEventListener("click", restoreBundledSvgs);
+  document.getElementById("btn-export").addEventListener("click", function () {
+    readSlidersToDoc();
+    rows = rebuildRows();
+    pushDocToTextarea();
+    updateVectorPreviews();
+  });
+  document.getElementById("btn-sample").addEventListener("click", function () {
+    readSlidersToDoc();
+    rows = rebuildRows();
+    doc.from = rows.map(function (r) {
+      return { cx: r.from.cx, cy: r.from.cy, w: r.from.w, h: r.from.h };
+    });
+    doc.to = rows.map(function (r) {
+      return { cx: r.to.cx, cy: r.to.cy, w: r.to.w, h: r.to.h };
+    });
+    pushDocToTextarea();
+    player.setDocument(doc, rows);
+    player.seek(player.timeSec);
+    syncScrubMax();
+    updateVectorPreviews();
+  });
+
+  readSlidersToDoc();
+  if (!tryRestoreStoredSvgPair()) {
+    player.seek(0);
+    pushDocToTextarea();
+    syncScrubMax();
+    updateVectorPreviews();
+    syncCompBar();
+  }
+})();
+</script>
+</body>
+</html>

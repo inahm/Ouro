@@ -178,6 +178,38 @@
         morphDelay: edgeFirst * staggerMs,
       };
     });
+    var sfx = 0;
+    var sfy = 0;
+    var tfx = 0;
+    var tfy = 0;
+    var ci;
+    var cn = 0;
+    for (ci = 0; ci < out.length; ci++) {
+      var cell = out[ci];
+      if (!cell || !cell.sourceParams || !cell.targetParams) continue;
+      sfx += cell.sourceParams.cx;
+      sfy += cell.sourceParams.cy;
+      tfx += cell.targetParams.cx;
+      tfy += cell.targetParams.cy;
+      cn++;
+    }
+    if (cn > 0) {
+      var dx = sfx / cn - tfx / cn;
+      var dy = sfy / cn - tfy / cn;
+      if (Math.abs(dx) > 1e-6 || Math.abs(dy) > 1e-6) {
+        for (ci = 0; ci < out.length; ci++) {
+          cell = out[ci];
+          if (!cell || !cell.targetParams) continue;
+          var tp = cell.targetParams;
+          cell.targetParams = {
+            cx: tp.cx + dx,
+            cy: tp.cy + dy,
+            w: tp.w,
+            h: tp.h,
+          };
+        }
+      }
+    }
     return out;
   }
   function resetState() {
