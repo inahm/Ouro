@@ -125,6 +125,35 @@
     return out;
   }
 
+  function clearEndStateCentering() {
+    if (startLayer) startLayer.removeAttribute("transform");
+  }
+
+  /** Compact paths sit in the upper-left of the 286×319 canvas vs expanded fill — shift group once u=1 so ink matches viewBox center. */
+  function applyEndStateCentering() {
+    if (!startLayer || !svg) return;
+    try {
+      var vb = svg.viewBox && svg.viewBox.baseVal;
+      if (!vb || vb.width <= 0 || vb.height <= 0) return;
+      var tcx = vb.x + vb.width / 2;
+      var tcy = vb.y + vb.height / 2;
+      var bb = startLayer.getBBox();
+      if (bb.width < 0.5 || bb.height < 0.5) return;
+      var cx = tcx - (bb.x + bb.width / 2);
+      var cy = tcy - (bb.y + bb.height / 2);
+      if (Math.abs(cx) < 0.08 && Math.abs(cy) < 0.08) {
+        clearEndStateCentering();
+        return;
+      }
+      startLayer.setAttribute(
+        "transform",
+        "translate(" + cx + "," + cy + ")",
+      );
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
   function isModelValid(m) {
     if (!m || m.length !== startPaths.length) return false;
     for (var i = 0; i < m.length; i++) {
@@ -137,6 +166,7 @@
   }
 
   function resetState() {
+    clearEndStateCentering();
     var built = buildModel();
     if (!isModelValid(built)) {
       model = null;
@@ -190,6 +220,9 @@
       } else {
         rafId = 0;
         morphFinishedOnce = true;
+        requestAnimationFrame(function () {
+          applyEndStateCentering();
+        });
       }
     }
 

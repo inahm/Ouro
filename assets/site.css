@@ -576,21 +576,24 @@ html.scroll-intro-scrollable
   visibility: hidden;
   pointer-events: none;
 }
-/* Health Atlas: portrait morph — ~75% prior footprint; grid-centered like Nota */
+/* Health Atlas: same square motif cell as Overture; SVG scaled inside grid so mass sits centered */
 .scroll-intro-continuation .hcard-visual-inner--atlas {
-  position: relative;
-  width: min(66%, 215px, min(39vw, 255px));
   display: grid;
   place-items: center;
   background: none;
   mask-image: none;
   -webkit-mask-image: none;
-  aspect-ratio: 286 / 319;
+}
+/* Match .hcard-top padding-right so the motif centers in the same column as title + body copy */
+.scroll-intro-continuation .hcard-visual--atlas {
+  padding-right: 8px;
+  box-sizing: border-box;
 }
 .scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-svg {
-  width: 100%;
+  width: min(66%, 215px, min(39vw, 255px));
   max-width: 100%;
   height: auto;
+  display: block;
   overflow: visible;
   filter: none;
 }
@@ -1390,7 +1393,7 @@ html.scroll-intro-scrollable
   .scroll-intro-continuation .hcard-visual-inner--nota {
     width: min(45%, 110px, min(32vw, 128px));
   }
-  .scroll-intro-continuation .hcard-visual-inner--atlas {
+  .scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-svg {
     width: min(50%, 161px, min(29vw, 189px));
   }
   /* Less air between leadership subcopy and footer wordmark (footer min-height + row margins were desktop-sized). */
