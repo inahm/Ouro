@@ -2542,36 +2542,6 @@ html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible {
   visibility: visible;
   pointer-events: none;
 }
-/* In-icon terminal cursor (clipped to “screen”; decorative only — aria-hidden on group) */
-.site-meta-btn .site-meta-terminal-cursor {
-  fill: var(--bg);
-  animation: site-meta-terminal-cursor-pulse 1.35s ease-in-out infinite
-    alternate;
-}
-/* Light icon on red third-act: flip cursor to ink; hover returns icon to ink so cursor uses bg again */
-html.nav-over-third-red .site-meta-btn .site-meta-terminal-cursor {
-  fill: var(--ink);
-}
-html.nav-over-third-red .site-meta-btn:hover .site-meta-terminal-cursor,
-html.nav-over-third-red
-  .site-meta-btn:focus-visible
-  .site-meta-terminal-cursor {
-  fill: var(--bg);
-}
-@keyframes site-meta-terminal-cursor-pulse {
-  0% {
-    opacity: 0.35;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .site-meta-btn .site-meta-terminal-cursor {
-    animation: none;
-    opacity: 0.92;
-  }
-}
 /* Terminal window modal (backdrop + centered “window”) - same content palette as before */
 .site-meta-panel {
   --site-meta-win-titlebar: #323232;
