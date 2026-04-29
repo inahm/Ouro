@@ -49,6 +49,13 @@
   );
   if (!startPaths.length || startPaths.length !== targetPaths.length) return;
 
+  /* Author `d` from HTML. If we run `buildModel` while the card is inside a non-rendered
+   * subtree (e.g. `#scroll-intro-continuation[hidden]`), `getBBox()` can be 0×0; we must not
+   * overwrite paths with empty capsule `d` or cache a dead model — restore these instead. */
+  var initialStartD = startPaths.map(function (path) {
+    return path.getAttribute("d") || "";
+  });
+
   var model = null;
   var rafId = 0;
   var holdTimer = 0;
@@ -128,6 +135,17 @@
       "Z"
     );
   }
+  function isModelValid(m) {
+    if (!m || m.length !== startPaths.length) return false;
+    for (var i = 0; i < m.length; i++) {
+      var s = m[i].sourceParams;
+      var t = m[i].targetParams;
+      if (!s || !t) return false;
+      /* Tiny bboxes mean the SVG was not laid out (hidden ancestor, etc.). */
+      if (s.w < 0.5 || s.h < 0.5 || t.w < 0.5 || t.h < 0.5) return false;
+    }
+    return true;
+  }
   function buildModel() {
     var startEntries = startPaths
       .map(function (path, idx) {
@@ -163,10 +181,17 @@
     return out;
   }
   function resetState() {
-    if (!model) model = buildModel();
+    var built = buildModel();
+    if (!isModelValid(built)) {
+      model = null;
+      startPaths.forEach(function (path, idx) {
+        path.setAttribute("d", initialStartD[idx]);
+      });
+      return;
+    }
+    model = built;
     startPaths.forEach(function (path, idx) {
-      var m = model[idx];
-      path.setAttribute("d", m.sourceD);
+      path.setAttribute("d", model[idx].sourceD);
     });
   }
   function clearTimersAndFrame() {
@@ -180,6 +205,7 @@
     }
   }
   function runMorph() {
+    if (!model) return;
     var startAt = performance.now();
     function tick(now) {
       var active = false;
@@ -212,6 +238,7 @@
     morphFinishedOnce = false;
     clearTimersAndFrame();
     resetState();
+    if (!model) return;
     holdTimer = setTimeout(function () {
       runMorph();
     }, holdBeforeMorphMs);
