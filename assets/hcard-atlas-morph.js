@@ -1,7 +1,8 @@
 /**
  * Health Atlas card — flubber morph between two authored SVG states (expanded apart → compact lockup).
  * Pairing matches Ouro Motion playground: paths paired by centroid sort (left→right, top→bottom),
- * symmetric stagger from outer ranks inward.
+ * symmetric stagger from outer ranks inward. The visible group is re-centered to the viewBox each
+ * frame so expanded vs compact ink doesn’t jump at the end of the tween.
  *
  * Optional before load: window.ATLAS_MORPH_LAB e.g.
  * { durationMs, holdBeforeMorphMs, staggerMs, skipViewportGate, loopReplayMs }
@@ -125,12 +126,15 @@
     return out;
   }
 
-  function clearEndStateCentering() {
+  function clearGroupTransform() {
     if (startLayer) startLayer.removeAttribute("transform");
   }
 
-  /** Compact paths sit in the upper-left of the 286×319 canvas vs expanded fill — shift group once u=1 so ink matches viewBox center. */
-  function applyEndStateCentering() {
+  /**
+   * Keep artwork centered in the viewBox every frame. Expanded vs compact ink sits in different
+   * regions of the canvas — updating translate alongside path morph removes the end-of-tween jump.
+   */
+  function syncGroupCenterToViewBox() {
     if (!startLayer || !svg) return;
     try {
       var vb = svg.viewBox && svg.viewBox.baseVal;
@@ -141,14 +145,7 @@
       if (bb.width < 0.5 || bb.height < 0.5) return;
       var cx = tcx - (bb.x + bb.width / 2);
       var cy = tcy - (bb.y + bb.height / 2);
-      if (Math.abs(cx) < 0.08 && Math.abs(cy) < 0.08) {
-        clearEndStateCentering();
-        return;
-      }
-      startLayer.setAttribute(
-        "transform",
-        "translate(" + cx + "," + cy + ")",
-      );
+      startLayer.setAttribute("transform", "translate(" + cx + "," + cy + ")");
     } catch (e) {
       /* ignore */
     }
@@ -166,19 +163,21 @@
   }
 
   function resetState() {
-    clearEndStateCentering();
+    clearGroupTransform();
+    startPaths.forEach(function (path, idx) {
+      path.setAttribute("d", initialStartD[idx]);
+    });
     var built = buildModel();
     if (!isModelValid(built)) {
       model = null;
-      startPaths.forEach(function (path, idx) {
-        path.setAttribute("d", initialStartD[idx]);
-      });
+      syncGroupCenterToViewBox();
       return;
     }
     model = built;
     startPaths.forEach(function (path, idx) {
       path.setAttribute("d", model[idx].fromD);
     });
+    syncGroupCenterToViewBox();
   }
 
   function clearTimersAndFrame() {
@@ -215,14 +214,12 @@
         path.setAttribute("d", d);
         if (elapsed < durationMs - 1e-4) active = true;
       });
+      syncGroupCenterToViewBox();
       if (active) {
         rafId = requestAnimationFrame(tick);
       } else {
         rafId = 0;
         morphFinishedOnce = true;
-        requestAnimationFrame(function () {
-          applyEndStateCentering();
-        });
       }
     }
 
