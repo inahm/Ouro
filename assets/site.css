@@ -3279,6 +3279,13 @@ button.site-meta-panel__terminal-submit {
   animation: site-meta-term-cursor-blink 0.85s step-end infinite;
   visibility: visible;
 }
+/* Panel closed / minimized: kill the block caret so a stray inline `visibility:visible`
+   from JS cannot leave a lone bar on the page (beats transient open+disabled races). */
+.site-meta-panel:not(.site-meta-panel--open) .site-meta-panel__terminal-cursor {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  animation: none !important;
+}
 @media (prefers-reduced-motion: reduce) {
   .site-meta-panel__terminal-cursor {
     animation: none;

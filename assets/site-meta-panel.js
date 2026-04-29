@@ -198,10 +198,25 @@
     if (termPromptEl) termPromptEl.textContent = d;
   }
   setTermPromptFromDisplay("ourolabs@origin:~$");
+  function hideTerminalBlockCursor() {
+    if (!termCursor) return;
+    termCursor.style.visibility = "hidden";
+    termCursor.style.opacity = "0";
+    termCursor.style.animation = "none";
+  }
+  function revealTerminalBlockCursor() {
+    if (!termCursor) return;
+    termCursor.style.removeProperty("opacity");
+    termCursor.style.removeProperty("animation");
+  }
   function updateTermBlockCursor() {
     if (!terminalInput || !termCursor || !termMirror) return;
+    if (!panel || !panel.classList.contains("site-meta-panel--open")) {
+      hideTerminalBlockCursor();
+      return;
+    }
     if (terminalInput.disabled) {
-      termCursor.style.visibility = "hidden";
+      hideTerminalBlockCursor();
       return;
     }
     var v = String(terminalInput.value || "");
@@ -218,6 +233,7 @@
         var slInv = terminalInput.scrollLeft | 0;
         termCursor.style.left = Math.max(0, wInv - slInv) + "px";
       }
+      revealTerminalBlockCursor();
       termCursor.style.visibility = "visible";
       return;
     }
@@ -235,6 +251,7 @@
     var sl = terminalInput.scrollLeft | 0;
     var left = Math.max(0, w - sl);
     termCursor.style.left = left + "px";
+    revealTerminalBlockCursor();
     termCursor.style.visibility = "visible";
   }
   if (terminalInput) {
@@ -1127,6 +1144,7 @@
   function setTerminalInputEnabled(on) {
     if (!terminalInput) return;
     terminalInput.disabled = !on;
+    if (!on) hideTerminalBlockCursor();
     if (on) {
       terminalInput.focus({ preventScroll: true });
       requestAnimationFrame(function () {
