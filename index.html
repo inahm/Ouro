@@ -3,15 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GPM2WVR11H"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-GPM2WVR11H');
-</script>
 <meta name="theme-color" content="#DDDBD6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="description" content="Ouro Labs is a design and AI practice built by two design leaders. Design, code, and AI-native workflows. Values: Play, Precision, Craft.">
@@ -2293,22 +2284,6 @@ html.nav-over-third-red .site-meta-btn:focus-visible .site-meta-terminal-cursor{
     opacity:0.92;
   }
 }
-/* Separate title-band rect (classic terminal chrome) — can flash independently of glyph */
-.site-meta-terminal-green-bar{
-  fill:#33BD26;
-  pointer-events:none;
-  animation:site-meta-terminal-green-flash 2s ease-in-out infinite;
-}
-@keyframes site-meta-terminal-green-flash{
-  0%, 100%{ opacity:0.42;}
-  50%{ opacity:1;}
-}
-@media (prefers-reduced-motion:reduce){
-  .site-meta-terminal-green-bar{
-    animation:none;
-    opacity:0.88;
-  }
-}
 /* Terminal window modal (backdrop + centered “window”) - same content palette as before */
 .site-meta-panel{
   --site-meta-win-titlebar:#323232;
@@ -3214,18 +3189,22 @@ button.site-meta-panel__terminal-submit{
 <button type="button" class="site-meta-btn site-meta-btn--fab" id="site-meta-open" aria-expanded="false" aria-controls="site-meta-panel" aria-label="Want to learn how we made this site?">
   <span class="site-meta-btn__icons" aria-hidden="true">
     <svg class="site-meta-btn__icon site-meta-btn__icon--outline" viewBox="0 0 52 51" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-      <svg width="52" height="51" viewBox="0 0 21 21" preserveAspectRatio="none" aria-hidden="true">
-        <rect class="site-meta-terminal-green-bar" x="1.32" y="1.34" width="18.42" height="2.9" rx="0.72"/>
-        <path d="M1.23537 20.6925H19.4571C19.7848 20.6925 20.099 20.5623 20.3307 20.3307C20.5623 20.099 20.6925 19.7848 20.6925 19.4571V1.23537C20.6925 0.907732 20.5623 0.59351 20.3307 0.361833C20.099 0.130155 19.7848 0 19.4571 0H1.23537C0.907732 0 0.59351 0.130155 0.361833 0.361833C0.130155 0.59351 0 0.907732 0 1.23537V19.4571C0 19.7848 0.130155 20.099 0.361833 20.3307C0.59351 20.5623 0.907732 20.6925 1.23537 20.6925ZM3.12055 5.99403C2.98963 5.85352 2.91835 5.66767 2.92173 5.47564C2.92512 5.28362 3.00292 5.10041 3.13871 4.96459C3.27453 4.8288 3.45774 4.751 3.64976 4.74761C3.84179 4.74423 4.02764 4.81551 4.16815 4.94643L8.79833 9.57414C8.93713 9.71312 9.01511 9.90152 9.01511 10.0979C9.01511 10.2944 8.93713 10.4828 8.79833 10.6217L4.16815 15.2519C4.02764 15.3828 3.84179 15.4541 3.64976 15.4507C3.45774 15.4474 3.27453 15.3695 3.13871 15.2338C3.00292 15.0979 2.92512 14.9147 2.92173 14.7227C2.91835 14.5307 2.98963 14.3448 3.12055 14.2043L7.22693 10.0979L3.12055 5.99403Z" fill="currentColor"/>
-        <rect class="site-meta-terminal-cursor" x="12.95" y="5.92" width="1.06" height="9.15"/>
-      </svg>
+      <defs>
+        <clipPath id="site-meta-term-clip-ho"><rect x="6" y="12" width="40" height="21"/></clipPath>
+      </defs>
+      <path d="M48.8955 0C49.7188 0 50.5086 0.320653 51.0908 0.891602C51.673 1.46261 52 2.2374 52 3.04492V47.9551C52 48.7626 51.673 49.5374 51.0908 50.1084L50.9795 50.2129C50.41 50.7186 49.6674 51 48.8955 51H3.10449L2.79785 50.9854C2.13787 50.9211 1.51411 50.6512 1.02051 50.2129L0.90918 50.1084C0.32698 49.5374 0 48.7626 0 47.9551V3.04492C0 2.2374 0.326977 1.46261 0.90918 0.891602C1.41865 0.391968 2.08712 0.0838045 2.79785 0.0146484L3.10449 0H48.8955ZM3.10449 3C3.05819 3 3.02508 3.01916 3.00977 3.03418C3.00295 3.04093 3.00058 3.04551 3 3.04688V47.9531C3.00058 47.9545 3.0027 47.9599 3.00977 47.9668C3.02511 47.9818 3.05826 48 3.10449 48H48.8955C48.9417 48 48.9749 47.9818 48.9902 47.9668C48.9973 47.9599 48.9994 47.9545 49 47.9531V3.04688C48.9994 3.04551 48.997 3.04093 48.9902 3.03418C48.9749 3.01916 48.9418 3 48.8955 3H3.10449ZM43.7412 34.7725C44.2351 34.7725 44.7093 34.9642 45.0586 35.3066C45.4079 35.6492 45.6044 36.1142 45.6045 36.5986C45.6045 37.0831 45.4079 37.548 45.0586 37.8906C44.7093 38.2332 44.2352 38.4258 43.7412 38.4258H27.2881C26.7941 38.4258 26.32 38.2332 25.9707 37.8906C25.6214 37.548 25.4248 37.0831 25.4248 36.5986C25.4249 36.1142 25.6214 35.6492 25.9707 35.3066C26.32 34.9642 26.7942 34.7725 27.2881 34.7725H43.7412ZM8.83008 12C9.31255 11.9917 9.77977 12.1676 10.1328 12.4902L21.7686 23.8965C22.1171 24.239 22.3125 24.7036 22.3125 25.1875C22.3124 25.6712 22.117 26.1352 21.7686 26.4775L10.1328 37.8896C9.77977 38.2123 9.31255 38.3882 8.83008 38.3799C8.34752 38.3715 7.88717 38.1794 7.5459 37.8447C7.20473 37.5101 7.00862 37.0591 7 36.5859C6.99149 36.1127 7.17098 35.6539 7.5 35.3076L17.8193 25.1875L7.5 15.0723C7.17104 14.726 6.99156 14.2681 7 13.7949C7.00851 13.3216 7.20462 12.8699 7.5459 12.5352C7.88716 12.2005 8.34758 12.0083 8.83008 12Z" fill="currentColor"/>
+      <g clip-path="url(#site-meta-term-clip-ho)" aria-hidden="true">
+        <rect class="site-meta-terminal-cursor" x="22.5" y="14" width="2" height="11"/>
+      </g>
     </svg>
     <svg class="site-meta-btn__icon site-meta-btn__icon--filled" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-      <svg width="84" height="84" viewBox="0 0 21 21" aria-hidden="true">
-        <rect class="site-meta-terminal-green-bar" x="1.32" y="1.34" width="18.42" height="2.9" rx="0.72"/>
-        <path d="M1.23537 20.6925H19.4571C19.7848 20.6925 20.099 20.5623 20.3307 20.3307C20.5623 20.099 20.6925 19.7848 20.6925 19.4571V1.23537C20.6925 0.907732 20.5623 0.59351 20.3307 0.361833C20.099 0.130155 19.7848 0 19.4571 0H1.23537C0.907732 0 0.59351 0.130155 0.361833 0.361833C0.130155 0.59351 0 0.907732 0 1.23537V19.4571C0 19.7848 0.130155 20.099 0.361833 20.3307C0.59351 20.5623 0.907732 20.6925 1.23537 20.6925ZM3.12055 5.99403C2.98963 5.85352 2.91835 5.66767 2.92173 5.47564C2.92512 5.28362 3.00292 5.10041 3.13871 4.96459C3.27453 4.8288 3.45774 4.751 3.64976 4.74761C3.84179 4.74423 4.02764 4.81551 4.16815 4.94643L8.79833 9.57414C8.93713 9.71312 9.01511 9.90152 9.01511 10.0979C9.01511 10.2944 8.93713 10.4828 8.79833 10.6217L4.16815 15.2519C4.02764 15.3828 3.84179 15.4541 3.64976 15.4507C3.45774 15.4474 3.27453 15.3695 3.13871 15.2338C3.00292 15.0979 2.92512 14.9147 2.92173 14.7227C2.91835 14.5307 2.98963 14.3448 3.12055 14.2043L7.22693 10.0979L3.12055 5.99403Z" fill="currentColor"/>
-        <rect class="site-meta-terminal-cursor" x="12.6" y="5.75" width="1.5" height="9.35"/>
-      </svg>
+      <defs>
+        <clipPath id="site-meta-term-clip-hf"><rect x="9.7" y="19.8" width="64.6" height="34.6"/></clipPath>
+      </defs>
+      <path d="M5 83.75H78.75C80.0761 83.75 81.3479 83.2232 82.2855 82.2855C83.2232 81.3479 83.75 80.0761 83.75 78.75V5C83.75 3.67392 83.2232 2.40215 82.2855 1.46447C81.3479 0.526784 80.0761 0 78.75 0H5C3.67392 0 2.40215 0.526784 1.46447 1.46447C0.526784 2.40215 0 3.67392 0 5V78.75C0 80.0761 0.526784 81.3479 1.46447 82.2855C2.40215 83.2232 3.67392 83.75 5 83.75ZM44.5 56.61H71C71.7956 56.61 72.5587 56.9261 73.1213 57.4887C73.6839 58.0513 74 58.8144 74 59.61C74 60.4057 73.6839 61.1687 73.1213 61.7313C72.5587 62.2939 71.7956 62.61 71 62.61H44.5C43.7044 62.61 42.9413 62.2939 42.3787 61.7313C41.8161 61.1687 41.5 60.4057 41.5 59.61C41.5 58.8144 41.8161 58.0513 42.3787 57.4887C42.9413 56.9261 43.7044 56.61 44.5 56.61ZM12.63 24.26C12.1001 23.6913 11.8116 22.9391 11.8253 22.1619C11.839 21.3847 12.1539 20.6432 12.7035 20.0935C13.2532 19.5439 13.9947 19.229 14.7719 19.2153C15.5491 19.2016 16.3013 19.4901 16.87 20.02L35.61 38.75C36.1718 39.3125 36.4874 40.075 36.4874 40.87C36.4874 41.665 36.1718 42.4275 35.61 42.99L16.87 61.73C16.3013 62.2599 15.5491 62.5484 14.7719 62.5347C13.9947 62.521 13.2532 62.2061 12.7035 61.6565C12.1539 61.1068 11.839 60.3653 11.8253 59.5881C11.8116 58.8109 12.1001 58.0587 12.63 57.49L29.25 40.87L12.63 24.26Z" fill="currentColor"/>
+      <g clip-path="url(#site-meta-term-clip-hf)" aria-hidden="true">
+        <rect class="site-meta-terminal-cursor" x="36.3" y="23.1" width="3" height="18.1"/>
+      </g>
     </svg>
   </span>
 </button>
@@ -3613,18 +3592,22 @@ button.site-meta-panel__terminal-submit{
           <button type="button" class="site-meta-btn site-meta-btn--footer" id="site-meta-open-footer" aria-expanded="false" aria-controls="site-meta-panel" aria-label="Want to learn how we made this site?">
             <span class="site-meta-btn__icons" aria-hidden="true">
               <svg class="site-meta-btn__icon site-meta-btn__icon--outline" viewBox="0 0 52 51" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-                <svg width="52" height="51" viewBox="0 0 21 21" preserveAspectRatio="none" aria-hidden="true">
-                  <rect class="site-meta-terminal-green-bar" x="1.32" y="1.34" width="18.42" height="2.9" rx="0.72"/>
-                  <path d="M1.23537 20.6925H19.4571C19.7848 20.6925 20.099 20.5623 20.3307 20.3307C20.5623 20.099 20.6925 19.7848 20.6925 19.4571V1.23537C20.6925 0.907732 20.5623 0.59351 20.3307 0.361833C20.099 0.130155 19.7848 0 19.4571 0H1.23537C0.907732 0 0.59351 0.130155 0.361833 0.361833C0.130155 0.59351 0 0.907732 0 1.23537V19.4571C0 19.7848 0.130155 20.099 0.361833 20.3307C0.59351 20.5623 0.907732 20.6925 1.23537 20.6925ZM3.12055 5.99403C2.98963 5.85352 2.91835 5.66767 2.92173 5.47564C2.92512 5.28362 3.00292 5.10041 3.13871 4.96459C3.27453 4.8288 3.45774 4.751 3.64976 4.74761C3.84179 4.74423 4.02764 4.81551 4.16815 4.94643L8.79833 9.57414C8.93713 9.71312 9.01511 9.90152 9.01511 10.0979C9.01511 10.2944 8.93713 10.4828 8.79833 10.6217L4.16815 15.2519C4.02764 15.3828 3.84179 15.4541 3.64976 15.4507C3.45774 15.4474 3.27453 15.3695 3.13871 15.2338C3.00292 15.0979 2.92512 14.9147 2.92173 14.7227C2.91835 14.5307 2.98963 14.3448 3.12055 14.2043L7.22693 10.0979L3.12055 5.99403Z" fill="currentColor"/>
-                  <rect class="site-meta-terminal-cursor" x="12.95" y="5.92" width="1.06" height="9.15"/>
-                </svg>
+                <defs>
+                  <clipPath id="site-meta-term-clip-fo"><rect x="6" y="12" width="40" height="21"/></clipPath>
+                </defs>
+                <path d="M48.8955 0C49.7188 0 50.5086 0.320653 51.0908 0.891602C51.673 1.46261 52 2.2374 52 3.04492V47.9551C52 48.7626 51.673 49.5374 51.0908 50.1084L50.9795 50.2129C50.41 50.7186 49.6674 51 48.8955 51H3.10449L2.79785 50.9854C2.13787 50.9211 1.51411 50.6512 1.02051 50.2129L0.90918 50.1084C0.32698 49.5374 0 48.7626 0 47.9551V3.04492C0 2.2374 0.326977 1.46261 0.90918 0.891602C1.41865 0.391968 2.08712 0.0838045 2.79785 0.0146484L3.10449 0H48.8955ZM3.10449 3C3.05819 3 3.02508 3.01916 3.00977 3.03418C3.00295 3.04093 3.00058 3.04551 3 3.04688V47.9531C3.00058 47.9545 3.0027 47.9599 3.00977 47.9668C3.02511 47.9818 3.05826 48 3.10449 48H48.8955C48.9417 48 48.9749 47.9818 48.9902 47.9668C48.9973 47.9599 48.9994 47.9545 49 47.9531V3.04688C48.9994 3.04551 48.997 3.04093 48.9902 3.03418C48.9749 3.01916 48.9418 3 48.8955 3H3.10449ZM43.7412 34.7725C44.2351 34.7725 44.7093 34.9642 45.0586 35.3066C45.4079 35.6492 45.6044 36.1142 45.6045 36.5986C45.6045 37.0831 45.4079 37.548 45.0586 37.8906C44.7093 38.2332 44.2352 38.4258 43.7412 38.4258H27.2881C26.7941 38.4258 26.32 38.2332 25.9707 37.8906C25.6214 37.548 25.4248 37.0831 25.4248 36.5986C25.4249 36.1142 25.6214 35.6492 25.9707 35.3066C26.32 34.9642 26.7942 34.7725 27.2881 34.7725H43.7412ZM8.83008 12C9.31255 11.9917 9.77977 12.1676 10.1328 12.4902L21.7686 23.8965C22.1171 24.239 22.3125 24.7036 22.3125 25.1875C22.3124 25.6712 22.117 26.1352 21.7686 26.4775L10.1328 37.8896C9.77977 38.2123 9.31255 38.3882 8.83008 38.3799C8.34752 38.3715 7.88717 38.1794 7.5459 37.8447C7.20473 37.5101 7.00862 37.0591 7 36.5859C6.99149 36.1127 7.17098 35.6539 7.5 35.3076L17.8193 25.1875L7.5 15.0723C7.17104 14.726 6.99156 14.2681 7 13.7949C7.00851 13.3216 7.20462 12.8699 7.5459 12.5352C7.88716 12.2005 8.34758 12.0083 8.83008 12Z" fill="currentColor"/>
+                <g clip-path="url(#site-meta-term-clip-fo)" aria-hidden="true">
+                  <rect class="site-meta-terminal-cursor" x="22.5" y="14" width="2" height="11"/>
+                </g>
               </svg>
               <svg class="site-meta-btn__icon site-meta-btn__icon--filled" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg" focusable="false">
-                <svg width="84" height="84" viewBox="0 0 21 21" aria-hidden="true">
-                  <rect class="site-meta-terminal-green-bar" x="1.32" y="1.34" width="18.42" height="2.9" rx="0.72"/>
-                  <path d="M1.23537 20.6925H19.4571C19.7848 20.6925 20.099 20.5623 20.3307 20.3307C20.5623 20.099 20.6925 19.7848 20.6925 19.4571V1.23537C20.6925 0.907732 20.5623 0.59351 20.3307 0.361833C20.099 0.130155 19.7848 0 19.4571 0H1.23537C0.907732 0 0.59351 0.130155 0.361833 0.361833C0.130155 0.59351 0 0.907732 0 1.23537V19.4571C0 19.7848 0.130155 20.099 0.361833 20.3307C0.59351 20.5623 0.907732 20.6925 1.23537 20.6925ZM3.12055 5.99403C2.98963 5.85352 2.91835 5.66767 2.92173 5.47564C2.92512 5.28362 3.00292 5.10041 3.13871 4.96459C3.27453 4.8288 3.45774 4.751 3.64976 4.74761C3.84179 4.74423 4.02764 4.81551 4.16815 4.94643L8.79833 9.57414C8.93713 9.71312 9.01511 9.90152 9.01511 10.0979C9.01511 10.2944 8.93713 10.4828 8.79833 10.6217L4.16815 15.2519C4.02764 15.3828 3.84179 15.4541 3.64976 15.4507C3.45774 15.4474 3.27453 15.3695 3.13871 15.2338C3.00292 15.0979 2.92512 14.9147 2.92173 14.7227C2.91835 14.5307 2.98963 14.3448 3.12055 14.2043L7.22693 10.0979L3.12055 5.99403Z" fill="currentColor"/>
-                  <rect class="site-meta-terminal-cursor" x="12.6" y="5.75" width="1.5" height="9.35"/>
-                </svg>
+                <defs>
+                  <clipPath id="site-meta-term-clip-ff"><rect x="9.7" y="19.8" width="64.6" height="34.6"/></clipPath>
+                </defs>
+                <path d="M5 83.75H78.75C80.0761 83.75 81.3479 83.2232 82.2855 82.2855C83.2232 81.3479 83.75 80.0761 83.75 78.75V5C83.75 3.67392 83.2232 2.40215 82.2855 1.46447C81.3479 0.526784 80.0761 0 78.75 0H5C3.67392 0 2.40215 0.526784 1.46447 1.46447C0.526784 2.40215 0 3.67392 0 5V78.75C0 80.0761 0.526784 81.3479 1.46447 82.2855C2.40215 83.2232 3.67392 83.75 5 83.75ZM44.5 56.61H71C71.7956 56.61 72.5587 56.9261 73.1213 57.4887C73.6839 58.0513 74 58.8144 74 59.61C74 60.4057 73.6839 61.1687 73.1213 61.7313C72.5587 62.2939 71.7956 62.61 71 62.61H44.5C43.7044 62.61 42.9413 62.2939 42.3787 61.7313C41.8161 61.1687 41.5 60.4057 41.5 59.61C41.5 58.8144 41.8161 58.0513 42.3787 57.4887C42.9413 56.9261 43.7044 56.61 44.5 56.61ZM12.63 24.26C12.1001 23.6913 11.8116 22.9391 11.8253 22.1619C11.839 21.3847 12.1539 20.6432 12.7035 20.0935C13.2532 19.5439 13.9947 19.229 14.7719 19.2153C15.5491 19.2016 16.3013 19.4901 16.87 20.02L35.61 38.75C36.1718 39.3125 36.4874 40.075 36.4874 40.87C36.4874 41.665 36.1718 42.4275 35.61 42.99L16.87 61.73C16.3013 62.2599 15.5491 62.5484 14.7719 62.5347C13.9947 62.521 13.2532 62.2061 12.7035 61.6565C12.1539 61.1068 11.839 60.3653 11.8253 59.5881C11.8116 58.8109 12.1001 58.0587 12.63 57.49L29.25 40.87L12.63 24.26Z" fill="currentColor"/>
+                <g clip-path="url(#site-meta-term-clip-ff)" aria-hidden="true">
+                  <rect class="site-meta-terminal-cursor" x="36.3" y="23.1" width="3" height="18.1"/>
+                </g>
               </svg>
             </span>
           </button>
@@ -6528,56 +6511,6 @@ function attachHlCharExitHideAfterTransform(c){
     'Tooling and models:',
     'Figma, Cursor, Composer 2, Claude Sonnet, GPT-5.3 Codex, Opus, and Pika 2.5.'
   ];
-  /**
-   * Reorder samples on a closed loop so vertex i pairs with the nearest counterpart,
-   * trying every rotation and winding (Lottie/Shape morph style phase match). Without
-   * this, linearly interpolating two arc-length samples twists and self-intersects.
-   */
-  w.OuroSite.alignClosedMorphPoints = function(fromPts, toPts){
-    var n = fromPts && toPts ? fromPts.length : 0;
-    if(!n || n !== toPts.length) return toPts;
-    function cost(aligned){
-      var c = 0;
-      for(var i = 0; i < n; i++){
-        var dx = fromPts[i].x - aligned[i].x;
-        var dy = fromPts[i].y - aligned[i].y;
-        c += dx * dx + dy * dy;
-      }
-      return c;
-    }
-    function rotate(base, k){
-      var out = new Array(n);
-      for(var i = 0; i < n; i++){
-        var p = base[(i + k) % n];
-        out[i] = { x: p.x, y: p.y };
-      }
-      return out;
-    }
-    function reverseRing(base){
-      var out = new Array(n);
-      for(var i = 0; i < n; i++){
-        var p = base[(n - i) % n];
-        out[i] = { x: p.x, y: p.y };
-      }
-      return out;
-    }
-    var best = null;
-    var bestC = Infinity;
-    var forward = toPts;
-    var reversed = reverseRing(toPts);
-    for(var v = 0; v < 2; v++){
-      var base = v === 0 ? forward : reversed;
-      for(var k = 0; k < n; k++){
-        var cand = rotate(base, k);
-        var c = cost(cand);
-        if(c < bestC){
-          bestC = c;
-          best = cand;
-        }
-      }
-    }
-    return best;
-  };
 })(window);
 </script>
 <script>
@@ -6597,7 +6530,7 @@ function attachHlCharExitHideAfterTransform(c){
   if(!apartPaths.length || !targetPaths.length) return;
 
   var stageCenter = { x: 126, y: 149.5 };
-  var samplePoints = 128;
+  var samplePoints = 96;
   var startLayoutScale = 0.68;
   var holdBeforeMorphMs = 320;
   var durationMs = 1560;
@@ -6745,10 +6678,7 @@ function attachHlCharExitHideAfterTransform(c){
       var targetIndex = assignments[idx];
       var sourcePointsRaw = samplePathPointsInSvg(path, samplePoints);
       var sourcePoints = scalePointsAround(sourcePointsRaw, startLayoutScale, stageCenter);
-      var targetPoints = window.OuroSite.alignClosedMorphPoints(
-        sourcePoints,
-        targetPointSets[targetIndex]
-      );
+      var targetPoints = targetPointSets[targetIndex];
       return {
         sourcePoints: sourcePoints,
         targetPoints: targetPoints,
@@ -6869,7 +6799,7 @@ function attachHlCharExitHideAfterTransform(c){
   var targetPaths = Array.prototype.slice.call(targetLayer.querySelectorAll('path'));
   if(!startPaths.length || startPaths.length !== targetPaths.length) return;
 
-  var samplePoints = 128;
+  var samplePoints = 92;
   var holdBeforeMorphMs = 180;
   var durationMs = 1180;
   var model = null;
@@ -6935,6 +6865,10 @@ function attachHlCharExitHideAfterTransform(c){
       };
     });
   }
+  /*
+   * No perimeter “phase alignment” here: naive index pairing lets vertices shear/slide relative to each other,
+   * which reads as the chunky twist-through-space effect the Nota motif had originally.
+   */
   function buildModel(){
     var startEntries = startPaths.map(function(path, idx){
       var points = samplePathPointsInSvg(path, samplePoints);
@@ -6962,13 +6896,9 @@ function attachHlCharExitHideAfterTransform(c){
     var out = new Array(startPaths.length);
     startEntries.forEach(function(entry, orderIdx){
       var target = remappedTargets[orderIdx];
-      var alignedTarget = window.OuroSite.alignClosedMorphPoints(
-        entry.points,
-        target.points
-      );
       out[entry.idx] = {
         sourcePoints: entry.points,
-        targetPoints: alignedTarget,
+        targetPoints: target.points,
         sourceD: pointsToPathD(entry.points),
         morphDelay: orderIdx * 38
       };
