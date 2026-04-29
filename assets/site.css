@@ -1390,11 +1390,16 @@ html.scroll-intro-scrollable
   .scroll-intro-continuation .hcard-visual-inner {
     width: min(88%, 280px, min(64vw, 300px));
   }
+  /* Motifs: converge optical weight — Overture scaled down vs Nota; Atlas portrait tuned toward ~172px max */
   .scroll-intro-continuation .hcard-visual-inner--nota {
-    width: min(45%, 110px, min(32vw, 128px));
+    width: min(52%, 136px, min(38vw, 152px));
+  }
+  .scroll-intro-continuation .hcard-visual-inner--overture .overture-ripple-svg {
+    width: min(54%, 150px, min(40vw, 168px));
+    max-width: 100%;
   }
   .scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-svg {
-    width: min(50%, 161px, min(29vw, 189px));
+    width: min(68%, 184px, min(46vw, 208px));
   }
   /* Less air between leadership subcopy and footer wordmark (footer min-height + row margins were desktop-sized). */
   #scroll-intro-below-after-cards {
@@ -1406,6 +1411,13 @@ html.scroll-intro-scrollable
   }
   .scroll-intro-continuation .wordmark-row {
     margin-top: calc(0.32 * clamp(88px, 14vh, 260px));
+  }
+}
+
+/* Narrow phones: Health Atlas portrait reads small — give extra width vs square motif cell */
+@media (max-width: 380px) {
+  .scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-svg {
+    width: min(76%, 198px, min(56vw, 222px));
   }
 }
 
