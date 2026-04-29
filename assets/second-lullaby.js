@@ -19,7 +19,8 @@
   var coarsePointer = false;
   var userMuted = false;
   try {
-    userMuted = window.localStorage.getItem('ouroSecondParticleSoundMuted') === '1';
+    userMuted =
+      window.localStorage.getItem("ouroSecondParticleSoundMuted") === "1";
   } catch (_) {
     userMuted = false;
   }
@@ -45,15 +46,15 @@
     comp.connect(ctx.destination);
 
     lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
+    lp.type = "lowpass";
     lp.frequency.value = 360;
     lp.Q.value = 0.45;
 
     var o1 = ctx.createOscillator();
-    o1.type = 'sine';
+    o1.type = "sine";
     o1.frequency.value = 174.61;
     var o2 = ctx.createOscillator();
-    o2.type = 'sine';
+    o2.type = "sine";
     o2.frequency.value = 196.0;
 
     var g1 = ctx.createGain();
@@ -101,7 +102,10 @@
     setMuted: function (muted) {
       userMuted = !!muted;
       try {
-        window.localStorage.setItem('ouroSecondParticleSoundMuted', userMuted ? '1' : '0');
+        window.localStorage.setItem(
+          "ouroSecondParticleSoundMuted",
+          userMuted ? "1" : "0",
+        );
       } catch (_) {}
       if (userMuted) {
         silenceFromUserMute();
@@ -112,7 +116,7 @@
       if (reduceMotion || coarsePointer) return;
 
       var zone = !!(opts && opts.zone);
-      var spd = opts && typeof opts.mouseSpd === 'number' ? opts.mouseSpd : 0;
+      var spd = opts && typeof opts.mouseSpd === "number" ? opts.mouseSpd : 0;
 
       if (userMuted) {
         fadeOutputGain();
@@ -124,7 +128,10 @@
         return;
       }
 
-      var motion = Math.min(1, Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE));
+      var motion = Math.min(
+        1,
+        Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE),
+      );
       if (motion <= 0) {
         fadeOutputGain();
         return;
@@ -155,12 +162,14 @@
   };
 
   try {
-    reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
   } catch (_) {
     reduceMotion = false;
   }
   try {
-    coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    coarsePointer = window.matchMedia("(pointer: coarse)").matches;
   } catch (_) {
     coarsePointer = false;
   }
@@ -173,25 +182,34 @@
       if (ctx) ctx.resume();
     } catch (_) {}
   }
-  window.addEventListener('pointerdown', unlockAudio, { passive: true, capture: true });
-  window.addEventListener('touchstart', unlockAudio, { passive: true, capture: true });
-  window.addEventListener('mousemove', unlockAudio, { passive: true, capture: true });
+  window.addEventListener("pointerdown", unlockAudio, {
+    passive: true,
+    capture: true,
+  });
+  window.addEventListener("touchstart", unlockAudio, {
+    passive: true,
+    capture: true,
+  });
+  window.addEventListener("mousemove", unlockAudio, {
+    passive: true,
+    capture: true,
+  });
   window.addEventListener(
-    'keydown',
+    "keydown",
     function (e) {
       if (!e || e.metaKey || e.ctrlKey || e.altKey) return;
       unlockAudio();
     },
-    { passive: true, capture: true }
+    { passive: true, capture: true },
   );
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') {
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
       fadeOutputGain();
       return;
     }
     unlockAudio();
   });
-  window.addEventListener('pageshow', function () {
+  window.addEventListener("pageshow", function () {
     unlockAudio();
   });
 })();

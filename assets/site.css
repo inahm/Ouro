@@ -1,0 +1,3564 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  white-space: nowrap;
+}
+:root {
+  --bg: #dddbd6;
+  /* Primary dark foreground - use for all body/UI text on light surfaces */
+  --ink: #000000;
+  /* Statement word ramp start (matches scroll scrub JS) */
+  --ink-muted-statement: #b5afa6;
+  /* Large background type (Kim section wall) */
+  --ink-watermark: #0000001a;
+  /* Light foreground on dark panels (cards, third-act headline) */
+  --text-on-dark-muted: #f2f1ec;
+  --text-on-dark: #e4e3e0;
+  --red: #ff1b00;
+  /* Snappy motion - no mushy ease */
+  --ease-snap-out: cubic-bezier(0.2, 0.88, 0.12, 1);
+  --ease-snap-in: cubic-bezier(0.55, 0, 0.95, 0.38);
+  --g: 88px;
+  /* Particle ring outer Ø = min(viewport) * 0.72 - must stay in sync with secondParticleSetup (spBaseR = core * 0.36) */
+  --particle-o-core: min(100vw, 100vh);
+  --particle-o-diam: calc(var(--particle-o-core) * 0.72);
+  --content-max: 1240px;
+  /* Large dense display - bumped again for bigger / tighter lockup */
+  --hero-hl-size: clamp(64px, 16.5vw, 182px);
+  --hero-hl-size-md: clamp(52px, 11.5vw, 118px);
+  --hero-hl-size-mobile: clamp(42px, 12.8vw, 96px);
+  --hero-hl-size-xs: clamp(36px, 11.2vw, 82px);
+  --wm-nudge-y: clamp(20px, 4.2vw, 56px);
+  --ease-out-flow: cubic-bezier(0.22, 1, 0.52, 1);
+  --ease-out-settle: cubic-bezier(0.33, 1, 0.68, 1);
+  /* Headline letter rise-in - softer deceleration than --ease-snap-out */
+  --ease-hl-char-in: cubic-bezier(0.17, 1, 0.32, 1);
+  /* Work strip: layout vs content - use instead of --ease-out-flow in scroll-intro-continuation hcards. */
+  --ease-hcard-surface: cubic-bezier(0.2, 0.86, 0.1, 1);
+  --ease-hcard-silk: cubic-bezier(0.14, 0.98, 0.22, 1);
+  --ease-hcard-snapshut: cubic-bezier(0.45, 0, 0.2, 1);
+  /* Third act: light → red circular wipe */
+  --third-act-red-iris-duration: 3.55s;
+  /* Long, plush deceleration - stronger ease than --ease-out-flow / --ease-out-settle */
+  --third-act-red-iris-ease: cubic-bezier(0.18, 1, 0.78, 1);
+  /* Fixed nav (must match .scroll-intro-logo top + svg height) - used so scroll-into-view lands with equal red above/below the mark */
+  --scroll-intro-nav-top: max(
+    26px,
+    calc(env(safe-area-inset-top, 0px) + clamp(18px, 2.4vw, 28px))
+  );
+  --scroll-intro-logo-h: clamp(20px, 4.1vw, 28px);
+  /* Extra below logo height for stacked top-nav links (second row) */
+  --scroll-intro-nav-stack-extra: clamp(10px, 2.4vw, 18px);
+  --scroll-intro-anchor-margin: calc(
+    2 * var(--scroll-intro-nav-top) + var(--scroll-intro-logo-h) +
+      var(--scroll-intro-nav-stack-extra)
+  );
+  /* Bottom edge of fixed .scroll-intro-header-strip - hero/third-act are vertically centered, so min padding-top must clear the band (FAB + wordmark + stacked nav). */
+  --scroll-intro-header-clear: max(
+    calc(
+      var(--scroll-intro-nav-top) + var(--scroll-intro-logo-h) +
+        var(--scroll-intro-nav-stack-extra) + clamp(1.75rem, 3.6vh, 2.75rem)
+    ),
+    6.25rem
+  );
+  --selection-bg: #eaff00;
+  --selection-fg: var(--ink);
+  /* Fixed nav accent during second hero headline (AI-native / product studio) */
+  --nav-second-hl-accent: color-mix(in srgb, var(--red) 72%, #ff8f4a);
+  /* System stack - typical UI / editor code without extra font request */
+  --font-code:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas,
+    "Liberation Mono", monospace;
+  /* Horizontal project cards (.pg-desc, .hcard-detail); cap matches pre-2026 desktop - larger phones override below. */
+  --card-body-font-size: clamp(13px, 1.35vw, 15px);
+  --card-body-line-height: 1.55;
+  /* Orbit trigger + panel close - top-left, aligned with fixed nav band */
+  --site-meta-fab-top: var(--scroll-intro-nav-top);
+  --site-meta-fab-left: max(
+    clamp(12px, 1.6vw, 22px),
+    calc(env(safe-area-inset-left, 0px) + 8px)
+  );
+  --site-meta-fab-right: max(
+    clamp(12px, 1.6vw, 22px),
+    calc(env(safe-area-inset-right, 0px) + 8px)
+  );
+}
+/* Selection - including third-act red headline (same neon on red; readable black on yellow) */
+::selection,
+#third-act-hl::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+::-moz-selection,
+#third-act-hl::-moz-selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-fg);
+}
+@supports (height: 100dvh) {
+  :root {
+    --particle-o-core: min(100vw, 100dvh);
+  }
+}
+html,
+body {
+  min-height: 100%;
+  min-height: 100dvh;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+/* Custom cursor (desktop / fine pointer) - solid dot; ring only on links / interactive, difference blend */
+@media (hover: hover) and (pointer: fine) {
+  html.custom-cursor--active,
+  html.custom-cursor--active * {
+    cursor: none !important;
+  }
+  html.custom-cursor--active input,
+  html.custom-cursor--active textarea,
+  html.custom-cursor--active select {
+    cursor: text !important;
+  }
+  /* Modal open: use normal system cursors (not the custom dot) */
+  html.site-meta-open.custom-cursor--active,
+  html.site-meta-open.custom-cursor--active * {
+    cursor: revert !important;
+  }
+  html.site-meta-open.custom-cursor--active .site-meta-panel__terminal-ui,
+  html.site-meta-open.custom-cursor--active .site-meta-panel__terminal-ui * {
+    cursor: text !important;
+  }
+  html.site-meta-open.custom-cursor--active
+    .site-meta-panel__terminal-ui
+    a.site-meta-panel__terminal-log-link {
+    cursor: pointer !important;
+  }
+}
+html.site-meta-open .custom-cursor {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none;
+}
+.custom-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  overflow: hidden;
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.custom-cursor.custom-cursor--visible {
+  opacity: 1;
+}
+.custom-cursor__ring,
+.custom-cursor__dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+  border-radius: 50%;
+}
+/* Outer ring: canvas of rotating particles, hidden until an interactive target is under the pointer */
+.custom-cursor__ring {
+  display: block;
+  width: 42px;
+  height: 42px;
+  margin-left: 0;
+  margin-top: 0;
+  background: transparent;
+  box-sizing: border-box;
+  opacity: 0;
+  transition:
+    opacity 0.2s var(--ease-out-flow),
+    width 0.3s var(--ease-out-flow),
+    height 0.3s var(--ease-out-flow);
+  pointer-events: none;
+}
+.custom-cursor.custom-cursor--hover .custom-cursor__ring {
+  opacity: 1;
+  width: 56px;
+  height: 56px;
+}
+.custom-cursor__dot {
+  width: 14px;
+  height: 14px;
+  margin-left: 0;
+  margin-top: 0;
+  background: #fff;
+}
+.custom-cursor__arrow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  color: var(--red);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform;
+  transform-origin: 50% 50%;
+  transition:
+    opacity 0.15s ease,
+    visibility 0.15s ease;
+  z-index: 3;
+}
+/* Cards: red dot with same difference blend as default cursor (content shows through). */
+html.custom-cursor--hcard .custom-cursor {
+  mix-blend-mode: difference;
+}
+html.custom-cursor--hcard .custom-cursor__dot {
+  background: var(--red);
+}
+/* On card links/buttons, return to default cursor dot behavior. */
+html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor {
+  mix-blend-mode: difference;
+}
+html.custom-cursor--hcard.custom-cursor--hcard-interactive .custom-cursor__dot {
+  background: #fff;
+}
+/* Collapsed work cards: show arrow (open another card) instead of the dot. */
+html.custom-cursor--hcard-arrow .custom-cursor__dot {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+html.custom-cursor--hcard-arrow .custom-cursor__arrow {
+  opacity: 1;
+  visibility: visible;
+}
+/* After third act: native vertical scroll + continuation (see unlockThirdActPageScroll)
+   Single scroll root on <html> - iOS Safari often “sticks” when both html and body are overflow-y:auto. */
+html.scroll-intro-scrollable {
+  height: auto;
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+html.scroll-intro-scrollable body {
+  height: auto;
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: visible;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
+}
+/* Site-meta modal: no page scroll, no hit-testing behind the dialog (all page states) */
+html.site-meta-open {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+html.site-meta-open body {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* Scroll was on <html> after third act; re-lock with equal-or-higher weight */
+html.site-meta-open.scroll-intro-scrollable {
+  overflow: hidden !important;
+  touch-action: none;
+}
+html.site-meta-open.scroll-intro-scrollable body {
+  touch-action: none;
+  overflow: hidden !important;
+}
+/* Page cannot steal input - !important beats .third-act (4-class) and .scroll-intro-header-strip > * */
+html.site-meta-open body * {
+  pointer-events: none !important;
+}
+html.site-meta-open .site-meta-panel,
+html.site-meta-open .site-meta-panel * {
+  pointer-events: auto !important;
+  user-select: text;
+  -webkit-user-select: text;
+}
+html.site-meta-open.scroll-intro-scrollable .stage,
+html.site-meta-open.scroll-intro-scrollable .third-act,
+html.site-meta-open.scroll-intro-scrollable #stage {
+  touch-action: none !important;
+}
+/* Hide fixed FAB while footer’s terminal control is on-screen (IO + class on <html>); #site-meta-open beats strip defaults */
+html.site-meta-footer-row-visible #site-meta-open.site-meta-btn--fab {
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+html.scroll-intro-scrollable .stage {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+/* Hero was only hidden with visibility - collapse it so the red block is the first in-flow slice */
+html.scroll-intro-scrollable .hero-content {
+  display: none;
+}
+html.scroll-intro-scrollable .second-hl-particles-wrap {
+  display: none;
+}
+/* Third act stays on (not torn down); sits above #studio in normal scroll order */
+html.scroll-intro-scrollable .third-act.third-act--active.third-act--in-flow {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1;
+  pointer-events: auto;
+}
+html.scroll-intro-scrollable
+  .third-act.third-act--active.third-act--in-flow
+  .third-act-particles-vp-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+.scroll-intro-below {
+  position: relative;
+  z-index: 0;
+  /* Studio anchor: align section top with viewport top so the third-act red is fully scrolled away (nav is fixed over the grey). */
+  scroll-margin-top: 0;
+  background: var(--bg);
+  border-top: 1px solid #0000001a;
+  /* Horizontal gutter matches .hscroll-track padding + scroll-padding (card strip insets). */
+  padding-left: var(--g);
+  padding-right: var(--g);
+  padding-top: clamp(128px, 24vh, 280px);
+  padding-bottom: clamp(128px, 24vh, 280px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+.scroll-intro-below__inner {
+  width: 100%;
+  max-width: min(1384px, 100%);
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--ink);
+  opacity: 0.96;
+}
+.scroll-intro-below__statements {
+  margin: 0;
+}
+.scroll-intro-below__statement {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(32px, 5.4vw, 56px);
+  line-height: 1.18;
+  letter-spacing: 0.012em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--ink);
+}
+.scroll-intro-below__statements
+  .scroll-intro-below__statement
+  + .scroll-intro-below__statement {
+  margin-top: clamp(20px, 3.2vw, 40px);
+}
+.scroll-intro-below__statement em {
+  font-style: normal;
+}
+/* Word spans: scroll-driven light color -> full color (see initScrollIntroContinuation). */
+.scroll-intro-below__word {
+  display: inline;
+  font-weight: 400;
+  color: var(--ink-muted-statement);
+}
+.scroll-intro-below__word--accent {
+  color: var(--ink-muted-statement);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-intro-below__word {
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .scroll-intro-below__word--accent {
+    color: var(--red);
+  }
+}
+/* Tighten gap to footer wordmark (~35% less than default stack) */
+#scroll-intro-below-after-cards {
+  padding-bottom: calc(0.5 * clamp(128px, 24vh, 280px));
+}
+
+#scroll-intro-continuation {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+/* ── Project cards (horizontal) + footer wordmark - same pattern as index ── */
+.scroll-intro-continuation .hscroll-frame {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  /* Top rule on wrapper (not .hscroll-track): WebKit often drops 1px top borders on overflow-x scrollers on small viewports. */
+  border-top: 1px solid var(--ink);
+}
+/* Breathing room when jumping to #projects (nav link, scrollIntoView, :target). */
+#projects {
+  scroll-margin-top: max(64px, var(--scroll-intro-anchor-margin));
+}
+.scroll-intro-continuation .hscroll-track {
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  /* Horizontal scrollport + vertical page scroll: pan-x alone blocks vertical swipes on mobile when the gesture starts on a card (touch-action is not inherited but applies to the scroll container subtree). pan-y lets the page scroll while overflow-y:hidden keeps the strip from scrolling vertically. */
+  overflow-y: hidden;
+  overflow-anchor: none;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  scroll-snap-type: x mandatory;
+  /* Snap / scroll-into-view insets; pairs with per-card max width (100vw - 2×gutter). */
+  scroll-padding-left: var(--g);
+  scroll-padding-right: var(--g);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-left: var(--g);
+  height: clamp(720px, 78vh, 900px);
+  background: var(--bg);
+  border-bottom: 1px solid var(--ink);
+}
+.scroll-intro-continuation .hscroll-track::-webkit-scrollbar {
+  display: none;
+}
+/* Aptos-style strip: dark / light panels edge-to-edge in the track. */
+.scroll-intro-continuation .hcard {
+  --hcard-ink: var(--text-on-dark-muted);
+  --hcard-px: clamp(28px, 4vw, 40px);
+  /* Room for the pinned .hcard-discover (absolute) + normal edge inset */
+  --hcard-cta-pad: 2.4rem;
+  /* Whole card opens details when collapsed (see initHcardDiscoverExpand); keep text cursor when open. */
+  cursor: pointer;
+  /* % flex-basis is vs. the track width - avoids 100vw + vertical-scrollbar overflow gap */
+  flex: 0 0 clamp(400px, min(88%, calc(100% - 2 * var(--g))), 760px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  box-sizing: border-box;
+  padding: var(--hcard-px) var(--hcard-px)
+    calc(var(--hcard-px) + var(--hcard-cta-pad)) var(--hcard-px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+  background: #0a0a0a;
+  color: var(--hcard-ink);
+  border-left: 1px solid var(--ink);
+  border-right: 1px solid var(--ink);
+  margin-left: -1px;
+}
+.scroll-intro-continuation .hscroll-track > .hcard:first-child {
+  margin-left: 0;
+}
+.scroll-intro-continuation .hcard--featured {
+  --hcard-ink: var(--text-on-dark);
+}
+.scroll-intro-continuation .hcard-top {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 2vw, 16px);
+  padding-right: 8px;
+}
+.scroll-intro-continuation .hcard-visual {
+  flex: 1 1 auto;
+  min-height: clamp(160px, 30vh, 320px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: clamp(16px, 3vw, 28px) 0;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.38s var(--ease-hcard-surface);
+}
+/* Expanded: motif / diagram area gives way to the long write-up */
+.scroll-intro-continuation .hcard--expanded .hcard-visual {
+  flex: 0 0 0;
+  min-height: 0 !important;
+  max-height: 0;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+/* Nota art: pin before expand (JS sets --nota-fig-*) so it only fades, no travel with flex collapse */
+.scroll-intro-continuation .hcard--expanded .hcard-visual--nota {
+  position: absolute;
+  left: var(--nota-fig-l);
+  top: var(--nota-fig-t);
+  width: var(--nota-fig-w);
+  height: var(--nota-fig-h);
+  min-height: 0 !important;
+  max-height: none !important;
+  flex: 0 0 auto;
+  margin: 0 !important;
+  opacity: 0;
+  z-index: 2;
+  overflow: visible;
+  transition: opacity 0.42s var(--ease-hcard-surface) !important;
+  pointer-events: none;
+}
+/* Re-opening the motif: quick, so the bottom CTA (pinned) doesn’t travel with a slow flex grow. */
+.scroll-intro-continuation .hcard:not(.hcard--expanded) .hcard-visual {
+  transition: opacity 0.2s var(--ease-hcard-snapshut);
+}
+.scroll-intro-continuation .hcard-visual-inner {
+  position: relative;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  align-self: center;
+  /* One edge length for a square - avoids width + max-height fighting aspect-ratio on mobile. */
+  width: min(88%, 320px, min(52vw, 340px));
+  aspect-ratio: 1 / 1;
+  height: auto;
+  max-width: 100%;
+}
+/* Nota: small illustration (keeps type as the focus) */
+.scroll-intro-continuation .hcard-visual-inner--nota {
+  width: min(54%, 170px, min(32vw, 196px));
+  display: grid;
+  place-items: center;
+}
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-morph-svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-morph-start path {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: d;
+}
+.scroll-intro-continuation .hcard-visual-inner--nota .nota-morph-target {
+  visibility: hidden;
+  pointer-events: none;
+}
+.scroll-intro-continuation .hcard-visual-inner--atlas {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: none;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+.scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-svg {
+  width: min(84%, 252px);
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: none;
+}
+.scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-apart path {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: d;
+}
+.scroll-intro-continuation .hcard-visual-inner--atlas .atlas-morph-target {
+  visibility: hidden;
+  pointer-events: none;
+}
+.scroll-intro-continuation .hcard-visual-inner--scaffold {
+  border: 1px solid rgba(242, 241, 236, 0.14);
+  background:
+    linear-gradient(
+      180deg,
+      transparent 32%,
+      rgba(242, 241, 236, 0.09) 32.5%,
+      transparent 33%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 44%,
+      rgba(242, 241, 236, 0.09) 44.5%,
+      transparent 45%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 11px,
+      rgba(242, 241, 236, 0.06) 11px,
+      rgba(242, 241, 236, 0.06) 12px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 11px,
+      rgba(242, 241, 236, 0.06) 11px,
+      rgba(242, 241, 236, 0.06) 12px
+    );
+}
+/* Light cards (Nota, Health Atlas): contrast with first dark panel. */
+.scroll-intro-continuation .hcard--light {
+  --hcard-ink: var(--ink);
+  background: #ebe9e4;
+  background: color-mix(in srgb, var(--bg) 78%, #fff 22%);
+}
+.scroll-intro-continuation .hcard--light .hcard-visual-inner--atlas {
+  background: none;
+}
+.scroll-intro-continuation .hcard--light .hcard-visual-inner--scaffold {
+  border-color: rgba(0, 0, 0, 0.12);
+  background:
+    linear-gradient(
+      180deg,
+      transparent 32%,
+      rgba(0, 0, 0, 0.06) 32.5%,
+      transparent 33%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 44%,
+      rgba(0, 0, 0, 0.06) 44.5%,
+      transparent 45%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 11px,
+      rgba(0, 0, 0, 0.045) 11px,
+      rgba(0, 0, 0, 0.045) 12px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 11px,
+      rgba(0, 0, 0, 0.045) 11px,
+      rgba(0, 0, 0, 0.045) 12px
+    );
+}
+.scroll-intro-continuation .hcard-visual-inner--overture {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+}
+.scroll-intro-continuation .hcard--light .hcard-visual-inner--overture {
+  border: 0;
+  background: none;
+}
+.scroll-intro-continuation .hcard-visual-inner--overture .overture-ripple-svg {
+  width: min(67%, 173px);
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+  /* Shared reference so nested <g> scales from viewBox center, not each layer’s bbox */
+  transform-box: view-box;
+}
+.scroll-intro-continuation
+  .hcard-visual-inner--overture
+  .overture-ripple-layer {
+  transform-origin: 104.5px 104.5px;
+  transform-box: view-box;
+  opacity: 1;
+}
+/* Same wall clock as Nota: 180ms hold + morph through last stagger ≈ 1588ms */
+.scroll-intro-continuation
+  .hcard-visual-inner--overture
+  .overture-ripple-svg.is-playing
+  .overture-ripple-layer--core {
+  animation: overture-ripple-core 700ms cubic-bezier(0.37, 0, 0.63, 1) 180ms
+    both;
+}
+.scroll-intro-continuation
+  .hcard-visual-inner--overture
+  .overture-ripple-svg.is-playing
+  .overture-ripple-layer--mid {
+  animation: overture-ripple-wave 880ms cubic-bezier(0.37, 0, 0.63, 1) 420ms
+    both;
+}
+.scroll-intro-continuation
+  .hcard-visual-inner--overture
+  .overture-ripple-svg.is-playing
+  .overture-ripple-layer--outer {
+  animation: overture-ripple-wave 908ms cubic-bezier(0.37, 0, 0.63, 1) 680ms
+    both;
+}
+@keyframes overture-ripple-core {
+  0% {
+    opacity: 1;
+    transform: scale(0.62);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1);
+  }
+  28% {
+    opacity: 1;
+    transform: scale(0.74);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.25, 1);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(0.91);
+    animation-timing-function: cubic-bezier(0.25, 0, 0.4, 1);
+  }
+  88% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes overture-ripple-wave {
+  0% {
+    opacity: 1;
+    transform: scale(0.48);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(0.64);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.25, 1);
+  }
+  58% {
+    opacity: 1;
+    transform: scale(0.86);
+    animation-timing-function: cubic-bezier(0.25, 0, 0.4, 1);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.scroll-intro-continuation .hcard--light .hcard-discover:hover,
+.scroll-intro-continuation .hcard--light .hcard-discover:focus-visible {
+  color: var(--nav-second-hl-accent);
+}
+.scroll-intro-continuation .hcard-discover {
+  /* Pinned: avoids riding up the flex column when long copy + motif height transitions on close. */
+  position: absolute;
+  left: var(--hcard-px);
+  bottom: var(--hcard-px);
+  z-index: 3;
+  flex: 0 0 auto;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  margin-top: 0;
+  align-self: flex-start;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--hcard-ink);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(12px, 1.45vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  text-transform: uppercase;
+  padding: 4px 0;
+  transition:
+    opacity 0.3s var(--ease-hcard-silk),
+    color 0.3s var(--ease-hcard-silk);
+}
+.scroll-intro-continuation .hcard-discover:hover,
+.scroll-intro-continuation .hcard-discover:focus-visible {
+  color: var(--nav-second-hl-accent);
+}
+.scroll-intro-continuation .hcard-discover:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 4px;
+}
+/* Expanded card: wider panel + reveal long copy (grid 0fr → 1fr) */
+.scroll-intro-continuation .hcard {
+  transition: flex-basis 0.55s var(--ease-hcard-surface);
+  z-index: 0;
+}
+.scroll-intro-continuation .hcard--expanded {
+  z-index: 2;
+  flex-basis: clamp(
+    520px,
+    min(94%, calc(100% - 2 * var(--g))),
+    920px
+  ) !important;
+  cursor: auto;
+}
+/* Default: snappy height when a card *closes*; when expanded, modifier below uses a slower ease. */
+.scroll-intro-continuation .hscroll-track {
+  transition: height 0.22s var(--ease-hcard-snapshut);
+}
+.scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded {
+  transition: height 0.5s var(--ease-hcard-surface);
+  /* Grow with expanded copy - no in-card scrollbar; page scroll handles overflow. */
+  height: auto;
+  min-height: clamp(720px, 78vh, 900px);
+}
+.scroll-intro-continuation .hcard-detail-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  /* Collapse: keep very short so the CTA (pinned) doesn’t read as a bottom swipe. */
+  transition:
+    grid-template-rows 0.1s var(--ease-hcard-snapshut),
+    margin 0.1s var(--ease-hcard-snapshut);
+  margin: 0;
+  padding: 0;
+}
+.scroll-intro-continuation .hcard--expanded .hcard-detail-wrap {
+  grid-template-rows: 1fr;
+  flex: 0 0 auto;
+  min-height: auto;
+  /* Clear separation between teaser (title + subcopy) and long body. */
+  margin-top: clamp(20px, 2.6vw, 40px);
+  /* After the card is wide + the display title is red/large, open the long-copy block. */
+  transition:
+    grid-template-rows 0.4s var(--ease-hcard-surface) 1.05s,
+    margin 0.4s var(--ease-hcard-surface) 1.05s;
+}
+.scroll-intro-continuation .hcard-detail-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.scroll-intro-continuation .hcard--expanded .hcard-detail-inner {
+  overflow-x: hidden;
+  overflow-y: visible;
+  min-height: 0;
+}
+.scroll-intro-continuation .hcard-detail {
+  font-family: "Inter", sans-serif;
+  font-size: var(--card-body-font-size);
+  font-weight: 400;
+  line-height: var(--card-body-line-height);
+  color: var(--hcard-ink, #f2f1ec);
+  margin: 0;
+  padding: 0;
+  /* Text column = 75% of card width (25% narrower than full card width). */
+  max-width: 75%;
+  opacity: 0;
+  transform: translate3d(0, 0.5rem, 0);
+  filter: blur(2px);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  /* Collapse: out fast, no long motion so close stays crisp. */
+  transition:
+    opacity 0.2s var(--ease-hcard-snapshut),
+    transform 0.2s var(--ease-hcard-snapshut),
+    filter 0.18s var(--ease-hcard-snapshut);
+}
+.scroll-intro-continuation .hcard--expanded .hcard-detail {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0);
+  padding-bottom: 0.5rem;
+  /* After the wrap opens: gentle lift, fade, and de-blur (see delay vs .hcard-detail-wrap). */
+  transition:
+    opacity 0.72s var(--ease-hcard-silk) 1.42s,
+    transform 0.75s var(--ease-hcard-silk) 1.42s,
+    filter 0.55s var(--ease-hcard-silk) 1.42s;
+}
+.scroll-intro-continuation .hcard-detail p {
+  margin: 0 0 1em;
+}
+.scroll-intro-continuation .hcard-detail p:last-child {
+  margin-bottom: 0;
+}
+.scroll-intro-continuation .hcard-detail-cta-wrap {
+  margin: 1.5em 0 0;
+}
+.scroll-intro-continuation .hcard-detail-cta {
+  display: inline-block;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(13px, 1.55vw, 15px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--red);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 3px;
+  transition:
+    color 0.25s var(--ease-hcard-silk),
+    border-color 0.25s var(--ease-hcard-silk);
+}
+.scroll-intro-continuation .hcard-detail-cta:hover {
+  color: var(--nav-second-hl-accent);
+  border-color: var(--nav-second-hl-accent);
+  outline: none;
+}
+.scroll-intro-continuation .hcard-detail-cta:focus-visible {
+  color: var(--nav-second-hl-accent);
+  border-color: var(--nav-second-hl-accent);
+  outline: 2px solid var(--red);
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-intro-continuation .hcard,
+  .scroll-intro-continuation .hscroll-track,
+  .scroll-intro-continuation .hcard-detail-wrap,
+  .scroll-intro-continuation .hcard-detail,
+  .scroll-intro-continuation .hcard--expanded .hcard-detail,
+  .scroll-intro-continuation .hcard-visual,
+  .scroll-intro-continuation .hcard--expanded .hcard-top,
+  .scroll-intro-continuation .hcard--expanded .pg-name,
+  .scroll-intro-continuation .hcard--expanded .pg-name .hl-char {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+  .scroll-intro-continuation .hcard--expanded .hcard-detail,
+  .scroll-intro-continuation .hcard-detail {
+    filter: none !important;
+    transform: none !important;
+  }
+  .scroll-intro-continuation .hcard--expanded .hcard-visual--nota {
+    transition-duration: 0.01ms !important;
+  }
+}
+.scroll-intro-continuation .hscroll-end-pad {
+  flex: 0 0 var(--g);
+  scroll-snap-align: none;
+}
+.scroll-intro-continuation .kim-team-section {
+  position: relative;
+  background: var(--bg);
+  border-bottom: 1px solid var(--ink);
+  overflow: hidden;
+  min-height: clamp(280px, 50vw, 520px);
+  padding: clamp(72px, 9vw, 132px) 0 clamp(28px, 4vw, 48px);
+}
+.scroll-intro-continuation .kim-team-wall {
+  position: relative;
+  width: 100%;
+  min-height: inherit;
+}
+.scroll-intro-continuation .kim-team-lines {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, 1vw, 16px);
+  transform: translateY(clamp(-6px, -1vw, -2px));
+}
+.scroll-intro-continuation .kim-team-line {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 400;
+  font-size: clamp(72px, 16vw, 168px);
+  line-height: 0.82;
+  letter-spacing: 0.01em;
+  color: var(--ink-watermark);
+  white-space: nowrap;
+  text-align: center;
+  user-select: none;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+.scroll-intro-continuation .kim-team-note {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(120px, 16vw, 200px);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background: var(--red);
+  box-shadow: none;
+  display: block;
+  padding: 0;
+}
+.scroll-intro-continuation .kim-team-note-title {
+  display: none;
+}
+.scroll-intro-continuation .kim-team-note-signoff {
+  display: none;
+}
+.scroll-intro-continuation .kim-team-note-signoff span {
+  display: none;
+}
+@media (max-width: 700px) {
+  .scroll-intro-continuation .kim-team-section {
+    min-height: clamp(260px, 74vw, 420px);
+  }
+  .scroll-intro-continuation .kim-team-line {
+    font-size: clamp(62px, 19vw, 126px);
+    line-height: 0.84;
+  }
+  .scroll-intro-continuation .kim-team-note {
+    width: clamp(108px, 30vw, 156px);
+  }
+}
+.scroll-intro-continuation .pg-name {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 400;
+  font-size: clamp(22px, 3.4vw, 34px);
+  line-height: 1.12;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hcard-ink, #f2f1ec);
+  margin: 0;
+  transition:
+    color 0.4s var(--ease-hcard-silk),
+    font-size 0.5s var(--ease-hcard-silk),
+    line-height 0.5s var(--ease-hcard-silk),
+    letter-spacing 0.5s var(--ease-hcard-silk);
+}
+/* Quick settle when closing a card (no long ease fighting the CTA) */
+.scroll-intro-continuation .hcard:not(.hcard--expanded) .pg-name {
+  transition:
+    color 0.28s var(--ease-hcard-snapshut),
+    font-size 0.32s var(--ease-hcard-snapshut),
+    line-height 0.32s var(--ease-hcard-snapshut),
+    letter-spacing 0.32s var(--ease-hcard-snapshut);
+}
+/* Hero .hl-line uses clip-path + contain:paint to trim the big headline; same rules clip wrapped card titles */
+.scroll-intro-continuation .pg-name .hl-line {
+  clip-path: none;
+  contain: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+.scroll-intro-continuation .pg-desc {
+  font-family: "Inter", sans-serif;
+  font-size: var(--card-body-font-size);
+  font-weight: 400;
+  line-height: var(--card-body-line-height);
+  color: var(--hcard-ink, #f2f1ec);
+  max-width: 36ch;
+  margin: 0;
+  transition: color 0.35s var(--ease-hcard-silk);
+}
+/*
+ * Stagger: (1) card flex/scroll + layout, (2) big red title, (3) body. Teaser (subcopy) is
+ * not shown in the expanded state - only the display title + long copy.
+ */
+.scroll-intro-continuation .hcard--expanded .hcard-top {
+  gap: clamp(6px, 0.8vw, 12px);
+  transition: gap 0.5s var(--ease-hcard-silk) 0.55s;
+}
+.scroll-intro-continuation .hcard--expanded .pg-desc {
+  display: none;
+}
+/* Between default 0.18em (too loose at display size) and 0.02em (too tight). */
+.scroll-intro-continuation .hcard--expanded .pg-name .hl-char {
+  padding-bottom: 0.07em;
+  transition: padding-bottom 0.5s var(--ease-hcard-silk) 0.55s;
+}
+.scroll-intro-continuation .hcard--expanded .pg-name {
+  color: var(--red);
+  font-size: clamp(48px, 11vw, 112px);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  transition:
+    color 0.52s var(--ease-hcard-silk) 0.55s,
+    font-size 0.55s var(--ease-hcard-silk) 0.55s,
+    line-height 0.55s var(--ease-hcard-silk) 0.55s,
+    letter-spacing 0.55s var(--ease-hcard-silk) 0.55s;
+}
+@media (max-width: 600px) {
+  .scroll-intro-continuation .hcard--expanded .hcard-top {
+    gap: clamp(6px, 1.4vw, 14px);
+  }
+  .scroll-intro-continuation .hcard--expanded .pg-name {
+    font-size: clamp(32px, 12.5vw, 72px);
+  }
+}
+.scroll-intro-continuation .pg-name.revealed .hl-char {
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  opacity: 1;
+}
+.scroll-intro-continuation footer {
+  margin-top: auto;
+  /*
+   * Full width of the scrollable column only - not 100vw. With a vertical scrollbar,
+   * 100vw is wider than the layout viewport; overflow-x:hidden then clips the right
+   * side of the wordmark (LABS disappears).
+   */
+  width: 100%;
+  max-width: none;
+  position: relative;
+  left: auto;
+  margin-left: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(320px, 52vh, 780px);
+  /* Tighter space below last subcopy to wordmark (see #scroll-intro-below-after-cards) */
+  padding: calc(0.5 * clamp(84px, 13vh, 180px)) 0 0 0;
+  overflow: visible;
+  background: var(--bg);
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 1.05s var(--ease-out-settle),
+    transform 1.05s var(--ease-out-flow);
+}
+.scroll-intro-continuation footer.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+.scroll-intro-continuation .wordmark-row {
+  padding: 0;
+  margin-top: calc(0.5 * clamp(132px, 20vh, 320px));
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  position: relative;
+  overflow: visible;
+  isolation: isolate;
+}
+/* Hairline + link row under wordmark (CapCut-style strip) */
+.scroll-intro-continuation .wordmark-footer-hairline {
+  width: 100%;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--ink);
+  padding: 0;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 3;
+  background: var(--bg);
+}
+.scroll-intro-continuation .wordmark-footer-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: clamp(12px, 3vw, 64px);
+  --wordmark-footer-nav-pad-y: clamp(14px, 2.2vw, 22px);
+  --wordmark-footer-nav-pad-right: calc(
+    var(--site-meta-fab-right) + clamp(10px, 2.4vw, 22px)
+  );
+  padding: var(--wordmark-footer-nav-pad-y) var(--wordmark-footer-nav-pad-right)
+    calc(var(--wordmark-footer-nav-pad-y) + env(safe-area-inset-bottom, 0px))
+    var(--site-meta-fab-left);
+  box-sizing: border-box;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(12px, 1.45vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 3;
+  background: var(--bg);
+}
+.scroll-intro-continuation .wordmark-footer-start {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2.4vw, 26px);
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+/* Pull first footer link closer to the terminal control (link–link spacing unchanged) */
+.scroll-intro-continuation .wordmark-footer-start .site-meta-btn--footer + a {
+  margin-inline-start: clamp(-10px, -1.4vw, -4px);
+}
+.scroll-intro-continuation .wordmark-footer-copyright {
+  flex-shrink: 0;
+  margin-right: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(12px, 1.45vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--ink);
+  user-select: none;
+}
+.scroll-intro-continuation .wordmark-footer-nav a {
+  color: var(--ink);
+  text-decoration: none;
+  opacity: 0.82;
+  white-space: nowrap;
+  transition:
+    opacity 0.28s var(--ease-out-flow),
+    color 0.28s var(--ease-out-flow);
+}
+.scroll-intro-continuation .wordmark-footer-nav a:hover,
+.scroll-intro-continuation .wordmark-footer-nav a:focus-visible {
+  opacity: 1;
+  color: var(--nav-second-hl-accent);
+}
+.scroll-intro-continuation .wordmark-footer-nav a:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 3px;
+}
+.scroll-intro-continuation .wordmark {
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-width: 100%;
+  flex-shrink: 0;
+  cursor: default;
+  position: relative;
+  z-index: 1;
+  color: var(--red);
+  line-height: 0;
+  transform: translateY(5px);
+  /* slice scales past the box - hidden clipped “LABS”; page scroll uses overflow-x on html */
+  overflow: visible;
+}
+.scroll-intro-continuation .wordmark-svg-physics {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.scroll-intro-continuation:not(.scroll-intro-continuation--wordmark-static)
+  .wordmark-svg-physics
+  .wm-l
+  path,
+.scroll-intro-continuation:not(.scroll-intro-continuation--wordmark-static)
+  .wordmark-svg-physics
+  .wm-l
+  rect {
+  fill: transparent;
+}
+/* Prevent white/blank flash during SVG -> canvas handoff. */
+.scroll-intro-continuation
+  .wordmark.wordmark--handoff
+  .wordmark-svg-physics
+  .wm-l
+  path,
+.scroll-intro-continuation
+  .wordmark.wordmark--handoff
+  .wordmark-svg-physics
+  .wm-l
+  rect {
+  fill: currentColor !important;
+}
+.scroll-intro-continuation--wordmark-static .wordmark-svg-physics .wm-l path,
+.scroll-intro-continuation--wordmark-static .wordmark-svg-physics .wm-l rect {
+  fill: currentColor;
+}
+.scroll-intro-continuation--wordmark-static #wm-vid-canvas-scroll-intro {
+  display: none !important;
+}
+.scroll-intro-continuation #wm-vid-canvas-scroll-intro {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 1.15s var(--ease-out-flow);
+}
+.scroll-intro-continuation
+  .wordmark.wordmark--canvas-reveal
+  #wm-vid-canvas-scroll-intro {
+  opacity: 1;
+}
+/* Footer wordmark intro: JS drives per-letter staggered rise; keep only paint override here. */
+.scroll-intro-continuation
+  .wordmark.wordmark--letter-intro
+  .wordmark-svg-physics
+  > .wm-l {
+  will-change: transform, opacity;
+}
+.scroll-intro-continuation
+  .wordmark.wordmark--letter-intro
+  .wordmark-svg-physics
+  .wm-l
+  path,
+.scroll-intro-continuation
+  .wordmark.wordmark--letter-intro
+  .wordmark-svg-physics
+  .wm-l
+  rect {
+  fill: currentColor !important;
+}
+@media (max-width: 900px) {
+  .scroll-intro-continuation .hscroll-track {
+    height: clamp(640px, 74vh, 820px);
+  }
+  .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded {
+    height: auto;
+    min-height: clamp(720px, 80vh, 900px);
+  }
+  .scroll-intro-continuation .hcard {
+    flex: 0 0 clamp(360px, min(90%, calc(100% - 2 * var(--g))), 680px);
+  }
+  .scroll-intro-continuation .hcard--expanded {
+    flex-basis: clamp(
+      400px,
+      min(96%, calc(100% - 2 * var(--g))),
+      760px
+    ) !important;
+  }
+  .scroll-intro-continuation .pg-desc {
+    max-width: min(100%, 48ch);
+  }
+  .scroll-intro-continuation .hcard-detail {
+    max-width: 90%;
+  }
+}
+@media (max-width: 600px) {
+  :root {
+    --card-body-font-size: clamp(15px, 1.55vw, 17px);
+    --card-body-line-height: 1.6;
+  }
+  .scroll-intro-continuation .hscroll-track {
+    height: clamp(600px, 72vh, 760px);
+  }
+  .scroll-intro-continuation .hscroll-track.hscroll-track--card-expanded {
+    height: auto;
+    min-height: clamp(680px, 78vh, 840px);
+  }
+  .scroll-intro-continuation .hcard {
+    flex: 0 0 clamp(260px, min(92%, 560px, calc(100% - 2 * var(--g))), 560px);
+    --hcard-px: 20px;
+    /* Pinned .hcard-discover is ~48px tall + needs gap above copy; 2.4rem was too tight on phone. */
+    --hcard-cta-pad: calc(48px + 1.1rem);
+    padding: 24px 20px calc(24px + var(--hcard-cta-pad)) 20px;
+  }
+  .scroll-intro-continuation .hcard--expanded {
+    flex-basis: clamp(
+      280px,
+      min(96%, calc(100% - 2 * var(--g))),
+      600px
+    ) !important;
+  }
+  .scroll-intro-continuation .hcard-discover {
+    font-size: clamp(14px, 3.8vw, 17px);
+    min-height: 48px;
+    padding: 12px 8px 12px 4px;
+    box-sizing: border-box;
+    align-items: center;
+  }
+  .scroll-intro-continuation .pg-desc {
+    max-width: 100%;
+  }
+  .scroll-intro-continuation .hcard-detail {
+    max-width: 100%;
+  }
+  .scroll-intro-continuation .hcard-top {
+    padding-right: 0;
+  }
+  .scroll-intro-continuation .hcard-visual-inner {
+    width: min(88%, 280px, min(64vw, 300px));
+  }
+  .scroll-intro-continuation .hcard-visual-inner--nota {
+    width: min(45%, 110px, min(32vw, 128px));
+  }
+  /* Less air between leadership subcopy and footer wordmark (footer min-height + row margins were desktop-sized). */
+  #scroll-intro-below-after-cards {
+    padding-bottom: calc(0.32 * clamp(104px, 18vh, 240px));
+  }
+  .scroll-intro-continuation footer {
+    min-height: clamp(210px, 34vh, 520px);
+    padding-top: calc(0.32 * clamp(72px, 10vh, 160px));
+  }
+  .scroll-intro-continuation .wordmark-row {
+    margin-top: calc(0.32 * clamp(88px, 14vh, 260px));
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Fixed header row: terminal open | logo | section links - one band, vertically centered. */
+.scroll-intro-header-strip {
+  position: fixed;
+  top: var(--scroll-intro-nav-top);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: clamp(8px, 2vw, 16px);
+  padding-left: var(--site-meta-fab-left);
+  padding-right: var(--site-meta-fab-right);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.scroll-intro-header-strip > * {
+  pointer-events: auto;
+}
+.scroll-intro-header-strip .site-meta-btn--fab {
+  position: relative;
+  top: auto;
+  left: auto;
+  bottom: auto;
+  z-index: auto;
+  justify-self: start;
+  grid-column: 1;
+  padding: 8px;
+  align-items: center;
+}
+.scroll-intro-header-strip .scroll-intro-logo {
+  justify-self: center;
+  grid-column: 2;
+}
+.scroll-intro-header-strip .scroll-intro-top-nav {
+  position: relative;
+  top: auto;
+  right: auto;
+  justify-self: end;
+  grid-column: 3;
+}
+/* Fixed nav: ink on grey so color transitions run black → orange (not #fff → orange + blend snap). */
+.scroll-intro-logo {
+  width: max-content;
+  color: var(--ink);
+  text-decoration: none;
+  display: block;
+  line-height: 0;
+  mix-blend-mode: normal;
+  transition:
+    opacity 0.42s var(--ease-out-flow),
+    color 0.35s var(--ease-out-flow),
+    outline-color 0.35s var(--ease-out-flow);
+}
+/* Scrollable logo: translateY tracks #third-act (no transform transition); past-third-act hides until red is on screen again */
+html.scroll-intro-scrollable .scroll-intro-header-strip .scroll-intro-logo {
+  transition:
+    color 0.35s var(--ease-out-flow),
+    outline-color 0.35s var(--ease-out-flow);
+}
+html.scroll-intro-scrollable.scroll-intro-logo-past-third-act
+  .scroll-intro-header-strip
+  .scroll-intro-logo {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
+.scroll-intro-logo svg {
+  display: block;
+  height: var(--scroll-intro-logo-h);
+  width: auto;
+}
+.scroll-intro-logo:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.scroll-intro-top-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: clamp(8px, 1.2vw, 12px);
+  margin: 0;
+  padding: 0;
+}
+.scroll-intro-nav-dropdown {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: clamp(8px, 1.2vw, 12px);
+}
+/* Mobile: section links behind a staggered hamburger control */
+.scroll-intro-nav-toggle {
+  display: none;
+  margin: 0;
+  padding: 10px 0 10px 14px;
+  border: none;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  color: var(--ink);
+  -webkit-text-fill-color: currentColor;
+  line-height: 0;
+  mix-blend-mode: normal;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    opacity 0.42s var(--ease-out-flow),
+    color 0.35s var(--ease-out-flow),
+    outline-color 0.35s var(--ease-out-flow);
+}
+.scroll-intro-nav-toggle:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.scroll-intro-nav-toggle__icon {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  width: 22px;
+  height: 12px;
+  position: relative;
+  box-sizing: content-box;
+}
+.scroll-intro-nav-toggle__bar {
+  display: block;
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  flex-shrink: 0;
+  transition: transform 0.32s var(--ease-out-flow);
+}
+.scroll-intro-nav-toggle[aria-expanded="true"] .scroll-intro-nav-toggle__icon {
+  gap: 0;
+}
+.scroll-intro-nav-toggle[aria-expanded="true"]
+  .scroll-intro-nav-toggle__bar--top,
+.scroll-intro-nav-toggle[aria-expanded="true"]
+  .scroll-intro-nav-toggle__bar--btm {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 22px;
+  margin-top: -1.5px;
+}
+.scroll-intro-nav-toggle[aria-expanded="true"]
+  .scroll-intro-nav-toggle__bar--top {
+  transform: rotate(45deg);
+}
+.scroll-intro-nav-toggle[aria-expanded="true"]
+  .scroll-intro-nav-toggle__bar--btm {
+  transform: rotate(-45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-intro-nav-toggle__bar {
+    transition-duration: 0.05s;
+  }
+}
+.scroll-intro-nav-link {
+  color: var(--ink);
+  text-decoration: none;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(12px, 1.45vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  mix-blend-mode: normal;
+  transition:
+    opacity 0.42s var(--ease-out-flow),
+    color 0.35s var(--ease-out-flow),
+    outline-color 0.35s var(--ease-out-flow);
+}
+.scroll-intro-nav-link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+/* Top nav: hover / focus tracks nav context (grey vs accent vs red third act). */
+.scroll-intro-nav-link:hover,
+.scroll-intro-nav-link:focus-visible,
+.scroll-intro-nav-toggle:hover,
+.scroll-intro-nav-toggle:focus-visible {
+  color: var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red)
+  .scroll-intro-nav-link:focus-visible,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red)
+  .scroll-intro-nav-toggle:focus-visible {
+  color: var(--ink);
+}
+html.nav-over-third-red .scroll-intro-nav-link:hover,
+html.nav-over-third-red .scroll-intro-nav-link:focus-visible,
+html.nav-over-third-red .scroll-intro-nav-toggle:hover,
+html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible {
+  color: var(--ink);
+}
+/* Logo: same hover / focus color play as Projects */
+.scroll-intro-logo:hover,
+.scroll-intro-logo:focus-visible {
+  color: var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red)
+  .scroll-intro-logo:focus-visible {
+  color: var(--ink);
+}
+html.nav-over-third-red .scroll-intro-logo:hover,
+html.nav-over-third-red .scroll-intro-logo:focus-visible {
+  color: var(--ink);
+}
+/* Third-act red fills the viewport - light ink on red. */
+html.nav-over-third-red .scroll-intro-logo,
+html.nav-over-third-red .scroll-intro-nav-link,
+html.nav-over-third-red .scroll-intro-nav-toggle {
+  color: var(--bg);
+  mix-blend-mode: normal;
+}
+html.nav-over-third-red .scroll-intro-logo:focus-visible,
+html.nav-over-third-red .scroll-intro-nav-link:focus-visible,
+html.nav-over-third-red .scroll-intro-nav-toggle:focus-visible {
+  outline-color: var(--ink);
+}
+/* Second hero headline - warm red/orange nav (normal blend on grey). :not so red-act overlap wins. */
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-logo,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-link,
+html.nav-hero-second-hl:not(.nav-over-third-red) .scroll-intro-nav-toggle {
+  color: var(--nav-second-hl-accent);
+  mix-blend-mode: normal;
+}
+html.nav-hero-second-hl:not(.nav-over-third-red)
+  .scroll-intro-logo:focus-visible {
+  outline-color: var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red)
+  .scroll-intro-nav-link:focus-visible,
+html.nav-hero-second-hl:not(.nav-over-third-red)
+  .scroll-intro-nav-toggle:focus-visible {
+  outline-color: var(--ink);
+}
+/* Open menu: toggle stays :focus after tap, so :focus-visible color was overriding section nav; keep X in sync. */
+html.nav-over-third-red .scroll-intro-nav-toggle[aria-expanded="true"] {
+  color: var(--bg);
+}
+html.nav-over-third-red .scroll-intro-nav-toggle[aria-expanded="true"]:hover {
+  color: var(--ink);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red)
+  .scroll-intro-nav-toggle[aria-expanded="true"] {
+  color: var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red)
+  .scroll-intro-nav-toggle[aria-expanded="true"]:hover {
+  color: var(--ink);
+}
+html:not(.nav-hero-second-hl):not(.nav-over-third-red)
+  .scroll-intro-nav-toggle[aria-expanded="true"] {
+  color: var(--ink);
+}
+html:not(.nav-hero-second-hl):not(.nav-over-third-red)
+  .scroll-intro-nav-toggle[aria-expanded="true"]:hover {
+  color: var(--nav-second-hl-accent);
+}
+@media (max-width: 600px) {
+  .scroll-intro-header-strip {
+    /* Vertically center site-meta icon, wordmark, and hamburger so they align in the band. */
+    align-items: center;
+  }
+  .scroll-intro-header-strip .site-meta-btn--fab {
+    align-items: center;
+    /* ~44px min tap target; slightly smaller than 48px band for visual balance */
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px 8px;
+    box-sizing: border-box;
+  }
+  /* Match FAB’s horizontal inset: FAB has 8px padding on both sides; toggle had 0 right - looked tighter to the edge. */
+  .scroll-intro-nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px 8px 10px 14px;
+    box-sizing: border-box;
+  }
+  .scroll-intro-nav-link {
+    font-size: clamp(13.5px, 3.35vw, 16px);
+    letter-spacing: 0.05em;
+    min-height: 44px;
+    padding: 10px 10px;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .scroll-intro-top-nav {
+    align-items: flex-end;
+    gap: 0;
+  }
+  .scroll-intro-top-nav.scroll-intro-top-nav--open {
+    z-index: 10;
+  }
+  /* Absolutely positioned so opening never grows the header row (no layout jump). */
+  .scroll-intro-nav-dropdown {
+    position: absolute;
+    top: 100%;
+    /* Same horizontal band as the icon/X: flush left of nav column, right inset matches toggle padding-right (8px). */
+    left: 0;
+    right: 8px;
+    width: auto;
+    align-items: flex-end;
+    margin: clamp(10px, 2.2vw, 16px) 0 0;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+    pointer-events: none;
+    gap: clamp(4px, 1.15vw, 9px);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    transform: none;
+    transition:
+      max-height 0.36s var(--ease-out-flow),
+      opacity 0.24s var(--ease-out-flow);
+  }
+  .scroll-intro-top-nav.scroll-intro-top-nav--open .scroll-intro-nav-dropdown {
+    max-height: 11rem;
+    opacity: 1;
+    visibility: visible;
+    overflow: visible;
+    pointer-events: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-intro-nav-dropdown {
+    transition-duration: 0.05s;
+  }
+  .scroll-intro-logo,
+  .scroll-intro-nav-link,
+  .scroll-intro-nav-toggle,
+  .site-meta-btn {
+    transition-duration: 0.05s;
+  }
+}
+/* Header strip z-index 60. subcopy/cards-over-nav: continuation z-index 7; hide nav + header terminal (sharp) on cards always, on subcopy when ≤960px. */
+html.scroll-intro-subcopy-under-nav.scroll-intro-scrollable
+  #scroll-intro-continuation,
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable
+  #scroll-intro-continuation {
+  position: relative;
+  z-index: 7;
+}
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable
+  .scroll-intro-header-strip
+  .scroll-intro-top-nav,
+html.scroll-intro-cards-over-nav.scroll-intro-scrollable
+  #site-meta-open.site-meta-btn--fab {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
+@media (max-width: 960px) {
+  html.scroll-intro-subcopy-under-nav.scroll-intro-scrollable
+    .scroll-intro-header-strip
+    .scroll-intro-top-nav,
+  html.scroll-intro-subcopy-under-nav.scroll-intro-scrollable
+    #site-meta-open.site-meta-btn--fab {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: none !important;
+  }
+}
+
+/* Fixed stage - no page scroll; wheel, touch, and click drive intro motion */
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  min-height: 100%;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background: var(--bg);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  overflow: visible;
+  box-sizing: border-box;
+  padding-top: max(
+    max(28px, env(safe-area-inset-top, 0px) + 16px),
+    var(--scroll-intro-header-clear)
+  );
+  padding-bottom: max(28px, env(safe-area-inset-bottom, 0px) + 16px);
+  padding-left: max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
+  padding-right: max(var(--g), calc(env(safe-area-inset-right, 0px) + 12px));
+  text-align: center;
+}
+.hero-hl-mask {
+  position: relative;
+  overflow: visible;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 2px;
+}
+/* Full-viewport particle plane - fixed to viewport (no transform here: preserves fixed containing block) */
+.second-hl-particles-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100%;
+  overflow: visible;
+  opacity: 0;
+  transition: opacity 0.42s ease;
+  pointer-events: none;
+}
+.second-hl-particles-wrap.second-hl-particles-wrap--visible {
+  opacity: 1;
+}
+.second-hl-particles-wrap canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: block;
+  border-radius: 0;
+  transform: translate3d(-50%, -50%, 0) scale(0.14);
+  transform-origin: center center;
+  transition: transform 0.68s var(--ease-snap-out);
+}
+.second-hl-particles-wrap.second-hl-particles-wrap--visible canvas {
+  transform: translate3d(-50%, -50%, 0) scale(1);
+}
+.hero-hl {
+  position: relative;
+  z-index: 1;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: var(--hero-hl-size);
+  font-weight: 400;
+  line-height: 0.88;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  color: var(--ink);
+  visibility: hidden;
+  user-select: text;
+  -webkit-user-select: text;
+  /* Line masks: vertical clip scales with type so large display glyphs aren’t shaved (O, G, M). */
+  --hl-line-clip-y: max(2px, 0.022em);
+}
+.hero-hl.revealed {
+  visibility: visible;
+}
+.hero-hl.revealed .hl-char {
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  opacity: 1;
+}
+#hero-hl .hl-line {
+  white-space: nowrap;
+}
+#hero-hl .hero-hl-accent {
+  color: var(--red);
+}
+#hero-hl .hero-hl-accent .hl-char {
+  color: var(--red);
+}
+/* Second block headline - same brand red as particles */
+.hero-hl.hero-hl--second-block,
+.hero-hl.hero-hl--second-block .hl-inner,
+.hero-hl.hero-hl--second-block .hl-char:not(.hl-char--space) {
+  color: var(--red);
+}
+
+.hl-line {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  contain: paint;
+  isolation: isolate;
+  transform: translateZ(0);
+  clip-path: inset(
+    var(--hl-line-clip-y, max(2px, 0.018em)) -5000px
+      var(--hl-line-clip-y, max(2px, 0.018em)) -5000px
+  );
+  padding-top: 0.065em;
+  padding-bottom: 0.38em;
+  margin-bottom: -0.37em;
+}
+.hl-inner {
+  display: block;
+}
+.hl-word {
+  display: inline-block;
+  /* Each .hl-char is inline-block; without nowrap the line can break between letters */
+  white-space: nowrap;
+}
+.hl-char {
+  display: inline-block;
+  padding-bottom: 0.18em;
+  transform: translate3d(0, 1.5em, 0) rotate(var(--cr, 0deg));
+  opacity: 0;
+  transition:
+    transform var(--cd, 0.95s) var(--ease-hl-char-in),
+    opacity 0s linear;
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+}
+.hl-char--space {
+  display: inline;
+  padding-bottom: 0 !important;
+  transform: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+/* Straight fall: do not reuse --cr here; staggerChars leaves random --cr on each
+   letter for the *in* motion only - exit was re-applying it and looked crooked. */
+/* Longhands only - a `transition` shorthand with !important was resetting inline delay */
+.hl-char-exit {
+  transform: translate3d(0, calc(1.35em + 16px), 0.02px) rotate(0deg) !important;
+  transition-property: transform !important;
+  transition-duration: var(--cd, 0.32s) !important;
+  transition-timing-function: var(--ease-snap-in) !important;
+}
+/* Second headline (red): keep solid brand color - no opacity/color drift while exiting */
+.hero-hl.hero-hl--second-block .hl-char.hl-char-exit {
+  opacity: 1 !important;
+  color: var(--red) !important;
+  -webkit-text-fill-color: var(--red);
+  transition: transform var(--cd, 0.32s) var(--ease-snap-in) !important;
+}
+@media (max-width: 960px) {
+  .hero-hl {
+    font-size: var(--hero-hl-size-md);
+  }
+}
+@media (max-width: 900px) {
+  :root {
+    --g: 28px;
+  }
+  .hero-content {
+    padding-top: max(
+      max(24px, env(safe-area-inset-top, 0px) + 14px),
+      var(--scroll-intro-header-clear)
+    );
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px) + 14px);
+  }
+}
+/* Slightly tighter clip on small viewports; still em-relative via .hero-hl --hl-line-clip-y where set */
+@media (max-width: 700px) {
+  .hero-hl {
+    --hl-line-clip-y: max(2px, 0.02em);
+  }
+  .hl-line {
+    padding-bottom: 0.37em;
+    margin-bottom: -0.36em;
+  }
+}
+@media (max-width: 600px) {
+  :root {
+    --g: 20px;
+    --scroll-intro-logo-h: clamp(22px, 4.35vw, 28px);
+    --scroll-intro-nav-top: max(
+      12px,
+      calc(env(safe-area-inset-top, 0px) + clamp(8px, 1.5vw, 18px))
+    );
+  }
+  .hero-hl {
+    font-size: var(--hero-hl-size-mobile);
+    letter-spacing: -0.022em;
+    line-height: 0.91;
+    max-width: min(100%, 24ch);
+    margin-left: auto;
+    margin-right: auto;
+    --hl-line-clip-y: max(1px, 0.018em);
+  }
+  .hl-line {
+    padding-top: 0.055em;
+    padding-bottom: 0.36em;
+    margin-bottom: -0.35em;
+  }
+}
+@media (max-width: 460px) {
+  .hero-hl {
+    --hl-line-clip-y: max(1px, 0.016em);
+  }
+  .hl-line {
+    padding-bottom: 0.34em;
+    margin-bottom: -0.33em;
+  }
+}
+@media (max-width: 340px) {
+  .hero-hl {
+    --hl-line-clip-y: max(1px, 0.014em);
+  }
+  .hl-line {
+    padding-bottom: 0.33em;
+    margin-bottom: -0.32em;
+  }
+}
+@media (max-width: 380px) {
+  :root {
+    --g: 16px;
+    --scroll-intro-logo-h: clamp(24px, 5vw, 28px);
+    --scroll-intro-nav-top: max(
+      10px,
+      calc(env(safe-area-inset-top, 0px) + clamp(6px, 1.4vw, 16px))
+    );
+  }
+  .hero-hl {
+    font-size: var(--hero-hl-size-xs);
+  }
+}
+@media (hover: none) and (pointer: coarse) {
+  .hero-content {
+    padding-top: max(
+      max(26px, env(safe-area-inset-top, 0px) + 16px),
+      var(--scroll-intro-header-clear)
+    );
+    padding-bottom: max(26px, env(safe-area-inset-bottom, 0px) + 16px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .second-hl-particles-wrap {
+    transition-duration: 0.12s;
+  }
+  .second-hl-particles-wrap canvas {
+    transition-duration: 0.12s;
+  }
+  .third-act-particles-vp-wrap {
+    transition-duration: 0.12s;
+  }
+  .third-act-particles-vp-wrap.third-act-particles-vp-wrap--visible canvas {
+    animation-duration: 0.12s;
+  }
+}
+
+/* Third act - red iris then headline on red */
+.third-act {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.third-act.third-act--active {
+  visibility: visible;
+  opacity: 1;
+  /* Base .third-act uses pointer-events:none; re-enable on the full-screen so wheel/tap/touch
+     on the red layer consistently hit the third act and bubble to #stage. touch-action: pan-y
+     pairs with the intro scroll lock (html touch-action:none) so vertical drags on this surface
+     are not dropped before window listeners. */
+  pointer-events: auto;
+  touch-action: pan-y;
+}
+.third-act.third-act--active .third-act-inner {
+  touch-action: pan-y;
+}
+.third-act-red {
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  -webkit-clip-path: circle(0px at 50% 50%);
+  clip-path: circle(0px at 50% 50%);
+}
+.third-act-red.third-act-red--expanded {
+  -webkit-clip-path: circle(160vmax at 50% 50%);
+  clip-path: circle(160vmax at 50% 50%);
+  transition:
+    -webkit-clip-path var(--third-act-red-iris-duration)
+      var(--third-act-red-iris-ease),
+    clip-path var(--third-act-red-iris-duration) var(--third-act-red-iris-ease);
+}
+.third-act-inner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding-top: max(
+    max(28px, env(safe-area-inset-top, 0px) + 16px),
+    var(--scroll-intro-header-clear)
+  );
+  padding-bottom: max(28px, env(safe-area-inset-bottom, 0px) + 16px);
+  padding-left: max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
+  padding-right: max(var(--g), calc(env(safe-area-inset-right, 0px) + 12px));
+}
+.third-act-inner--ring {
+  z-index: 1;
+}
+.third-act-inner--hl {
+  z-index: 3;
+}
+/* Video torus - same outer Ø as particle ring; sits under headline in same grid cell */
+.third-act-video-plane {
+  grid-area: 1 / 1;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--particle-o-diam);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+.third-act-video-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: scale(0.38);
+  /* Fast scale-in - runs in parallel with slow iris */
+  transition:
+    transform 0.2s var(--ease-snap-out),
+    opacity 0.14s ease;
+}
+.third-act-video-shell.third-act-video-shell--in {
+  opacity: 1;
+  transform: scale(1);
+}
+/* O torus: clip-path from circle.svg via #third-act-o-clip */
+.third-act-svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.third-act-video-ring {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: visible;
+}
+/* O clip on video only - particle canvas extends past the torus */
+.third-act-ring-canvas {
+  position: relative;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  -webkit-clip-path: url(#third-act-o-clip);
+  clip-path: url(#third-act-o-clip);
+}
+/* Third-act particles: match .third-act-inner padding so ring center = torus/headline (same as video plane grid). */
+@keyframes third-act-particles-scale-in {
+  from {
+    transform: scale(0.14);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.third-act-particles-vp-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  /* Must mirror .third-act-inner: full-bleed center ≠ padded content center (nav clears top) */
+  padding-top: max(
+    max(28px, env(safe-area-inset-top, 0px) + 16px),
+    var(--scroll-intro-header-clear)
+  );
+  padding-bottom: max(28px, env(safe-area-inset-bottom, 0px) + 16px);
+  padding-left: max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
+  padding-right: max(var(--g), calc(env(safe-area-inset-right, 0px) + 12px));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.42s ease;
+}
+.third-act-particles-vp-wrap.third-act-particles-vp-wrap--visible {
+  opacity: 1;
+}
+.third-act-particles-vp-wrap canvas {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  border-radius: 0;
+  transform: scale(0.14);
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+.third-act-particles-vp-wrap.third-act-particles-vp-wrap--visible canvas {
+  animation: third-act-particles-scale-in 0.28s var(--ease-snap-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .third-act-video-shell {
+    transition-duration: 0.08s, 0.12s;
+  }
+}
+/* Headline paints above the O-ring */
+.third-act-inner .hero-hl-mask {
+  grid-area: 1 / 1;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+  width: 100%;
+  min-width: 0;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 2px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.third-act .third-act-hl {
+  color: var(--text-on-dark);
+  -webkit-text-fill-color: var(--text-on-dark);
+  width: 100%;
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+/* One visual row per .hl-line like #hero-hl - avoids wrapped sub-lines and mismatched drop distance. */
+.third-act .third-act-hl .hl-line {
+  white-space: nowrap;
+}
+/* Third act shares .hero-hl; do not apply the mobile 19ch cap - it squeezes long words into letter wraps */
+@media (max-width: 600px) {
+  .third-act .hero-hl.third-act-hl {
+    max-width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .third-act-red.third-act-red--expanded {
+    transition-duration: 0.06s;
+  }
+}
+/* Particle-ring interaction sound - bottom-right waves; rollover shows SOUND ON / OFF. */
+.particle-sound-btn {
+  position: fixed;
+  z-index: 4;
+  bottom: max(20px, env(safe-area-inset-bottom, 0px) + 10px);
+  right: max(
+    clamp(12px, 1.6vw, 22px),
+    calc(env(safe-area-inset-right, 0px) + 8px)
+  );
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.22s ease,
+    color 0.35s var(--ease-out-flow);
+}
+/* Pinned to #third-act bottom-right (follows red block when in-flow); base .particle-sound-btn is viewport fixed for --second only */
+.particle-sound-btn--third {
+  position: absolute;
+  left: auto;
+  top: auto;
+  color: var(--bg);
+}
+.particle-sound-btn--second {
+  color: var(--nav-second-hl-accent);
+}
+.particle-sound-btn__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 10px 8px;
+}
+.particle-sound-btn__rollover {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  transition:
+    max-width 0.22s var(--ease-out-flow),
+    opacity 0.18s ease,
+    margin 0.22s var(--ease-out-flow);
+}
+/* Rollover text is set in JS (action on click); stays stable while pointer stays over after click. */
+.particle-sound-btn:hover .particle-sound-btn__rollover,
+.particle-sound-btn:focus-visible .particle-sound-btn__rollover {
+  max-width: 7.5rem;
+  opacity: 1;
+  margin-right: 10px;
+}
+.particle-sound-btn__waves {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  width: 28px;
+  height: 18px;
+}
+.particle-sound-btn__bar {
+  width: 3px;
+  height: 16px;
+  border-radius: 1.5px;
+  background: currentColor;
+  flex-shrink: 0;
+  transform-origin: 50% 100%;
+  transform: scaleY(0.3);
+  opacity: 0.9;
+  will-change: transform;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar {
+  animation-duration: 0.7s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar:nth-child(1) {
+  animation-name: particle-sound-w1;
+  animation-delay: 0s;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar:nth-child(2) {
+  animation-name: particle-sound-w2;
+  animation-delay: 0.08s;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar:nth-child(3) {
+  animation-name: particle-sound-w3;
+  animation-delay: 0.16s;
+}
+.particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar:nth-child(4) {
+  animation-name: particle-sound-w4;
+  animation-delay: 0.24s;
+}
+/* Vertical bars: classic audio-wave / EQ motion (staggered height, not dot bounce). */
+@keyframes particle-sound-w1 {
+  0%,
+  100% {
+    transform: scaleY(0.32);
+  }
+  50% {
+    transform: scaleY(0.95);
+  }
+}
+@keyframes particle-sound-w2 {
+  0%,
+  100% {
+    transform: scaleY(0.85);
+  }
+  50% {
+    transform: scaleY(0.28);
+  }
+}
+@keyframes particle-sound-w3 {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+@keyframes particle-sound-w4 {
+  0%,
+  100% {
+    transform: scaleY(0.75);
+  }
+  50% {
+    transform: scaleY(0.35);
+  }
+}
+.particle-sound-btn[aria-pressed="false"] .particle-sound-btn__bar {
+  animation: none;
+  transform: scaleY(0.3);
+  opacity: 0.85;
+}
+/* Optional: add .third-act--hide-sound-control on #third-act or ?thirdactnosound=1 to keep red without this UI */
+.third-act.third-act--active.third-act--torus-in:not(
+    .third-act--hide-sound-control
+  )
+  .particle-sound-btn--third {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Second-act sound UI only in locked intro stage (never once scroll-intro is in-flow). */
+html:not(.scroll-intro-scrollable)
+  #stage
+  .second-hl-particles-wrap.second-hl-particles-wrap--visible
+  ~ .particle-sound-btn--second {
+  opacity: 1;
+  pointer-events: auto;
+}
+.particle-sound-btn:hover,
+.particle-sound-btn:focus-visible {
+  color: var(--ink);
+}
+.particle-sound-btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+/* Site-meta FAB (hero) + footer row variant */
+.site-meta-btn {
+  --site-meta-icon-size: 22px;
+  margin: 0;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  mix-blend-mode: normal;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    opacity 0.42s var(--ease-out-flow),
+    color 0.35s var(--ease-out-flow),
+    outline-color 0.35s var(--ease-out-flow);
+}
+/* Drop the UA’s default :focus box on tap/click; keep the explicit ring for :focus-visible (keyboard, switch, VoiceOver). */
+.site-meta-btn:focus {
+  outline: none;
+}
+.site-meta-btn--fab {
+  position: fixed;
+  z-index: 60;
+  top: var(--site-meta-fab-top);
+  bottom: auto;
+  left: var(--site-meta-fab-left);
+  padding: 0 8px 8px 8px;
+  align-items: flex-start;
+}
+.site-meta-btn--footer {
+  position: relative;
+  flex-shrink: 0;
+  align-self: center;
+}
+.site-meta-btn:hover,
+.site-meta-btn:focus-visible {
+  color: var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:hover,
+html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible {
+  color: var(--ink);
+}
+html.nav-over-third-red .site-meta-btn {
+  color: var(--bg);
+}
+html.nav-over-third-red .site-meta-btn:hover,
+html.nav-over-third-red .site-meta-btn:focus-visible {
+  color: var(--ink);
+}
+html.nav-over-third-red .site-meta-btn:focus-visible {
+  outline-color: var(--ink);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn {
+  color: var(--nav-second-hl-accent);
+}
+html.nav-hero-second-hl:not(.nav-over-third-red) .site-meta-btn:focus-visible {
+  outline-color: var(--nav-second-hl-accent);
+}
+.site-meta-btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.site-meta-btn__icons {
+  position: relative;
+  display: block;
+  width: var(--site-meta-icon-size);
+  height: var(--site-meta-icon-size);
+  flex-shrink: 0;
+  overflow: visible;
+}
+.site-meta-btn__icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: var(--site-meta-icon-size);
+  height: var(--site-meta-icon-size);
+  overflow: visible;
+}
+.site-meta-btn__icon--outline {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.site-meta-btn__icon--filled {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+}
+/* In-icon terminal cursor (clipped to “screen”; decorative only — aria-hidden on group) */
+.site-meta-btn .site-meta-terminal-cursor {
+  fill: var(--bg);
+  animation: site-meta-terminal-cursor-pulse 1.35s ease-in-out infinite
+    alternate;
+}
+/* Light icon on red third-act: flip cursor to ink; hover returns icon to ink so cursor uses bg again */
+html.nav-over-third-red .site-meta-btn .site-meta-terminal-cursor {
+  fill: var(--ink);
+}
+html.nav-over-third-red .site-meta-btn:hover .site-meta-terminal-cursor,
+html.nav-over-third-red
+  .site-meta-btn:focus-visible
+  .site-meta-terminal-cursor {
+  fill: var(--bg);
+}
+@keyframes site-meta-terminal-cursor-pulse {
+  0% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-meta-btn .site-meta-terminal-cursor {
+    animation: none;
+    opacity: 0.92;
+  }
+}
+/* Terminal window modal (backdrop + centered “window”) - same content palette as before */
+.site-meta-panel {
+  --site-meta-win-titlebar: #323232;
+  --site-meta-term-surface: #000000;
+  --site-meta-txt: clamp(0.74rem, 1.02vw, 0.84rem);
+  --site-meta-txt-stat: clamp(0.74rem, 1.02vw, 0.84rem);
+  --site-meta-txt-lh: 1.38;
+  --site-meta-txt-chrome: 10px;
+  /* Terminal log palette (pre + post feedback):
+     Terminal Status: = static label (--stream-status); pre-Ready ellipsis = same grey as status; then “Ready” = --stream-ready;
+     shell prompt in log or form = --stream-prompt (same grey as status);
+     body / echoed command / “Type …” (stream) = --stream-fg;
+     # in callouts = --stream-hash; following question = --stream-fg; Type "cmd" = hash on command word, white for rest; errors = --error;
+     Dimmer: on each successful command, non-feedback log lines get --dim. Lines from typeTerminalLogLine
+     (.terminal-log-line--feedback) are the narrative and stay --stream-fg (white) always - never dimmed. CTA/echo/status/#
+     (but not .terminal-log-line--feedback) go grey so focus is on the story body + new CTA. Ready override unchanged. */
+  --site-meta-stream-fg: #ffffff;
+  --site-meta-stream-status: #6a6a6a;
+  --site-meta-stream-prompt: #6a6a6a;
+  --site-meta-stream-muted: #9a9a9a;
+  /* # in callouts + quoted “begin” / etc.; question text = --stream-fg */
+  --site-meta-stream-hash: #ff1b00;
+  --site-meta-stream-action: #ff1b00;
+  --site-meta-stream-error: #ff1b00;
+  --site-meta-stream-ready: #33bd26;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
+  min-height: 100dvh;
+  margin: 0;
+  border: 0;
+  padding: max(10px, env(safe-area-inset-top, 0px) + 6px)
+    max(12px, env(safe-area-inset-right, 0px) + 6px)
+    max(12px, env(safe-area-inset-bottom, 0px) + 6px)
+    max(12px, env(safe-area-inset-left, 0px) + 6px);
+  /* Scrim is on .site-meta-panel__backdrop so it can crossfade on its own (esp. minimize) */
+  --site-meta-scrim-dur: 0.5s;
+  --site-meta-scrim-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  background: transparent;
+  color: var(--site-meta-stream-fg);
+  font-family: var(--font-code);
+  font-feature-settings:
+    "liga" 0,
+    "calt" 0;
+  font-variant-ligatures: none;
+  text-align: left;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--site-meta-scrim-dur) var(--site-meta-scrim-ease),
+    visibility 0s linear var(--site-meta-scrim-dur);
+}
+.site-meta-panel__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.52);
+  cursor: default;
+  /* Scrim is dimmed only via the panel’s opacity (open/close). Opacity is animated only for minimize, below. */
+}
+.site-meta-panel.site-meta-panel--open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  touch-action: manipulation;
+  transition:
+    opacity var(--site-meta-scrim-dur) var(--site-meta-scrim-ease),
+    visibility 0s;
+}
+/* Don’t make the full-screen layer a scrollport (wheel on dim area was still chaining to the page) */
+html.site-meta-open .site-meta-panel.site-meta-panel--open {
+  overflow: hidden !important;
+}
+.site-meta-panel__window {
+  /* Fixed chrome: height does not grow with content; body scrolls inside */
+  --site-meta-win-fixed-h: min(85dvh, 40rem);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 38rem);
+  height: var(--site-meta-win-fixed-h);
+  min-height: var(--site-meta-win-fixed-h);
+  max-height: var(--site-meta-win-fixed-h);
+  background: var(--site-meta-term-surface);
+  color: inherit;
+  border: none;
+  border-radius: 10px;
+  /* macOS-style window chrome: outer hairline + soft inset edge (reads on dark scrim) */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 22px 60px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+  transform: translate3d(0, 8px, 0) scale(0.985);
+  opacity: 0;
+  transition:
+    transform 0.45s var(--ease-snap-out),
+    opacity 0.4s var(--ease-snap-out),
+    width 0.32s var(--ease-snap-out),
+    min-width 0.32s var(--ease-snap-out),
+    max-width 0.32s var(--ease-snap-out),
+    min-height 0.32s var(--ease-snap-out),
+    max-height 0.32s var(--ease-snap-out),
+    height 0.32s var(--ease-snap-out);
+}
+/* Green (zoom) - use full viewport inside panel padding (same insets as .site-meta-panel) */
+.site-meta-panel__window.site-meta-panel__window--max {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  --site-meta-win-fixed-h: calc(
+    100dvh - max(10px, env(safe-area-inset-top, 0px) + 6px) -
+      max(12px, env(safe-area-inset-bottom, 0px) + 6px)
+  );
+  min-height: var(--site-meta-win-fixed-h);
+  max-height: var(--site-meta-win-fixed-h);
+  height: var(--site-meta-win-fixed-h);
+  border-radius: 8px;
+}
+.site-meta-panel--open .site-meta-panel__window {
+  transform: translate3d(0, 0, 0) scale(1);
+  opacity: 1;
+}
+/* Phone / small tablet: true full-viewport terminal (no floating card) */
+@media (max-width: 768px) {
+  .site-meta-panel {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+  }
+  .site-meta-panel__window,
+  .site-meta-panel__window.site-meta-panel__window--max {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    --site-meta-win-fixed-h: 100dvh;
+    min-height: var(--site-meta-win-fixed-h);
+    max-height: var(--site-meta-win-fixed-h);
+    height: var(--site-meta-win-fixed-h);
+    border-radius: 0;
+  }
+  .site-meta-panel__body {
+    border-radius: 0;
+  }
+  .site-meta-panel__inner {
+    padding-bottom: max(22px, env(safe-area-inset-bottom, 0px) + 14px);
+  }
+}
+.site-meta-panel__titlebar {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 38px;
+  /* macOS: traffic lights sit ~16–20px from window edge; space between controls unchanged */
+  padding: 0 18px 0 18px;
+  gap: clamp(14px, 2vw, 20px);
+  background: var(--site-meta-win-titlebar);
+  border-bottom: 1px solid #1a1a1a;
+  border-radius: 10px 10px 0 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@media (max-width: 768px) {
+  .site-meta-panel__titlebar {
+    border-radius: 0;
+    /* Taller chrome on phone: more room for title + easier tap on streetlights */
+    min-height: 52px;
+    padding: max(10px, env(safe-area-inset-top, 0px))
+      max(18px, calc(8px + env(safe-area-inset-right, 0px))) 12px
+      max(18px, calc(8px + env(safe-area-inset-left, 0px)));
+  }
+  .site-meta-panel__titlebar-dots {
+    gap: clamp(14px, 4vw, 22px);
+  }
+  /* Expand invisible hit slop on phone (was 28×28). */
+  button.site-meta-panel__dot-btn::after {
+    width: 44px;
+    height: 44px;
+  }
+}
+.site-meta-panel__titlebar-dots {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+/* 12pt traffic lights; 12px gap for clearer breathing room (vs macOS 8px). */
+.site-meta-panel__dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  /* Solid fills - no border ring (reference Terminal) */
+  box-shadow: none;
+  pointer-events: none;
+}
+/* Standard macOS System 7+ hex (Big Sur+ slightly richer; we match the reference screenshot) */
+.site-meta-panel__dot--r {
+  background: #ff5f56;
+}
+.site-meta-panel__dot--y {
+  background: #ffbd2e;
+}
+.site-meta-panel__dot--g {
+  background: #27c93f;
+}
+button.site-meta-panel__dot-btn {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 12px lights; tap area in ::after without shifting centers */
+  position: relative;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  font: inherit;
+  line-height: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: transparent;
+  border-radius: 0;
+  vertical-align: middle;
+}
+/* Invisible 28×28px hit slop, centered on the 12px disc */
+button.site-meta-panel__dot-btn::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  border-radius: 6px;
+}
+button.site-meta-panel__dot-btn:hover .site-meta-panel__dot {
+  filter: brightness(1.1);
+}
+button.site-meta-panel__dot-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--text-on-dark-muted) 80%, #fff);
+  outline-offset: 1px;
+}
+.site-meta-dock {
+  position: fixed;
+  z-index: 101;
+  left: max(12px, env(safe-area-inset-left, 0px) + 4px);
+  bottom: max(12px, env(safe-area-inset-bottom, 0px) + 4px);
+  max-width: calc(100vw - 24px);
+  padding: 0.5rem 0.7rem 0.48rem;
+  font-family: var(--font-code);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  color: var(--text-on-dark-muted, #9a9a9a);
+  background: #1a1a1a;
+  border: 1px solid #2e2e2e;
+  border-radius: 7px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background 0.2s;
+}
+.site-meta-dock:hover,
+.site-meta-dock:focus-visible {
+  color: var(--red);
+  border-color: color-mix(in srgb, var(--red) 35%, #2e2e2e);
+  background: #141414;
+  outline: none;
+}
+.site-meta-dock:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+/* Minimize: scrim crossfades (opacity) with window; same ease as --site-meta-scrim-ease */
+.site-meta-panel.site-meta-panel--open.site-meta-panel--minimize-anim
+  .site-meta-panel__backdrop {
+  opacity: 0;
+  transition: opacity 0.4s
+    var(--site-meta-scrim-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.site-meta-panel--open
+  .site-meta-panel__window.site-meta-panel__window--minimize-out {
+  transform: translate3d(0, 10px, 0) scale(0.97);
+  opacity: 0;
+  transform-origin: 50% 55%;
+  will-change: transform, opacity;
+  transition:
+    transform 0.4s var(--site-meta-scrim-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    opacity 0.4s var(--site-meta-scrim-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+@keyframes site-meta-min-land {
+  0% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+html.site-meta-minimized .site-meta-btn__icon--filled {
+  animation: site-meta-min-land 0.32s cubic-bezier(0.4, 0, 0.2, 1) 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-meta-panel--open
+    .site-meta-panel__window.site-meta-panel__window--minimize-out {
+    transform: translate3d(0, 0, 0) scale(1);
+    transition: opacity 0.12s;
+  }
+  .site-meta-panel.site-meta-panel--open.site-meta-panel--minimize-anim
+    .site-meta-panel__backdrop {
+    transition-duration: 0.1s;
+  }
+  html.site-meta-minimized .site-meta-btn__icon--filled {
+    animation: none;
+  }
+}
+.site-meta-panel__titlebar-label {
+  font-family: var(--font-code);
+  /* Window path / title: mono chrome, not body copy */
+  font-size: clamp(12px, 1.12vw, 13px);
+  font-weight: 600;
+  font-variant-ligatures: none;
+  font-feature-settings:
+    "tnum" 0,
+    "lnum" 0,
+    "liga" 0,
+    "calt" 0;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--text-on-dark-muted) 92%, #a8a8a8);
+  text-align: left;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0;
+  min-width: 0;
+  justify-self: start;
+  align-self: center;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+.site-meta-panel__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  background: var(--site-meta-term-surface);
+  border-radius: 0 0 10px 10px;
+}
+.site-meta-panel__inner {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px 18px 22px;
+  box-sizing: border-box;
+  text-align: left;
+  transform: translate3d(0, 0, 0);
+  color: var(--site-meta-stream-fg);
+}
+/* When story rows are hidden, collapse intro + stats (their margins were still taking space; padding comes from .site-meta-panel__inner) */
+.site-meta-panel__inner--terminal-only .site-meta-panel__intro--terminal,
+.site-meta-panel__inner--terminal-only .site-meta-panel__stats {
+  display: none;
+}
+.site-meta-panel__inner--terminal-only .site-meta-panel__terminal-ui {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-meta-panel__window {
+    transform: translate3d(0, 0, 0) scale(1);
+    transition-duration: 0.1s, 0.1s, 0.1s, 0.1s, 0.1s, 0.1s, 0.1s, 0.1s;
+  }
+  .site-meta-panel--open .site-meta-panel__window {
+    opacity: 1;
+  }
+}
+/* Typewriter rows - all monospace; stats still --red for emphasis */
+.site-meta-panel__type-row {
+  position: relative;
+  display: block;
+  margin: 0 0 0.75rem;
+  max-width: min(var(--content-max), 64ch);
+  color: var(--text-on-dark-muted);
+  font-family: var(--font-code);
+  font-size: var(--site-meta-txt);
+  line-height: var(--site-meta-txt-lh);
+  font-weight: 400;
+  font-variant-ligatures: none;
+  letter-spacing: 0.02em;
+}
+.site-meta-panel__type-row--head {
+  /* Same body size as other terminal lines; only contrast + spacing differ */
+  margin: 0 0 1.1rem;
+  max-width: min(var(--content-max), 64ch);
+  color: var(--text-on-dark);
+}
+.site-meta-panel__type-row--head .site-meta-panel__type-line {
+  color: var(--text-on-dark);
+}
+.site-meta-panel__intro--terminal {
+  margin-bottom: 2.5rem;
+}
+.site-meta-panel__intro--terminal .site-meta-panel__type-row {
+  font-family: var(--font-code);
+  font-size: var(--site-meta-txt);
+  line-height: var(--site-meta-txt-lh);
+  max-width: 64ch;
+  margin: 0 0 1.1rem;
+  opacity: 0.92;
+}
+.site-meta-panel__intro--terminal .site-meta-panel__type-row:last-of-type {
+  margin-bottom: 0;
+}
+.site-meta-panel__stats {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.75rem;
+  max-width: 60ch;
+}
+.site-meta-panel__stats li {
+  display: block;
+  margin: 0 0 0.8rem;
+  color: var(--red);
+  font-family: var(--font-code);
+  font-size: var(--site-meta-txt-stat);
+  font-weight: 400;
+  line-height: var(--site-meta-txt-lh);
+  font-variant-ligatures: none;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.92;
+  position: relative;
+}
+.site-meta-panel__stats li.site-meta-panel__stats-line {
+  position: relative;
+}
+.site-meta-panel__stats li:last-child {
+  margin-bottom: 0;
+}
+.site-meta-panel__stats li.site-meta-panel__stats-li--lead {
+  margin-bottom: 1.05rem;
+}
+.site-meta-panel__stats li.site-meta-panel__stats-li--tools {
+  margin-top: 1.15rem;
+}
+.site-meta-panel__stats
+  li.site-meta-panel__stats-li--tools
+  + li.site-meta-panel__stats-li--tools-detail {
+  margin-top: 0.35rem;
+}
+.site-meta-panel__line-hidden {
+  display: none !important;
+}
+.site-meta-panel__terminal-ui {
+  margin-top: 0.4rem;
+  border-top: 1px solid #ffffff12;
+  padding-top: 0.9rem;
+  cursor: text;
+}
+@keyframes site-meta-terminal-fatal-shake {
+  0% {
+    transform: translate(0, 0) skew(0deg);
+    filter: contrast(1.12) brightness(0.92);
+  }
+  15% {
+    transform: translate(-1px, 1px) skew(-0.4deg);
+  }
+  35% {
+    transform: translate(2px, -1px) skew(0.3deg);
+    filter: contrast(1.32) brightness(0.78);
+  }
+  55% {
+    transform: translate(-2px, 0) skew(-0.25deg);
+  }
+  75% {
+    transform: translate(1px, 1px) skew(0.2deg);
+    filter: contrast(1.08) brightness(0.95);
+  }
+  100% {
+    transform: translate(0, 0) skew(0deg);
+    filter: contrast(1.12) brightness(0.92);
+  }
+}
+.site-meta-panel__terminal-ui--fatal-glitch {
+  animation: site-meta-terminal-fatal-shake 0.11s steps(2, end) infinite;
+  text-shadow:
+    1px 0 0 color-mix(in srgb, var(--site-meta-stream-error) 55%, transparent),
+    -1px 0 0 color-mix(in srgb, #5af 40%, transparent);
+  will-change: transform, filter;
+}
+.site-meta-panel__terminal-ui--fatal-fade {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.72s ease-in;
+}
+.site-meta-panel__terminal-log-line--fatal-burst {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+@keyframes site-meta-fatal-preflash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.14;
+  }
+}
+.site-meta-panel__terminal-log-line--fatal-preflash {
+  transform: translateZ(0);
+  animation: site-meta-fatal-preflash 0.16s steps(1, end) 5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-meta-panel__terminal-log-line--fatal-preflash {
+    animation: none;
+  }
+  .site-meta-panel__terminal-ui--fatal-glitch {
+    animation: none;
+    filter: contrast(1.1) brightness(0.9);
+  }
+  .site-meta-panel__terminal-ui--fatal-fade {
+    transition-duration: 0.35s;
+  }
+}
+.site-meta-panel__terminal-log {
+  margin: 0 0 0.9rem;
+  min-height: 1.35em;
+  color: var(--site-meta-stream-fg);
+  font-family: var(--font-code);
+  font-size: var(--site-meta-txt);
+  line-height: var(--site-meta-txt-lh);
+  font-weight: 400;
+  font-feature-settings:
+    "liga" 0,
+    "calt" 0;
+  font-variant-ligatures: none;
+  font-variant-numeric: tabular-nums;
+}
+.site-meta-panel__terminal-log-line {
+  display: block;
+  margin: 0 0 0.55em;
+  line-height: var(--site-meta-txt-lh);
+  color: var(--site-meta-stream-fg);
+}
+.site-meta-panel__terminal-log-line:last-child {
+  margin-bottom: 0;
+}
+.site-meta-panel__terminal-log-line--stream {
+  color: var(--site-meta-stream-fg);
+}
+.site-meta-panel__terminal-log-line--status {
+  margin-bottom: 0.55em;
+}
+.site-meta-panel__terminal-log-line--spacer {
+  display: block;
+  min-height: 1.1em;
+  margin: 0 0 0.2em;
+  line-height: var(--site-meta-txt-lh);
+  user-select: none;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+}
+.site-meta-panel__terminal-log-line--action {
+  margin-bottom: 0.75rem;
+}
+.site-meta-panel__terminal-log-line--action
+  > .site-meta-panel__terminal-log-hash {
+  color: var(--site-meta-stream-hash);
+}
+.site-meta-panel__terminal-log-line--action
+  > .site-meta-panel__terminal-log-action-question {
+  color: var(--site-meta-stream-fg);
+}
+.site-meta-panel__terminal-log-line--stream
+  .site-meta-panel__terminal-log-instr-pre,
+.site-meta-panel__terminal-log-line--stream
+  .site-meta-panel__terminal-log-instr-post {
+  color: var(--site-meta-stream-fg);
+}
+.site-meta-panel__terminal-log-line--stream
+  .site-meta-panel__terminal-log-instr-cmd {
+  color: var(--site-meta-stream-hash);
+}
+.site-meta-panel__terminal-log-echo .site-meta-panel__terminal-log-echo-cmd {
+  color: var(--site-meta-stream-hash);
+}
+.site-meta-panel__terminal-log-line--error {
+  color: var(--site-meta-stream-error);
+  margin-bottom: 0.9rem;
+}
+.site-meta-panel__terminal-log-line--command {
+  margin-bottom: 0.9rem;
+}
+.site-meta-panel__terminal-log-status-label {
+  color: var(--site-meta-stream-status);
+}
+/* Loading dots before “Ready” - grey to match terminal chrome */
+.site-meta-panel__terminal-log-status-ellipsis {
+  color: var(--site-meta-stream-status);
+  font-weight: inherit;
+}
+.site-meta-panel__terminal-log-status-ready {
+  color: var(--site-meta-stream-ready);
+}
+.site-meta-panel__terminal-log-prompt-prefix {
+  color: var(--site-meta-stream-prompt);
+}
+.site-meta-panel__terminal-log-echo {
+  color: var(--site-meta-stream-fg);
+}
+.site-meta-panel__terminal-form {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+/* iOS Safari: a real submit control in the form (not display:none) helps the Return / “Go” key
+   fire the submit event. Visually hidden, not `display:none` (which breaks that wiring in WebKit). */
+button.site-meta-panel__terminal-submit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* Hidden until Ouro status line has finished typing “Ready” (set by JS on each panel reset) */
+.site-meta-panel__terminal-form.site-meta-panel__terminal-form--awaiting-ready {
+  display: none;
+}
+.site-meta-panel__terminal-input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 8ch;
+  font-family: var(--font-code);
+  font-size: var(--site-meta-txt);
+  line-height: var(--site-meta-txt-lh);
+  font-weight: 400;
+  font-feature-settings:
+    "liga" 0,
+    "calt" 0;
+  font-variant-ligatures: none;
+}
+.site-meta-panel__terminal-mirror {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: pre;
+  font: inherit;
+  line-height: var(--site-meta-txt-lh);
+  visibility: hidden;
+  pointer-events: none;
+}
+.site-meta-panel__terminal-cursor {
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  z-index: 2;
+  width: 1ch;
+  min-width: 5px;
+  height: 1.1em;
+  background: color-mix(in srgb, var(--site-meta-stream-prompt) 78%, #5a5a5a);
+  pointer-events: none;
+  opacity: 0.92;
+  animation: site-meta-term-cursor-blink 0.85s step-end infinite;
+  visibility: visible;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-meta-panel__terminal-cursor {
+    animation: none;
+    opacity: 0.88;
+  }
+}
+@keyframes site-meta-term-cursor-blink {
+  0%,
+  49.9% {
+    opacity: 0.9;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.site-meta-panel__terminal-prompt {
+  color: var(--site-meta-stream-prompt);
+  font-family: var(--font-code);
+  font-size: var(--site-meta-txt);
+  line-height: var(--site-meta-txt-lh);
+  font-weight: 400;
+  font-feature-settings:
+    "liga" 0,
+    "calt" 0;
+  font-variant-ligatures: none;
+  white-space: nowrap;
+}
+.site-meta-panel__terminal-input {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--site-meta-stream-fg);
+  font: inherit;
+  line-height: var(--site-meta-txt-lh);
+  padding: 0;
+  margin: 0;
+  outline: none;
+  caret-color: var(--site-meta-stream-prompt);
+}
+.site-meta-panel__terminal-input:focus {
+  caret-color: transparent;
+}
+.site-meta-panel__terminal-input:disabled {
+  color: color-mix(in srgb, var(--site-meta-stream-fg) 50%, #555);
+  caret-color: transparent;
+}
+.site-meta-panel__terminal-input:disabled ~ .site-meta-panel__terminal-cursor {
+  opacity: 0;
+  visibility: hidden;
+  animation: none;
+}
+.site-meta-panel__terminal-input::placeholder {
+  color: color-mix(in srgb, var(--site-meta-stream-status) 72%, #444);
+}
+/* iOS / coarse touch: min 16px on focused inputs avoids page zoom. Scope the same
+   --site-meta-txt under .terminal-ui so the log, ourolabs@origin prompt, and input row
+   all match (previously only the form used max(16px, …) and the log looked smaller). */
+@media (hover: none) and (pointer: coarse) {
+  .site-meta-panel__terminal-ui {
+    --site-meta-txt: max(16px, clamp(0.74rem, 1.02vw, 0.84rem));
+  }
+}
+/* --story-feedback: typed .terminal-log-line--feedback = white always; CTA/echo = active until dim; prior chrome = --dim */
+.site-meta-panel.site-meta-panel--story-feedback {
+  font-family: var(--font-code);
+  font-feature-settings:
+    "liga" 0,
+    "calt" 0;
+  font-variant-ligatures: none;
+  --site-meta-txt-lh: 1.34;
+  --site-meta-stream-fg: #ffffff;
+  --site-meta-stream-status: #ffffff;
+  --site-meta-stream-prompt: #6a6a6a;
+  --site-meta-stream-head: #b0b0b0;
+  --site-meta-stream-ready: #33bd26;
+  /* # + quoted commands = hash accent; action line question = --stream-fg */
+  --site-meta-stream-hash: #ff1b00;
+  --site-meta-stream-action: #ff1b00;
+  --site-meta-stream-error: #ff1b00;
+  --site-meta-feedback-dim: #505050;
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-status-ellipsis {
+  color: var(--site-meta-stream-prompt);
+}
+.site-meta-panel.site-meta-panel--story-feedback .site-meta-panel__inner,
+.site-meta-panel.site-meta-panel--story-feedback .site-meta-panel__terminal-log,
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-form,
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-input-wrap {
+  font-family: var(--font-code);
+  font-weight: 400;
+  font-feature-settings:
+    "liga" 0,
+    "calt" 0;
+  font-variant-ligatures: none;
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--action
+  > .site-meta-panel__terminal-log-hash {
+  color: var(--site-meta-stream-hash);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--action
+  > .site-meta-panel__terminal-log-action-question {
+  color: var(--site-meta-stream-fg);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--stream
+  .site-meta-panel__terminal-log-instr-cmd {
+  color: var(--site-meta-stream-hash);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--stream
+  .site-meta-panel__terminal-log-instr-pre,
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--stream
+  .site-meta-panel__terminal-log-instr-post {
+  color: var(--site-meta-stream-fg);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-echo
+  .site-meta-panel__terminal-log-echo-cmd {
+  color: var(--site-meta-stream-hash);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--error {
+  color: var(--site-meta-stream-error);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--head {
+  color: var(--site-meta-stream-head);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--stream:not(
+    .site-meta-panel__terminal-log-line--head
+  ) {
+  color: var(--site-meta-stream-fg);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--stream {
+  margin-bottom: 0.85em;
+}
+/* Narrative from typeTerminalLogLine - always full white; never in the dim pass (incl. over --head) */
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--feedback {
+  color: var(--site-meta-stream-fg) !important;
+}
+/* Braille / block art: monospace cells are shorter than they are wide; line-height in ch (set in JS) makes row stack height ≈ width */
+.site-meta-panel__terminal-log-line--braille-block {
+  display: block;
+  white-space: pre;
+  max-width: 100%;
+  overflow-x: auto;
+  box-sizing: border-box;
+  tab-size: 1;
+  font-weight: 400;
+  font-synthesis-weight: none;
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-cursor {
+  background: color-mix(in srgb, var(--site-meta-stream-prompt) 75%, #5a5a5a);
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-input::placeholder {
+  color: var(--site-meta-feedback-dim) !important;
+}
+/* Prior log: dim on each successful command; .terminal-log-line--feedback (typed story) stays white, excluded in JS. */
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--dim,
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--dim
+  * {
+  color: var(--site-meta-feedback-dim) !important;
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--dim
+  .site-meta-panel__terminal-log-status-ready {
+  color: var(--site-meta-stream-ready) !important;
+}
+/* Belt-and-suspenders: narrative feedback is never dimmed to grey */
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--dim.site-meta-panel__terminal-log-line--feedback,
+.site-meta-panel.site-meta-panel--story-feedback
+  .site-meta-panel__terminal-log-line--dim.site-meta-panel__terminal-log-line--feedback
+  * {
+  color: var(--site-meta-stream-fg) !important;
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  a.site-meta-panel__terminal-log-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--site-meta-stream-fg) 50%,
+    transparent
+  );
+  cursor: pointer;
+  outline: none;
+}
+.site-meta-panel.site-meta-panel--story-feedback
+  a.site-meta-panel__terminal-log-link:hover,
+.site-meta-panel.site-meta-panel--story-feedback
+  a.site-meta-panel__terminal-log-link:focus-visible {
+  text-decoration-color: var(--site-meta-stream-fg);
+}
+.site-meta-panel__type-measure {
+  display: block;
+  visibility: hidden;
+  font: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.site-meta-panel__type-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  display: block;
+}
+.site-meta-panel__type-line--active::after {
+  content: "";
+  display: inline-block;
+  width: 0.5ch;
+  height: 1.15em;
+  margin-left: 0.06em;
+  vertical-align: -0.12em;
+  background: currentColor;
+  opacity: 0.9;
+  animation: site-meta-type-caret 1.06s step-end infinite;
+}
+@keyframes site-meta-type-caret {
+  0%,
+  49% {
+    opacity: 0.92;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-meta-panel__type-line--active::after {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-meta-panel {
+    transition-duration: 0.1s, 0.1s;
+  }
+  .site-meta-panel__inner {
+    transition-duration: 0.1s, 0.1s;
+  }
+  .site-meta-panel__window {
+    transition-duration: 0.1s, 0.1s;
+  }
+}
+/* No particle-ring interaction audio on touch-primary devices (see red-lullaby.js / second-lullaby.js). */
+@media (pointer: coarse) {
+  .particle-sound-btn {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .particle-sound-btn[aria-pressed="true"] .particle-sound-btn__bar {
+    animation: none;
+    transform: scaleY(0.5);
+    opacity: 0.88;
+  }
+  .particle-sound-btn__rollover {
+    transition-duration: 0.05s;
+  }
+}

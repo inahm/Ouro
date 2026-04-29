@@ -18,10 +18,22 @@
   var RELEASE_TC = 0.5;
 
   var chordLayers = [
-    { pad: [110, 164.81, 220, 261.63, 329.63], arp: [220, 261.63, 329.63, 392.0] },
-    { pad: [87.31, 130.81, 174.62, 220, 261.63], arp: [174.62, 220, 261.63, 329.63] },
-    { pad: [130.81, 196, 261.63, 329.63, 392.0], arp: [196, 261.63, 329.63, 392.0] },
-    { pad: [98, 146.83, 196, 246.94, 293.66], arp: [196, 246.94, 293.66, 392.0] },
+    {
+      pad: [110, 164.81, 220, 261.63, 329.63],
+      arp: [220, 261.63, 329.63, 392.0],
+    },
+    {
+      pad: [87.31, 130.81, 174.62, 220, 261.63],
+      arp: [174.62, 220, 261.63, 329.63],
+    },
+    {
+      pad: [130.81, 196, 261.63, 329.63, 392.0],
+      arp: [196, 261.63, 329.63, 392.0],
+    },
+    {
+      pad: [98, 146.83, 196, 246.94, 293.66],
+      arp: [196, 246.94, 293.66, 392.0],
+    },
   ];
   var roots = [55, 43.65, 65.41, 49.0];
 
@@ -41,13 +53,13 @@
   var reduceMotion = false;
   var coarsePointer = false;
   try {
-    coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    coarsePointer = window.matchMedia("(pointer: coarse)").matches;
   } catch (_) {
     coarsePointer = false;
   }
   var userMuted = false;
   try {
-    userMuted = window.localStorage.getItem('ouroThirdActSoundMuted') === '1';
+    userMuted = window.localStorage.getItem("ouroThirdActSoundMuted") === "1";
   } catch (_) {
     userMuted = false;
   }
@@ -145,7 +157,7 @@
     var pi;
     for (pi = 0; pi < 4; pi++) {
       var o = ctx.createOscillator();
-      o.type = pi % 2 === 0 ? 'square' : 'sawtooth';
+      o.type = pi % 2 === 0 ? "square" : "sawtooth";
       o.frequency.value = 440;
       o.detune.value = (pi - 1.5) * 2.2;
       var vg = ctx.createGain();
@@ -157,13 +169,13 @@
     }
 
     var nasal = ctx.createBiquadFilter();
-    nasal.type = 'peaking';
+    nasal.type = "peaking";
     nasal.frequency.value = 1180;
     nasal.Q.value = 1.05;
     nasal.gain.value = 1.6;
 
     var lpOmni = ctx.createBiquadFilter();
-    lpOmni.type = 'lowpass';
+    lpOmni.type = "lowpass";
     lpOmni.frequency.value = 4200;
     lpOmni.Q.value = 0.42;
 
@@ -187,11 +199,11 @@
     hissSrc.loop = true;
 
     var hissHp = ctx.createBiquadFilter();
-    hissHp.type = 'highpass';
+    hissHp.type = "highpass";
     hissHp.frequency.value = 2400;
 
     var hissLp = ctx.createBiquadFilter();
-    hissLp.type = 'lowpass';
+    hissLp.type = "lowpass";
     hissLp.frequency.value = 7200;
     hissLp.Q.value = 0.55;
 
@@ -254,7 +266,11 @@
     motionLayer.hissLp.frequency.setTargetAtTime(5600 + m * 2200, t, 0.1);
 
     motionLayer.gain.gain.setTargetAtTime(0.01 + m * OMNI_BODY_MAX, t, 0.1);
-    motionLayer.strumGain.gain.setTargetAtTime(0.0006 + m * OMNI_STRUM_HISS_MAX, t, 0.09);
+    motionLayer.strumGain.gain.setTargetAtTime(
+      0.0006 + m * OMNI_STRUM_HISS_MAX,
+      t,
+      0.09,
+    );
   }
 
   function fadeMotionLayerOut() {
@@ -269,17 +285,17 @@
     var velc = Math.min(1, Math.max(0.08, vel));
     var d = decay * 0.88;
     var lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
+    lp.type = "lowpass";
     lp.Q.value = 0.42;
     lp.frequency.setValueAtTime(2600 * (0.5 + 0.5 * velc), t);
     lp.frequency.exponentialRampToValueAtTime(520, t + 0.32);
     lp.frequency.exponentialRampToValueAtTime(180, t + d * 0.92);
 
     var sq = ctx.createOscillator();
-    sq.type = 'square';
+    sq.type = "square";
     sq.frequency.setValueAtTime(freq, t);
     var harm = ctx.createOscillator();
-    harm.type = 'sine';
+    harm.type = "sine";
     harm.frequency.setValueAtTime(freq * 2, t);
 
     var partial = ctx.createGain();
@@ -299,7 +315,7 @@
       var src = ctx.createBufferSource();
       src.buffer = noiseShort;
       var nf = ctx.createBiquadFilter();
-      nf.type = 'bandpass';
+      nf.type = "bandpass";
       nf.frequency.value = 2800 + freq * 0.12;
       nf.Q.value = 0.85;
       var ng = ctx.createGain();
@@ -321,7 +337,7 @@
 
   function playStringPad(t, freqs, dur) {
     var lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
+    lp.type = "lowpass";
     lp.Q.value = 0.22;
     lp.frequency.setValueAtTime(400, t);
     lp.frequency.linearRampToValueAtTime(1100, t + dur * 0.42);
@@ -337,7 +353,7 @@
     for (var fi = 0; fi < freqs.length; fi++) {
       for (var di = 0; di < det.length; di++) {
         var o = ctx.createOscillator();
-        o.type = 'sawtooth';
+        o.type = "sawtooth";
         o.frequency.setValueAtTime(freqs[fi], t);
         o.detune.setValueAtTime(det[di], t);
         o.connect(lp);
@@ -357,12 +373,12 @@
     g.gain.linearRampToValueAtTime(0, t + dur);
 
     var o = ctx.createOscillator();
-    o.type = 'sine';
+    o.type = "sine";
     o.frequency.setValueAtTime(freq, t);
     o.connect(g);
 
     var sq = ctx.createOscillator();
-    sq.type = 'square';
+    sq.type = "square";
     sq.frequency.setValueAtTime(freq, t);
     var qAtt = ctx.createGain();
     qAtt.gain.value = 0.038;
@@ -378,14 +394,14 @@
 
   function playShimmer(t, freq, dur, bright) {
     var o = ctx.createOscillator();
-    o.type = 'sine';
+    o.type = "sine";
     o.frequency.setValueAtTime(freq, t);
     var o2 = ctx.createOscillator();
-    o2.type = 'triangle';
+    o2.type = "triangle";
     o2.detune.value = bright ? 6 : 3;
     o2.frequency.setValueAtTime(freq * 2, t);
     var lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
+    lp.type = "lowpass";
     lp.frequency.value = bright ? 2200 : 1600;
     lp.Q.value = 0.18;
     var g = ctx.createGain();
@@ -406,7 +422,7 @@
 
   function playHighPad(t, freqs, dur) {
     var lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
+    lp.type = "lowpass";
     lp.Q.value = 0.18;
     lp.frequency.setValueAtTime(900, t);
     lp.frequency.linearRampToValueAtTime(3200, t + dur * 0.38);
@@ -424,7 +440,7 @@
       if (f < 80) continue;
       for (var di = 0; di < det.length; di++) {
         var o = ctx.createOscillator();
-        o.type = 'sawtooth';
+        o.type = "sawtooth";
         o.frequency.setValueAtTime(f, t);
         o.detune.setValueAtTime(det[di], t);
         o.connect(lp);
@@ -438,7 +454,7 @@
 
   function playHalo(t, freqs, dur) {
     var lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
+    lp.type = "lowpass";
     lp.Q.value = 0.12;
     lp.frequency.value = 880;
     var env = ctx.createGain();
@@ -453,7 +469,7 @@
       if (!f) continue;
       for (var di = 0; di < 2; di++) {
         var o = ctx.createOscillator();
-        o.type = 'square';
+        o.type = "square";
         o.frequency.setValueAtTime(f, t);
         o.detune.setValueAtTime(di === 0 ? -2 : 2, t);
         o.connect(lp);
@@ -470,10 +486,10 @@
     src.buffer = noiseLong;
     src.loop = true;
     var hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
+    hp.type = "highpass";
     hp.frequency.value = 420;
     var lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass';
+    lp.type = "lowpass";
     lp.frequency.value = 900;
     var g = ctx.createGain();
     g.gain.setValueAtTime(0, t);
@@ -607,7 +623,10 @@
     setMuted: function (muted) {
       userMuted = !!muted;
       try {
-        window.localStorage.setItem('ouroThirdActSoundMuted', userMuted ? '1' : '0');
+        window.localStorage.setItem(
+          "ouroThirdActSoundMuted",
+          userMuted ? "1" : "0",
+        );
       } catch (_) {}
       if (userMuted) {
         silenceFromUserMute();
@@ -617,7 +636,7 @@
     tick: function (opts) {
       if (reduceMotion || coarsePointer) return;
       var zone = !!(opts && opts.zone);
-      var spd = opts && typeof opts.mouseSpd === 'number' ? opts.mouseSpd : 0;
+      var spd = opts && typeof opts.mouseSpd === "number" ? opts.mouseSpd : 0;
 
       if (userMuted) {
         if (!zone) lastSpd = 0;
@@ -631,7 +650,10 @@
         return;
       }
 
-      var motion = Math.min(1, Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE));
+      var motion = Math.min(
+        1,
+        Math.max(0, (spd - MOTION_FLOOR) / MOTION_SCALE),
+      );
       if (motion <= 0) {
         lastSpd = 0;
         fadeOutputAll();
@@ -680,7 +702,9 @@
   };
 
   try {
-    reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
   } catch (_) {
     reduceMotion = false;
   }
@@ -694,27 +718,35 @@
       if (ctx) ctx.resume();
     } catch (_) {}
   }
-  window.addEventListener('pointerdown', unlockAudio, { passive: true, capture: true });
-  window.addEventListener('touchstart', unlockAudio, { passive: true, capture: true });
-  window.addEventListener('mousemove', unlockAudio, { passive: true, capture: true });
+  window.addEventListener("pointerdown", unlockAudio, {
+    passive: true,
+    capture: true,
+  });
+  window.addEventListener("touchstart", unlockAudio, {
+    passive: true,
+    capture: true,
+  });
+  window.addEventListener("mousemove", unlockAudio, {
+    passive: true,
+    capture: true,
+  });
   window.addEventListener(
-    'keydown',
+    "keydown",
     function (e) {
       if (!e || e.metaKey || e.ctrlKey || e.altKey) return;
       unlockAudio();
     },
-    { passive: true, capture: true }
+    { passive: true, capture: true },
   );
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') {
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
       lastSpd = 0;
       fadeOutputAll();
       return;
     }
     unlockAudio();
   });
-  window.addEventListener('pageshow', function () {
+  window.addEventListener("pageshow", function () {
     unlockAudio();
   });
 })();
-

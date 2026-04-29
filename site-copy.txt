@@ -115,7 +115,9 @@ PROJECT STRIP (HORIZONTAL CARDS)
     own frustration trying to hold a more holistic, longitudinal view of our
     health in a system that was never designed to hold the whole story.
     Health Atlas turns the records we already have into a personal health repo
-    we can actually use.
+    we can actually use. AI helps organize the details, surface patterns,
+    notice what has changed, and prepare better questions for the next
+    appointment.
     The question we're trying to answer is simple, and one many people are
     also asking: what if a clear picture of our health didn't have to live
     behind expensive concierge medicine memberships or fragmented hospital
