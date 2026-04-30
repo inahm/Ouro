@@ -3560,3 +3560,120 @@ button.site-meta-panel__terminal-submit {
     transition-duration: 0.05s;
   }
 }
+
+/* ── Figma html-to-design: stack hero + second act + third act (normally single-viewport scroll story) */
+html.figma-capture-mode {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+html.figma-capture-mode body {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: visible;
+  overscroll-behavior-y: auto;
+  touch-action: pan-y;
+}
+html.figma-capture-mode .custom-cursor {
+  display: none !important;
+}
+html.figma-capture-mode #stage {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 0;
+  height: auto;
+  overflow: visible;
+}
+html.figma-capture-mode .hero-content {
+  position: relative;
+  flex: 0 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+html.figma-capture-mode .figma-capture-second-slice {
+  display: block;
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+}
+html.figma-capture-mode .figma-capture-second-slice__stack {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+}
+html.figma-capture-mode .figma-capture-second-slice__stack #second-hl-particles-wrap {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-width: none !important;
+  opacity: 1 !important;
+  z-index: 0;
+}
+html.figma-capture-mode .figma-capture-second-slice__stack #second-hl-particles-wrap canvas {
+  transform: translate3d(-50%, -50%, 0) scale(1) !important;
+}
+html.figma-capture-mode .figma-capture-second-slice__hl {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: max(var(--g), calc(env(safe-area-inset-left, 0px) + 12px));
+  padding-right: max(var(--g), calc(env(safe-area-inset-right, 0px) + 12px));
+  padding-top: max(
+    max(28px, env(safe-area-inset-top, 0px) + 16px),
+    var(--scroll-intro-header-clear)
+  );
+  padding-bottom: max(28px, env(safe-area-inset-bottom, 0px) + 16px);
+}
+html.figma-capture-mode .figma-capture-second-mask {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+html.figma-capture-mode #third-act {
+  position: relative !important;
+  inset: auto !important;
+  flex: 0 0 auto;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: none;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1;
+}
+html.figma-capture-mode #third-act .third-act-red {
+  -webkit-clip-path: circle(160vmax at 50% 50%) !important;
+  clip-path: circle(160vmax at 50% 50%) !important;
+}
+html.figma-capture-mode #third-act .third-act-particles-vp-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+html.figma-capture-mode #second-act-sound-btn,
+html.figma-capture-mode #third-act-sound-btn {
+  display: none !important;
+}

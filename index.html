@@ -84,6 +84,29 @@
 <link rel="preload" href="bg.mp4" as="video" type="video/mp4">
 <link rel="stylesheet" href="assets/site.css">
 <script src="assets/hash-redirects.js"></script>
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<script>
+(function () {
+  function figmaCaptureUnlockRequested() {
+    if (new URLSearchParams(location.search).get("figmaCapture") === "1") return true;
+    return /figmacapture=/i.test(location.hash);
+  }
+  if (!figmaCaptureUnlockRequested()) return;
+  document.documentElement.classList.add("figma-capture-mode");
+  function unlockForCapture() {
+    var cont = document.getElementById("scroll-intro-continuation");
+    if (cont) cont.removeAttribute("hidden");
+    var kim = document.querySelector(".kim-team-section");
+    if (kim) kim.removeAttribute("hidden");
+    /* Do not open site-meta during capture — it locks scroll and hides sections below the fold. */
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", unlockForCapture);
+  } else {
+    unlockForCapture();
+  }
+})();
+</script>
 </head>
 <body>
 <div class="custom-cursor" id="custom-cursor-root" aria-hidden="true">
@@ -259,6 +282,15 @@
   <div class="hero-content">
     <div class="hero-hl-mask" id="hero-hl-mask">
       <h1 class="hero-hl" id="hero-hl" aria-label="Ouro Labs"></h1>
+    </div>
+  </div>
+  <div id="figma-capture-second-slice" class="figma-capture-second-slice" hidden aria-hidden="true">
+    <div id="figma-capture-second-slice-stack" class="figma-capture-second-slice__stack">
+      <div class="figma-capture-second-slice__hl">
+        <div class="hero-hl-mask figma-capture-second-mask">
+          <h2 class="hero-hl" id="figma-capture-second-hl"></h2>
+        </div>
+      </div>
     </div>
   </div>
   <!-- Optional class third-act--hide-sound-control: red / torus normal, sound control hidden. URL: ?thirdactnosound=1 -->
@@ -524,6 +556,7 @@
 <script src="assets/red-lullaby.js" defer></script>
 <script src="assets/second-lullaby.js" defer></script>
 <script src="assets/hero-intro.js" defer></script>
+<script src="assets/figma-capture-layout.js" defer></script>
 <script src="assets/ouro-site-bootstrap.js" defer></script>
 <script src="assets/vendor/flubber.min.js" defer></script>
 <script src="assets/hcard-atlas-morph.js" defer></script>
