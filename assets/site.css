@@ -33,6 +33,8 @@
   /* Particle ring outer Ø = min(viewport) * 0.72 - must stay in sync with secondParticleSetup (spBaseR = core * 0.36) */
   --particle-o-core: min(100vw, 100vh);
   --particle-o-diam: calc(var(--particle-o-core) * 0.72);
+  /* Kudos: intro corners (acts 1–3) + leadership strip — matched size */
+  --corner-kudos-badge-size: clamp(64px, 11vw, 90px);
   --content-max: 1240px;
   /* Large dense display - bumped again for bigger / tighter lockup */
   --hero-hl-size: clamp(64px, 16.5vw, 182px);
@@ -417,6 +419,120 @@ html.scroll-intro-scrollable
 /* Tighten gap to footer wordmark (~35% less than default stack) */
 #scroll-intro-below-after-cards {
   padding-bottom: calc(0.5 * clamp(128px, 24vh, 280px));
+}
+
+.site-awards {
+  margin-top: clamp(40px, 6vw, 88px);
+  padding-top: clamp(28px, 4.2vw, 52px);
+  padding-bottom: clamp(28px, 4.2vw, 52px);
+  border-top: 0;
+  border-bottom: 1px solid #0000001a;
+}
+
+.site-awards--leaders {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(16px, 3vw, 40px);
+}
+
+.site-awards__copy {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(100%, 520px);
+}
+
+.site-awards__line {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(12px, 1.55vw, 14px);
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.site-awards__line + .site-awards__line {
+  margin-top: clamp(6px, 1.2vw, 10px);
+}
+
+.site-awards__line--accent {
+  color: var(--red);
+}
+
+.site-awards--leaders .site-awards__list {
+  flex: 0 1 auto;
+  justify-content: flex-start;
+  max-width: 100%;
+}
+
+.site-awards__label {
+  margin: 0 0 clamp(16px, 2.6vw, 28px);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(13px, 1.85vw, 15px);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted-statement);
+}
+
+.site-awards__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(12px, 2.8vw, 24px);
+}
+
+.site-awards__item {
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.site-awards__link {
+  display: block;
+  line-height: 0;
+  border-radius: 50%;
+  transition:
+    opacity 0.28s var(--ease-out-flow),
+    transform 0.28s var(--ease-out-flow);
+}
+
+.site-awards__link:hover {
+  opacity: 0.88;
+}
+
+.site-awards__link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.site-awards__badge {
+  display: block;
+  width: var(--corner-kudos-badge-size);
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-awards__link {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-awards--leaders {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .site-awards--leaders .site-awards__list {
+    justify-content: flex-start;
+  }
 }
 
 #scroll-intro-continuation {
@@ -2445,6 +2561,80 @@ html.scroll-intro-cards-over-nav.scroll-intro-scrollable
   transform: scaleY(0.3);
   opacity: 0.85;
 }
+/* CSSDA kudos — bottom-left; acts 1–2 fixed (like sound), act 3 inside #third-act */
+.stage-corner-badge {
+  z-index: 4;
+  margin: 0;
+  padding: 0;
+  line-height: 0;
+  text-decoration: none;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition: opacity 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.stage-corner-badge img {
+  display: block;
+  width: var(--corner-kudos-badge-size);
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+/* No hover/rollover tint on intro corner kudos */
+.stage-corner-badge:hover img,
+.stage-corner-badge:active img {
+  filter: none;
+}
+.stage-corner-badge--fixed {
+  position: fixed;
+  bottom: max(20px, env(safe-area-inset-bottom, 0px) + 10px);
+  left: max(
+    clamp(12px, 1.6vw, 22px),
+    calc(env(safe-area-inset-left, 0px) + 8px)
+  );
+}
+html:not(.scroll-intro-scrollable)
+  #stage:has(#hero-hl:not(.hero-hl--second-block)):not(
+    :has(#third-act.third-act--active)
+  )
+  .stage-corner-badge--first {
+  opacity: 1;
+  pointer-events: auto;
+}
+html:not(.scroll-intro-scrollable)
+  #stage:has(#hero-hl.hero-hl--second-block):not(
+    :has(#third-act.third-act--active)
+  )
+  .stage-corner-badge--second {
+  opacity: 1;
+  pointer-events: auto;
+}
+.stage-corner-badge--third {
+  position: absolute;
+  bottom: max(20px, env(safe-area-inset-bottom, 0px) + 10px);
+  left: max(
+    clamp(12px, 1.6vw, 22px),
+    calc(env(safe-area-inset-left, 0px) + 8px)
+  );
+}
+.third-act.third-act--active.third-act--torus-in .stage-corner-badge--third {
+  opacity: 1;
+  pointer-events: auto;
+}
+.stage-corner-badge--first:focus-visible,
+.stage-corner-badge--second:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+.stage-corner-badge--third:focus-visible {
+  outline: 2px solid var(--text-on-dark);
+  outline-offset: 3px;
+}
+html.figma-capture-mode .stage-corner-badge--fixed {
+  display: none !important;
+}
+
 /* Optional: add .third-act--hide-sound-control on #third-act or ?thirdactnosound=1 to keep red without this UI */
 .third-act.third-act--active.third-act--torus-in:not(
     .third-act--hide-sound-control

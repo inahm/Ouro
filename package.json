@@ -2,9 +2,15 @@
   "private": true,
   "scripts": {
     "format": "prettier --write \"assets/**/*.{js,css}\"",
-    "format:check": "prettier --check \"assets/**/*.{js,css}\""
+    "format:check": "prettier --check \"assets/**/*.{js,css}\"",
+    "capture:second-particles": "node scripts/capture-second-particles.mjs",
+    "record:projects-card": "node scripts/record-projects-card-opening.mjs",
+    "export:desktop-mov": "node scripts/export-ouro-play-mov.mjs"
   },
   "devDependencies": {
+    "ffmpeg-static": "^5.3.0",
+    "ffprobe-static": "^3.1.0",
+    "playwright": "^1.53.2",
     "prettier": "^3.5.3"
   }
 }
